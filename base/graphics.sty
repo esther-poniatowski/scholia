@@ -1,0 +1,37 @@
+%% base/graphics.sty
+%% Copyright 2025-2026 Esther Poniatowski <esther.poniatowski@ens.psl.eu>
+%
+% This work may be distributed and/or modified under the
+% conditions of the LaTeX Project Public License, either version 1.3c
+% of this license or (at your option) any later version.
+%
+% This work has the LPPL maintenance status `maintained'.
+% The Current Maintainer of this work is Esther Poniatowski.
+%
+\NeedsTeXFormat{LaTeX2e}[2020/10/01]
+\ProvidesPackage{scholia-base-graphics}[2026/01/31 v0.1.0 Graphics configuration]
+
+% Graphics search paths for package icons
+% Note: \scholia@basepath is defined by scholia.sty for package-relative paths
+% Users should add their own project-specific paths in their preamble
+\graphicspath{%
+    {\scholia@basepath/icons/pdf/}%   % Package icons in PDF format (vector)
+    {\scholia@basepath/icons/png/}%   % Fallback: PNG icons (raster)
+}
+
+% ============================================================================
+% ICON STYLE
+% PURPOSE: Define a TikZ style for including icons in nodes
+% USAGE: \node[icon={width}{filename}] {};
+% ============================================================================
+\tikzset{
+  icon/.style 2 args={
+    path picture={
+      \node at (path picture bounding box.center)
+        {\includegraphics[width=#1]{#2}};
+    }
+  }
+}
+
+
+\endinput

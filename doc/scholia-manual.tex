@@ -1,0 +1,890 @@
+%% scholia-manual.tex
+%% User Manual for the scholia LaTeX package
+%% Copyright 2025-2026 Esther Poniatowski
+%% LPPL 1.3c
+
+\documentclass[11pt,a4paper]{article}
+
+% Path setup for local development
+% When installed via CTAN/TDS, replace with: \usepackage{scholia}
+\def\CommonPath{../..}
+\usepackage{\CommonPath/scholia/scholia}
+
+% Additional packages for documentation
+\usepackage{hyperref}
+\usepackage{listings}
+\usepackage{multicol}
+\usepackage{booktabs}
+\usepackage{fancyvrb}
+\usepackage{xspace}
+
+% Hyperref configuration
+\hypersetup{
+  colorlinks=true,
+  linkcolor=callout-method,
+  urlcolor=callout-definition,
+  pdftitle={scholia - User Manual},
+  pdfauthor={Esther Poniatowski},
+}
+
+% Custom commands for the manual
+\newcommand{\pkg}[1]{\textsf{#1}\xspace}
+\newcommand{\cmd}[1]{\texttt{\textbackslash#1}}
+\newcommand{\env}[1]{\texttt{#1}}
+\newcommand{\opt}[1]{\texttt{#1}}
+\newcommand{\scholia}{\textsc{scholia}\xspace}
+
+% Code listing style
+\lstset{
+  language=[LaTeX]TeX,
+  basicstyle=\ttfamily\small,
+  keywordstyle=\color{callout-method}\bfseries,
+  commentstyle=\color{gray},
+  backgroundcolor=\color{gray!10},
+  frame=single,
+  framerule=0pt,
+  xleftmargin=1em,
+  xrightmargin=1em,
+  breaklines=true,
+  showstringspaces=false,
+}
+
+% Document metadata
+\title{\Huge\bfseries\textsc{scholia}\\[0.5em]
+  \Large Structured Visual Components for \LaTeX{} Documents}
+\author{Esther Poniatowski\\
+  \texttt{esther.poniatowski@ens.psl.eu}}
+\date{Version 0.1.0\\January 2026}
+
+\begin{document}
+
+\maketitle
+
+\begin{abstract}
+\scholia is a \LaTeX{} package for documents requiring consistent visual structure.
+It provides callout boxes and semantic labels for highlighting content,
+and numbering systems to organize steps and components. For educational use,
+it adds exercise environments, grading tools, and worksheet layouts. The package
+supports article and Beamer modes with French/English localization.
+\end{abstract}
+
+\tableofcontents
+\newpage
+
+%% ===========================================================================
+\section{Overview}
+%% ===========================================================================
+
+\scholia provides environments and commands for documents requiring structured
+visual components. Typical applications include educational materials, technical
+tutorials, reports, and academic projects.
+
+\subsection{Key Features}
+
+The package offers six main feature categories, listed from most general
+(applicable to any structured document) to most specific (educational content):
+
+\begin{tabular}{@{}lp{9cm}@{}}
+\toprule
+\textbf{Feature} & \textbf{Description} \\
+\midrule
+Callouts & 13 styled box types (definitions, theorems, warnings, tips, etc.) \\
+Semantic labels & Inline styled boxes for content categorization \\
+Numbering & Steps/substeps and questions/subquestions with hanging indentation \\
+Typed Pages & Standalone page layouts with banners and relative pagination \\
+Exercises & 5 environment types with difficulty indicators and solution control \\
+Grading & Rubric tables and point allocation for assessments \\
+\bottomrule
+\end{tabular}
+
+\subsection{Document Modes}
+
+The package is designed to maintain consistent styling across multiple formats. This allows
+presenting the same content in both printed documents and slide presentations.
+
+Two modes are supported:
+
+\begin{tabular}{@{}lp{4cm}p{6cm}@{}}
+\toprule
+\textbf{Mode} & \textbf{Purpose} & \textbf{Features} \\
+\midrule
+\textbf{Article} (default) & Printed materials, handouts, worksheets &
+  All features enabled. \\
+\textbf{Beamer} & Presentations, oral sessions &
+  Typed pages disabled (page-based constructs incompatible with slides).
+  Semantic labels available. Progression module loaded for slide navigation. \\
+\bottomrule
+\end{tabular}
+
+\subsection{Pre-Defined Styles and Customization}
+
+\scholia offers two levels of usage:
+
+\begin{itemize}
+  \item \textbf{Ready-to-use environments} --- Variants in each feature, with pre-defined colors, icons,
+        and styling. No configuration required. (13 callout types, 9 semantic labels, 5 exercise categories,
+        10 typed page layouts)
+  \item \textbf{Customization framework} --- Generic commands allow creating new variants in each
+  feature. All visual elements can be redefined (colors, icons, spacing, borders) using the same underlying infrastructure.
+\end{itemize}
+
+%% ===========================================================================
+\section{Installation}
+%% ===========================================================================
+
+\subsection{CTAN Installation}
+
+Once available on CTAN, install via the standard TeX distribution tools:
+
+\begin{lstlisting}
+# TeX Live
+tlmgr install scholia
+
+# MiKTeX
+miktex-console --install=scholia
+\end{lstlisting}
+
+\subsection{Manual Installation}
+
+Place the \texttt{scholia/} directory in a local texmf tree:
+
+\begin{lstlisting}
+~/texmf/tex/latex/scholia/
+\end{lstlisting}
+
+Then refresh the filename database:
+
+\begin{lstlisting}
+texhash ~/texmf
+\end{lstlisting}
+
+%% ===========================================================================
+\section{Loading the Package}
+%% ===========================================================================
+
+\subsection{Basic Usage}
+
+\scholia is loaded in the preamble with \cmd{usepackage}. The package detects
+the document class automatically: with \texttt{article}, \texttt{report}, or
+\texttt{book}, it operates in article mode; with \texttt{beamer}, it switches
+to presentation mode.
+
+\medskip
+\textbf{Standard article with English strings (default):}
+
+\begin{lstlisting}
+\documentclass{article}
+\usepackage{scholia}
+\end{lstlisting}
+
+\textbf{Article with French strings:}
+
+\begin{lstlisting}
+\documentclass{article}
+\usepackage[french]{scholia}
+\end{lstlisting}
+
+\textbf{Beamer presentation:}
+
+The \opt{beamer} option can be specified explicitly, though it is auto-detected
+when using the \texttt{beamer} document class.
+
+\begin{lstlisting}
+\documentclass{beamer}
+\usepackage[beamer]{scholia}
+\end{lstlisting}
+
+\subsection{Package Options}
+
+\begin{tabular}{@{}lp{10cm}@{}}
+\toprule
+\textbf{Option} & \textbf{Description} \\
+\midrule
+\opt{english} & Use English strings (default) \\
+\opt{french} & Use French strings \\
+\opt{beamer} & Enable Beamer mode (auto-detected for \texttt{beamer} class) \\
+\opt{noicons} & Disable icon loading for text-only output \\
+\opt{minimal} & Minimal dependencies; implies \opt{noicons} \\
+\opt{draft} & Draft mode (reserved for future use) \\
+\bottomrule
+\end{tabular}
+
+\subsection{Localization}
+
+All user-facing strings (labels, titles, prompts) are defined in localization files.
+The \opt{french} and \opt{english} options select the appropriate string set.
+
+\begin{tabular}{@{}lll@{}}
+\toprule
+\textbf{Element} & \textbf{French} & \textbf{English} \\
+\midrule
+Exercise label & Exercice & Exercise \\
+Definition & D\'efinition & Definition \\
+Step & \'Etape & Step \\
+Total & Total & Total \\
+\bottomrule
+\end{tabular}
+
+\medskip
+To override specific strings, redefine the internal macros after loading \scholia:
+
+\begin{lstlisting}
+\usepackage{scholia}
+\def\scholia@str@exo@label{Problem}
+\end{lstlisting}
+
+\subsection{Icons}
+
+Callouts and exercises display icons by default, loaded from PDF files in the
+\texttt{icons/pdf/} directory. The \opt{noicons} option disables icon loading,
+which is useful for:
+
+\begin{itemize}
+  \item Faster compilation during drafting
+  \item Reduced output file size
+  \item Plain-text fallback scenarios
+\end{itemize}
+
+%% ===========================================================================
+\section{Quick Start}
+%% ===========================================================================
+
+The following example demonstrates \scholia in an article document with a definition
+callout and a guided exercise. The exercise uses numbered steps and a conditional
+answer blank.
+
+\begin{lstlisting}
+\documentclass{article}
+\usepackage[english]{scholia}
+
+\begin{document}
+
+\begin{definitionbox}[Derivative]
+The derivative of $f$ at $x$ is the limit
+$f'(x) = \lim_{h \to 0} \frac{f(x+h) - f(x)}{h}$
+when this limit exists.
+\end{definitionbox}
+
+\begin{exguided}[Computing Derivatives]
+\exstep{Find $f'(x)$ for $f(x) = x^2$.}
+
+Apply the definition: $\lim_{h \to 0} \frac{(x+h)^2 - x^2}{h}$.
+
+The answer is \solutionBlank{2cm}{$2x$}.
+\end{exguided}
+
+\end{document}
+\end{lstlisting}
+
+%% ===========================================================================
+\section{Features}
+%% ===========================================================================
+
+This section documents each feature category in detail.
+
+%% ---------------------------------------------------------------------------
+\subsection{Callouts}
+%% ---------------------------------------------------------------------------
+
+Callouts are styled boxes for highlighting specific content types. Each callout
+type provides two environment variants:
+
+\begin{itemize}
+  \item \env{<type>box} --- Full box with optional title and body content
+  \item \env{<type>mark} --- Title-only bar (no body area)
+\end{itemize}
+
+\subsubsection{Available Types}
+
+\begin{tabular}{@{}llp{6cm}@{}}
+\toprule
+\textbf{Environment} & \textbf{Color} & \textbf{Typical Use} \\
+\midrule
+\env{definitionbox} & Cyan & Mathematical definitions \\
+\env{theorembox} & Red & Theorems and propositions \\
+\env{proofbox} & Gray & Mathematical proofs \\
+\env{warningbox} & Orange & Warnings, common mistakes \\
+\env{errorbox} & Dark red & What NOT to do \\
+\env{tipbox} & Yellow & Tips and strategies \\
+\env{methodbox} & Blue & Step-by-step methods \\
+\env{notationbox} & Brown-gray & Notation conventions \\
+\env{objectivebox} & Green & Learning objectives \\
+\env{summarybox} & Light gray & Summaries and recaps \\
+\env{remarkbox} & Purple & Observations \\
+\env{questionbox} & Blue & Questions for reflection \\
+\env{instructionbox} & Gray & Instructions and directives \\
+\bottomrule
+\end{tabular}
+
+\subsubsection{Usage Examples}
+
+\paragraph{Box with Title}\leavevmode
+
+\begin{lstlisting}
+\begin{definitionbox}[Some title]
+Some content here.
+\end{definitionbox}
+\end{lstlisting}
+
+\begin{definitionbox}[Some title]
+Some content here.
+\end{definitionbox}
+
+\paragraph{Box without Title}\leavevmode
+
+\begin{lstlisting}
+\begin{tipbox}
+Some content here.
+\end{tipbox}
+\end{lstlisting}
+
+\begin{tipbox}
+Some content here.
+\end{tipbox}
+
+\paragraph{Title-Only Variant}\leavevmode
+
+The \texttt{*mark} variants are commands (not environments) for title-only banners:
+
+\begin{lstlisting}
+\theoremmark{Some text}
+\end{lstlisting}
+
+\theoremmark{Some text}
+
+The title-only variant accepts an optional first argument for \pkg{tcolorbox} options:
+
+\begin{lstlisting}
+\theoremmark[centered]{Centered text}
+\end{lstlisting}
+
+\subsubsection{Customization}
+
+Each callout type is defined by a color. To create a new callout type:
+
+\begin{enumerate}
+  \item Define a color with \cmd{definecolor}
+  \item Create the environment using \texttt{callout layout} (for boxes) or
+        \texttt{callout titleonly} (for title-only variants)
+\end{enumerate}
+
+\begin{lstlisting}
+\definecolor{callout-custom}{RGB}{100,150,200}
+\newtcolorbox{custombox}[1][]{%
+  callout layout=callout-custom,
+  title={#1},
+}
+\end{lstlisting}
+
+The styles are based on \pkg{tcolorbox}; any tcolorbox option can be added to
+further customize spacing, borders, or backgrounds.
+
+%% ---------------------------------------------------------------------------
+\subsection{Semantic Labels}
+%% ---------------------------------------------------------------------------
+
+Semantic labels are inline styled boxes for categorizing and marking content.
+They provide visual consistency when referring to concepts, methods,
+or other resources. Available only in article mode.
+
+\subsubsection{Generic Frame}
+
+The \cmd{inlineframebox} command creates a colored inline box:
+
+\begin{lstlisting}
+See the \inlineframebox[cyan]{theory section} for details.
+\end{lstlisting}
+
+With navigation arrow (starred variant):
+
+\begin{lstlisting}
+Continue to \inlineframebox[green]*{exercise}.
+\end{lstlisting}
+
+\subsubsection{Semantic Inline Labels}
+
+Pre-defined commands for content categorization:
+
+\begin{tabular}{@{}ll@{}}
+\toprule
+\textbf{Command} & \textbf{Color/Purpose} \\
+\midrule
+\cmd{conceptslabel\{text\}} & Cyan (theory, definitions) \\
+\cmd{exerciseslabel\{text\}} & Orange (practice activities) \\
+\cmd{solutionslabel\{text\}} & Green (answers, corrections) \\
+\cmd{methodlabel\{text\}} & Blue (methods, procedures) \\
+\cmd{assessmentlabel\{text\}} & Red (formal evaluations) \\
+\cmd{researchlabel\{text\}} & Reddish-orange (exploration) \\
+\cmd{selfassessmentlabel\{text\}} & Purple (self-evaluation) \\
+\cmd{keypointslabel\{text\}} & Gold (key highlights) \\
+\cmd{summarylabel\{text\}} & Gray-brown (overviews) \\
+\bottomrule
+\end{tabular}
+
+All labels accept a starred variant for the navigation arrow:
+
+\begin{lstlisting}
+Refer to the \notionlabel*{definition of continuity}.
+\end{lstlisting}
+
+%% ---------------------------------------------------------------------------
+\subsection{Numbering Systems}
+%% ---------------------------------------------------------------------------
+
+\scholia provides two numbering systems for structured content, distinguished by
+their visual marker style. Each system offers both environment and inline command
+variants.
+
+\subsubsection{Squared Items (Steps)}
+
+Visual style: \texttt{[1]}, \texttt{[2]}, \texttt{[3]}... with lettered sub-items
+\texttt{(a)}, \texttt{(b)}, \texttt{(c)}...
+
+The generic environments are \texttt{squareditem} and \texttt{squaredsubitem}.
+Semantic aliases \texttt{step} and \texttt{substep} are provided for procedural
+content. The subitem counter resets automatically when a new item begins.
+
+\paragraph{Environment Syntax}\leavevmode
+
+\begin{lstlisting}
+\begin{step}[Preparation]
+Gather all necessary materials.
+\begin{substep}
+Check equipment.
+\end{substep}
+\begin{substep}
+Prepare workspace.
+\end{substep}
+\end{step}
+\end{lstlisting}
+
+\begin{step}[Preparation]
+Gather all necessary materials.
+\begin{substep}
+Check equipment.
+\end{substep}
+\begin{substep}
+Prepare workspace.
+\end{substep}
+\end{step}
+
+\paragraph{Inline Syntax}
+
+For compact documents, use \cmd{squaremark} and \cmd{squaresubmark} (or aliases
+\cmd{s} and \cmd{subs}):
+
+\begin{lstlisting}
+\s Gather materials.
+\subs Check equipment.
+\subs Prepare workspace.
+\end{lstlisting}
+
+\subsubsection{Circled Items (Questions)}
+
+Visual style: \textcircled{1}, \textcircled{2}, \textcircled{3}... with circled
+sub-items \textcircled{\scriptsize a}, \textcircled{\scriptsize b}, \textcircled{\scriptsize c}...
+
+The generic environments are \texttt{circleditem} and \texttt{circledsubitem}.
+Semantic aliases \texttt{question} and \texttt{subquestion} are provided for
+assessment content. The subitem counter resets automatically when a new item begins.
+
+\paragraph{Environment Syntax}\leavevmode
+
+\begin{lstlisting}
+\begin{question}
+Solve $x^2 - 4 = 0$.
+\begin{subquestion}
+Factor the left side.
+\end{subquestion}
+\begin{subquestion}
+Find all solutions.
+\end{subquestion}
+\end{question}
+\end{lstlisting}
+
+\begin{question}
+Solve $x^2 - 4 = 0$.
+\begin{subquestion}
+Factor the left side.
+\end{subquestion}
+\begin{subquestion}
+Find all solutions.
+\end{subquestion}
+\end{question}
+
+\paragraph{Inline Syntax}
+
+For compact lists, use \cmd{circmark} and \cmd{circsubmark} (or aliases \cmd{q} and \cmd{subq}):
+
+\begin{lstlisting}
+\q What is the capital of France?
+\subq Name two rivers.
+\subq Name the largest city.
+\end{lstlisting}
+
+Both syntaxes share the same counters and produce identical visual output.
+
+\subsubsection{Counter Reset}
+
+\begin{tabular}{@{}lp{8cm}@{}}
+\toprule
+\textbf{Counter} & \textbf{Reset Behavior} \\
+\midrule
+\texttt{scholia@squarednum} & Manual reset only \\
+\texttt{scholia@squaredsubnum} & Resets when \texttt{scholia@squarednum} increments \\
+\texttt{scholia@circlednum} & Resets when entering an exercise environment \\
+\texttt{scholia@circledsubnum} & Resets when \texttt{scholia@circlednum} increments \\
+\bottomrule
+\end{tabular}
+
+%% ---------------------------------------------------------------------------
+\subsection{Typed Pages}
+%% ---------------------------------------------------------------------------
+
+Typed pages are standalone page layouts with styled banners and relative page
+numbering. They are available only in article mode (disabled in Beamer).
+
+\subsubsection{Page Types}
+
+\begin{tabular}{@{}llp{5cm}@{}}
+\toprule
+\textbf{Type Key} & \textbf{Color} & \textbf{Purpose} \\
+\midrule
+\texttt{notion} & Cyan & Concepts and theory \\
+\texttt{exercise} & Orange & Exercise sheets \\
+\texttt{solution} & Green & Solutions \\
+\texttt{autocheck} & Purple & Self-assessment \\
+\texttt{method} & Blue & Methods and procedures \\
+\texttt{assessment} & Red & Formal assessments \\
+\texttt{summary} & Gray-brown & Chapter summaries \\
+\texttt{keypoint} & Gold & Key points to memorize \\
+\texttt{research} & Reddish-orange & Research activities \\
+\bottomrule
+\end{tabular}
+
+\medskip
+\textbf{Note:} The \texttt{presentation} type exists for Beamer integration but
+is handled separately through the progression module in Beamer mode.
+
+\subsubsection{Creating a Typed Page}
+
+The \cmd{newTypedPage} command initializes a new typed page:
+
+\begin{lstlisting}
+\newTypedPage{3e-func-N1}{notion}{Functions}{Images and Antecedents}
+\end{lstlisting}
+
+Arguments:
+\begin{enumerate}
+  \item Reference identifier (for cross-referencing)
+  \item Type key (from table above)
+  \item Chapter title (displayed in gray)
+  \item Specific topic (displayed in bold)
+\end{enumerate}
+
+This creates a banner with the appropriate icon, color, and titles, and sets up
+relative page numbering within the typed page section.
+
+\subsubsection{Full-Page Environments}
+
+For special emphasis, full-page framed environments wrap content in a distinctive
+border that spans the entire page. These are breakable across multiple pages.
+
+\paragraph{Generic Full-Page Environment}
+
+The \env{typedpagefull} environment is the generic mechanism for creating
+full-page framed content with any page type:
+
+\begin{lstlisting}
+\begin{typedpagefull}{ref}{type}{Chapter}{Title}
+Content here...
+\end{typedpagefull}
+\end{lstlisting}
+
+An optional first argument controls styling:
+
+\begin{lstlisting}
+\begin{typedpagefull}[norules]{ref}{keypoint}{Chapter}{Title}
+Content with header/footer rules suppressed...
+\end{typedpagefull}
+\end{lstlisting}
+
+\begin{tabular}{@{}lp{8cm}@{}}
+\toprule
+\textbf{Option} & \textbf{Effect} \\
+\midrule
+\texttt{norules} & Suppress header/footer separator lines (content preserved) \\
+\bottomrule
+\end{tabular}
+
+\paragraph{Convenience Wrappers}
+
+Pre-defined environments wrap \env{typedpagefull} for common use cases:
+
+\begin{tabular}{@{}llp{5cm}@{}}
+\toprule
+\textbf{Environment} & \textbf{Type} & \textbf{Options} \\
+\midrule
+\env{summarypage} & \texttt{summary} & (default styling) \\
+\env{keypointspage} & \texttt{keypoint} & \texttt{norules} \\
+\bottomrule
+\end{tabular}
+
+\medskip
+Example usage:
+
+\begin{lstlisting}
+\begin{summarypage}{ref}{Chapter}{Title}
+Summary content here...
+\end{summarypage}
+
+\begin{keypointpage}{ref}{Chapter}{Title}
+Key points here (no header/footer rules)...
+\end{keypointpage}
+\end{lstlisting}
+
+Arguments: reference identifier, chapter title, specific topic.
+
+\subsubsection{Document Metadata}
+
+Typed pages display author and year information in the footer. Define these in the
+preamble:
+
+\begin{lstlisting}
+\renewcommand{\Author}{Author Name}
+\renewcommand{\Year}{2025--2026}
+\end{lstlisting}
+
+\subsubsection{Cross-Referencing}
+
+Reference typed pages using the automatically created labels:
+
+\begin{lstlisting}
+See \typedPageRef{3e-func-N1} for the definition.
+\end{lstlisting}
+
+%% ---------------------------------------------------------------------------
+\subsection{Exercises}
+%% ---------------------------------------------------------------------------
+
+\scholia provides five exercise environment types. These types are \emph{visual categories}
+that indicate the pedagogical context; the actual content within each environment is
+entirely flexible.
+
+\subsubsection{Exercise Types}
+
+\begin{tabular}{@{}lp{8cm}@{}}
+\toprule
+\textbf{Environment} & \textbf{Visual Indication} \\
+\midrule
+\env{exguided} & Guided icon; suggests step-by-step assistance \\
+\env{exsemiguided} & Semi-guided icon; partial hints expected \\
+\env{exauto} & Difficulty stars (1--3); independent work \\
+\env{exmodel} & Modeling icon; open-ended problem-solving \\
+\env{excorrection} & Correction styling; for displaying solutions \\
+\bottomrule
+\end{tabular}
+
+\subsubsection{Exercise Environments}
+
+All exercise environments share a common structure: an optional title in brackets,
+followed by the exercise content. The \env{exauto} environment additionally
+requires a mandatory difficulty level (1--3) displayed as stars.
+
+\paragraph{Standard exercise with title}\leavevmode
+
+\begin{lstlisting}
+\begin{exguided}[Solving Quadratic Equations]
+\exstep{Identify coefficients $a$, $b$, $c$.}
+\exstep{Compute $\Delta = b^2 - 4ac$.}
+\exstep{Apply the quadratic formula.}
+\end{exguided}
+\end{lstlisting}
+
+\begin{exguided}[Solving Quadratic Equations]
+\exstep{Identify coefficients $a$, $b$, $c$.}
+\exstep{Compute $\Delta = b^2 - 4ac$.}
+\exstep{Apply the quadratic formula.}
+\end{exguided}
+
+\paragraph{Autonomous exercise with difficulty level}\leavevmode
+
+\begin{lstlisting}
+\begin{exauto}[Integration Practice][2]
+Compute $\int x^2 e^x \, dx$.
+\end{exauto}
+\end{lstlisting}
+
+\begin{exauto}[Integration Practice][2]
+Compute $\int x^2 e^x \, dx$.
+\end{exauto}
+
+\subsubsection{Two-Column Layout}
+
+The \env{extwocol} environment displays content in two columns with a
+dotted separator, useful for compact exercise sheets:
+
+\begin{lstlisting}
+\begin{extwocol}
+\begin{exauto}[][1]
+Simplify $\frac{x^2 - 1}{x - 1}$.
+\end{exauto}
+
+\begin{exauto}[][1]
+Factor $x^2 + 5x + 6$.
+\end{exauto}
+\end{extwocol}
+\end{lstlisting}
+
+\subsubsection{Blanks and Hidden Solutions}
+
+\scholia supports dual compilation: one version with answers hidden (for students)
+and one with answers visible (for teachers or answer keys). Blank commands insert
+placeholders that reveal their content only when solutions are enabled.
+
+\paragraph{Blank Commands}\leavevmode
+
+\begin{tabular}{@{}lp{7cm}@{}}
+\toprule
+\textbf{Command} & \textbf{Description} \\
+\midrule
+\cmd{solutionBlank\{width\}\{answer\}} & Underlined blank or answer \\
+\cmd{solutionDotsBlank\{n\}\{answer\}} & Dotted blank (n dots) or answer \\
+\cmd{fillBlank\{width\}} & Always show underlined blank \\
+\cmd{blankLine\{width\}} & Simple underline \\
+\bottomrule
+\end{tabular}
+
+\medskip
+Example usage:
+
+\begin{lstlisting}
+The derivative is \solutionBlank{2cm}{$2x$}.
+\end{lstlisting}
+
+\paragraph{Enabling Solutions}
+
+By default, solutions are hidden. Two methods enable solution display:
+
+\textbf{Method 1: In the preamble}
+
+\begin{lstlisting}
+\usepackage{scholia}
+\solutionstrue
+\end{lstlisting}
+
+\textbf{Method 2: Via command line}
+
+\begin{lstlisting}[language=bash]
+pdflatex "\def\ForceSolutions{}\input{document}"
+\end{lstlisting}
+
+This allows generating both student and teacher versions from the same source file.
+
+\subsubsection{Exercise Commands}
+
+\begin{tabular}{@{}lp{7cm}@{}}
+\toprule
+\textbf{Command} & \textbf{Description} \\
+\midrule
+\cmd{exstep[title]} & Numbered step (a, b, c, ...) \\
+\cmd{resetExerciseSteps} & Reset step counter to zero \\
+\cmd{highlight\{text\}} & Subtle gray background \\
+\cmd{questionStatement\{text\}} & Highlighted question in corrections \\
+\bottomrule
+\end{tabular}
+
+\subsubsection{Counter Management}
+
+The exercise counter (\texttt{exonum}) increments automatically with each exercise
+environment. The step counter (\texttt{exoitem}) resets at each \cmd{resetExerciseSteps}
+call. The question counter (\texttt{scholia@circlednum}) resets automatically when entering
+any exercise environment.
+
+%% ---------------------------------------------------------------------------
+\subsection{Grading}
+%% ---------------------------------------------------------------------------
+
+The grading module provides tools for creating assessment rubrics and point
+allocation displays. These are intended for teacher documents (answer keys,
+grading sheets) rather than student-facing materials.
+
+\subsubsection{Grading Box}
+
+A simple point allocation display:
+
+\begin{lstlisting}
+\begin{gradebox}[Point Distribution]
+\gradeitem{Question 1}{2 pts}
+\gradeitem{Question 2}{3 pts}
+\gradetotal{5 pts}
+\end{gradebox}
+\end{lstlisting}
+
+\begin{gradebox}[Point Distribution]
+\gradeitem{Question 1}{2 pts}
+\gradeitem{Question 2}{3 pts}
+\gradetotal{5 pts}
+\end{gradebox}
+
+\subsubsection{Grading Table}
+
+For detailed rubrics with criteria descriptions:
+
+\begin{lstlisting}
+\begin{gradetable}{Assessment Rubric}
+\graderow{Clarity}{Clear presentation}{2 pts}
+\graderow{Accuracy}{Correct reasoning}{3 pts}
+\graderowtotal{5 pts}
+\end{gradetable}
+\end{lstlisting}
+
+\subsubsection{Inline Point Indicators}
+
+Point values can be added inline within exercise text:
+
+\begin{lstlisting}
+\begin{question}
+Calculate $f(3)$. \gradeinline{2 pts}
+\end{question}
+\end{lstlisting}
+
+\subsubsection{Automatic Point Tracking}
+
+The grading module includes counters for automatic point summation:
+
+\begin{lstlisting}
+\resetgradepoints
+\gradeitemTracked{Q1}{Description}{2}
+\gradeitemTracked{Q2}{Description}{3}
+Total: \showgradetotal
+\end{lstlisting}
+
+%% ===========================================================================
+\section{License}
+%% ===========================================================================
+
+\scholia is distributed under the \LaTeX{} Project Public License (LPPL)
+version 1.3c or later.
+
+\begin{quote}
+This work may be distributed and/or modified under the conditions of
+the \LaTeX{} Project Public License, either version 1.3c of this license
+or (at your option) any later version.
+\end{quote}
+
+The latest version of this license is available at:\\
+\url{https://www.latex-project.org/lppl.txt}
+
+%% ===========================================================================
+\section{Acknowledgments}
+%% ===========================================================================
+
+\scholia uses the following packages:
+\pkg{tcolorbox}, \pkg{tikz}, \pkg{xparse}, \pkg{etoolbox},
+\pkg{enumitem}, \pkg{xcolor}, \pkg{geometry}, \pkg{fancyhdr},
+and \pkg{titlesec}.
+
+Icons are based on the Lucide icon set (\url{https://lucide.dev}).
+
+\end{document}

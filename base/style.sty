@@ -1,0 +1,60 @@
+%% base/style.sty
+%% Copyright 2025-2026 Esther Poniatowski <esther.poniatowski@ens.psl.eu>
+%
+% This work may be distributed and/or modified under the
+% conditions of the LaTeX Project Public License, either version 1.3c
+% of this license or (at your option) any later version.
+%
+% This work has the LPPL maintenance status `maintained'.
+% The Current Maintainer of this work is Esther Poniatowski.
+%
+\NeedsTeXFormat{LaTeX2e}[2020/10/01]
+\ProvidesPackage{scholia-base-style}[2026/01/31 v0.1.0 Base styling]
+
+\renewcommand{\familydefault}{\sfdefault}  % Font family: Sans-serif default
+
+% ============================================================================
+% LAYOUT CONFIGURATION
+% DEPENDENCIES: geometry, setspace, ragged2e
+% PURPOSE: Paragraph formatting and spatial parameters
+% ============================================================================
+\setstretch{1.2}            % Line spacing (relative to base font size)
+\setlength{\parindent}{0pt} % No paragraph indentation
+\setlength{\parskip}{4pt}   % Space between paragraphs
+
+% Note: Page margins set in packages.tex geometry options could be parameterized here if needed:
+% \geometry{margin=\DocumentMargin}
+
+% ============================================================================
+% LIST STYLING
+% DEPENDENCIES: enumitem
+% PURPOSE: Configure itemize, enumerate, description appearance
+% ============================================================================
+\setlist[itemize]{%
+    label=\raisebox{0.25ex}{\scriptsize\textbullet},
+    leftmargin=*,
+    topsep=2pt,
+    itemsep=2pt,
+    parsep=1pt
+}
+
+% Additional list configurations can be added:
+% \setlist[enumerate]{...}
+% \setlist[description]{...}
+
+% ============================================================================
+% HYPERLINK STYLING
+% DEPENDENCIES: hyperref
+% PURPOSE: Configure PDF metadata and link appearance
+% ============================================================================
+\hypersetup{
+    colorlinks=true,
+    linkcolor=black,
+    urlcolor=black,
+    citecolor=black,
+    pdfauthor={},  % Set by document
+    pdftitle={}    % Set by document
+}
+
+
+\endinput

@@ -1,0 +1,61 @@
+%% math/main.sty
+%% Copyright 2025-2026 Esther Poniatowski <esther.poniatowski@ens.psl.eu>
+%
+% This work may be distributed and/or modified under the
+% conditions of the LaTeX Project Public License, either version 1.3c
+% of this license or (at your option) any later version.
+%
+% This work has the LPPL maintenance status `maintained'.
+% The Current Maintainer of this work is Esther Poniatowski.
+%
+\NeedsTeXFormat{LaTeX2e}[2020/10/01]
+\ProvidesPackage{scholia-math}[2026/01/31 v0.1.0 Math expression helpers]
+
+\newcommand{\StackRel}[3]{%
+  \mathrel{%
+    \vcenter{%
+      \offinterlineskip
+      \halign{%
+        \hfil$\m@th##$\hfil\cr
+        #1\cr
+        \noalign{\kern0.3ex}
+        #2\cr
+        \noalign{\kern0.3ex}
+        \scriptstyle #3\cr
+      }%
+    }%
+  }%
+}
+
+
+% --------------------------------------------------------------------------------------------------
+% Commands and environments for marking and replacing parts of math expressions
+% WARNING: Not functional currently
+% --------------------------------------------------------------------------------------------------
+% Mark a position for TikZ referencing (no implicit math mode)
+\newcommand{\tikzmarknode}[2]{%
+  \tikz[remember picture, baseline=(#1.base)]%
+    \node[inner sep=0pt, outer sep=0pt] (#1) {#2};%
+}
+
+% Draw replacement arrow between two nodes
+\newcommand{\ReplacementArrow}[2]{%
+  \draw[->, shorten <=2pt, shorten >=2pt] (#1.south) -- (#2.north);%
+}
+
+% Environment for displaying substitution with arrows
+% #1: expression before substitution
+% #2: expression after substitution
+\newenvironment{ReplacementPicture}[2]{%
+  \par\noindent
+  #1\\[1.2em]%
+  #2%
+  \par\noindent
+  \begin{tikzpicture}[remember picture, overlay]%
+}{%
+  \end{tikzpicture}%
+  \par
+}
+
+
+\endinput

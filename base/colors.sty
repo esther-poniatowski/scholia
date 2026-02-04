@@ -1,0 +1,60 @@
+%% base/colors.sty
+%% Copyright 2025-2026 Esther Poniatowski <esther.poniatowski@ens.psl.eu>
+%
+% This work may be distributed and/or modified under the
+% conditions of the LaTeX Project Public License, either version 1.3c
+% of this license or (at your option) any later version.
+%
+% This work has the LPPL maintenance status `maintained'.
+% The Current Maintainer of this work is Esther Poniatowski.
+%
+\NeedsTeXFormat{LaTeX2e}[2020/10/01]
+\ProvidesPackage{scholia-colors}[2026/01/31 v0.1.0 Semantic color palette]
+
+% ============================================================================
+% SEMANTIC CATEGORY COLORS
+% PURPOSE: Define colors for content categories used across the package
+%          (inline labels, fiches, callouts, etc.)
+% ============================================================================
+
+% --- Content Type Colors ---
+\definecolor{scholia-notion}{RGB}{0,191,188}          % Cyan - theoretical content
+\definecolor{scholia-exercise}{RGB}{255,170,40}       % Orange - practice activities
+\definecolor{scholia-solution}{RGB}{8,185,78}         % Green - answers, corrections
+\definecolor{scholia-method}{RGB}{8,109,221}          % Blue - methods, procedures
+\definecolor{scholia-assessment}{RGB}{233,49,71}      % Red - formal evaluations
+\definecolor{scholia-autocheck}{RGB}{120,82,238}      % Purple - self-evaluation
+\definecolor{scholia-keypoint}{RGB}{250,190,25}       % Gold - key highlights
+\definecolor{scholia-research}{RGB}{230,100,50}       % Reddish-orange - exploration
+\definecolor{scholia-summary}{RGB}{90,90,70}          % Gray-brown - overviews
+\definecolor{scholia-presentation}{RGB}{70,90,160}    % Indigo - presentations
+\definecolor{scholia-diagnostic}{RGB}{100,140,180}    % Steel blue - student records
+
+% --- Callout-Specific Colors ---
+\definecolor{scholia-warning}{RGB}{255,170,40}        % Orange - alerts
+\definecolor{scholia-definition}{RGB}{0,191,188}      % Cyan - definitions
+\definecolor{scholia-tip}{RGB}{250,220,18}            % Yellow - tips
+\definecolor{scholia-notation}{RGB}{90,90,70}         % Gray-brown - notations
+\definecolor{scholia-objective}{RGB}{8,185,78}        % Green - goals
+\definecolor{scholia-theorem}{RGB}{233,49,71}         % Red - theorems
+\definecolor{scholia-remark}{RGB}{120,82,238}         % Purple - remarks
+\definecolor{scholia-error}{RGB}{220,40,40}           % Dark red - errors
+\definecolor{scholia-instruction}{RGB}{130,130,130}   % Gray - instructions
+\definecolor{scholia-question}{RGB}{0,150,200}        % Blue - questions
+\definecolor{scholia-proof}{RGB}{130,130,130}         % Gray - proofs
+
+% --- Utility Color ---
+\definecolor{scholia-highlight}{RGB}{245,245,245}     % Light gray - text highlighting
+
+
+% --- Special Callout Color ---
+% Summary callout boxes use light gray instead of semantic gray-brown
+\definecolor{scholia-summary-light}{RGB}{200,200,200} % Light gray for summary callouts
+
+% --- Interactive Hide/Reveal Colors ---
+% Used by interactive/main.sty for OCG toggle functionality
+\definecolor{scholia-hide-placeholder}{RGB}{255,255,255}  % Background for hidden content
+\definecolor{scholia-hide-revealed}{RGB}{0,100,0}         % Default color for revealed text
+
+
+\endinput

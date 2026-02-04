@@ -1,0 +1,152 @@
+%% common/i18n/strings-fr.tex
+%% Copyright 2025 Esther Poniatowski <esther.poniatowski@ens.psl.eu>
+%
+% This work may be distributed and/or modified under the
+% conditions of the LaTeX Project Public License, either version 1.3c
+% of this license or (at your option) any later version.
+% The latest version of this license is in
+%   https://www.latex-project.org/lppl.txt
+% and version 1.3c or later is part of all distributions of LaTeX
+% version 2008 or later.
+%
+% This work has the LPPL maintenance status `maintained'.
+%
+% The Current Maintainer of this work is Esther Poniatowski.
+%
+% This work consists of all files listed in MANIFEST.md.
+%
+%% Version: 2026/01/31 v0.1.0
+% =============================================================================
+% FRENCH LANGUAGE STRINGS (strings-fr.tex)
+% =============================================================================
+%
+% PURPOSE:
+%   Defines all user-facing text strings in French for the scholia package.
+%   This enables internationalization (i18n) by abstracting hardcoded strings.
+%
+% USAGE:
+%   Load this file in master.tex after packages but before other macros.
+%   To create a new language, copy this file and translate all \def commands.
+%
+% NAMING CONVENTION:
+%   \scholia@str@<system>@<identifier>
+%   Example: \scholia@str@exo@label for "Exercice"
+%
+% =============================================================================
+
+% -----------------------------------------------------------------------------
+% EXERCISE SYSTEM STRINGS
+% -----------------------------------------------------------------------------
+
+% Main labels
+\def\scholia@str@exo@label{Exercice}
+\def\scholia@str@exo@guided{Guidé}
+\def\scholia@str@exo@semiguided{Avec indications}
+\def\scholia@str@exo@autonomous{Autonome}
+\def\scholia@str@exo@modeling{Modélisation}
+\def\scholia@str@exo@correction{Correction}
+
+% Exercise sub-sections
+\def\scholia@str@exo@hint{Indication.}
+\def\scholia@str@exo@further{Pour aller plus loin.}
+
+% -----------------------------------------------------------------------------
+% GRADING SYSTEM STRINGS (BARÈME)
+% -----------------------------------------------------------------------------
+
+% Headers and labels
+\def\scholia@str@bareme@label{Barème}
+\def\scholia@str@bareme@criterion{Critère}
+\def\scholia@str@bareme@description{Description}
+\def\scholia@str@bareme@points{Points}
+\def\scholia@str@bareme@total{Total}
+\def\scholia@str@bareme@question{Question}
+
+% Grading contexts
+\def\scholia@str@bareme@exercise{Notation de l'exercice}
+\def\scholia@str@bareme@totalgrade{Notation totale}
+\def\scholia@str@bareme@competency{Compétence}
+\def\scholia@str@bareme@criteria{Critères de réussite}
+\def\scholia@str@bareme@resources{Ressources à consulter}
+
+% Point suffix (e.g., "3 pts")
+\def\scholia@str@bareme@pointsuffix{pts}
+\def\scholia@str@bareme@pointsingular{pt}
+
+% -----------------------------------------------------------------------------
+% TYPED PAGE SYSTEM STRINGS
+% -----------------------------------------------------------------------------
+
+% Type display names
+\def\scholia@str@typedpage@notion{Notions}
+\def\scholia@str@typedpage@exercise{Exercices}
+\def\scholia@str@typedpage@solution{Corrections}
+\def\scholia@str@typedpage@autocheck{Auto-évaluation}
+\def\scholia@str@typedpage@method{Méthode}
+\def\scholia@str@typedpage@assessment{Évaluation}
+\def\scholia@str@typedpage@summary{Sommaire}
+\def\scholia@str@typedpage@keypoint{À retenir}
+\def\scholia@str@typedpage@research{Recherche}
+\def\scholia@str@typedpage@presentation{Présentation}
+\def\scholia@str@typedpage@diagnostic{Fiche individuelle}
+
+% Header elements
+\def\scholia@str@typedpage@refprefix{Réf.:\;}
+\def\scholia@str@typedpage@page{Page}
+\def\scholia@str@typedpage@of{/}
+
+% -----------------------------------------------------------------------------
+% CALLOUT SYSTEM STRINGS
+% -----------------------------------------------------------------------------
+
+% Default titles (when no custom title provided)
+\def\scholia@str@callout@attention{Attention}
+\def\scholia@str@callout@definition{Définition}
+\def\scholia@str@callout@hint{Astuce}
+\def\scholia@str@callout@method{Méthode}
+\def\scholia@str@callout@notations{Notations}
+\def\scholia@str@callout@objective{Objectif}
+\def\scholia@str@callout@proposition{Proposition}
+\def\scholia@str@callout@proof{Démonstration}
+\def\scholia@str@callout@remark{Remarque}
+\def\scholia@str@callout@fail{Erreur fréquente}
+\def\scholia@str@callout@instructions{Consignes}
+\def\scholia@str@callout@summary{Bilan}
+\def\scholia@str@callout@question{Question}
+\def\scholia@str@callout@example{Exemple}
+\def\scholia@str@callout@approach{Approche}
+
+% -----------------------------------------------------------------------------
+% SUMMARY TABLE STRINGS (SOMMAIRE)
+% -----------------------------------------------------------------------------
+
+\def\scholia@str@sommaire@competency{Compétence}
+\def\scholia@str@sommaire@resources{Ressources à consulter}
+\def\scholia@str@sommaire@reference{Référence}
+\def\scholia@str@sommaire@title{Titre}
+
+% -----------------------------------------------------------------------------
+% PROGRESSION STRINGS (BEAMER)
+% -----------------------------------------------------------------------------
+
+\def\scholia@str@progression@session{Séance}
+
+% -----------------------------------------------------------------------------
+% NUMBERING STRINGS
+% -----------------------------------------------------------------------------
+
+\def\scholia@str@num@step{Étape}
+\def\scholia@str@num@question{Question}
+
+% -----------------------------------------------------------------------------
+% METADATA STRINGS
+% -----------------------------------------------------------------------------
+
+\def\scholia@str@meta@chapter{Chapitre}
+\def\scholia@str@meta@author{Auteur}
+\def\scholia@str@meta@year{Année}
+\def\scholia@str@meta@class{Classe}
+
+% =============================================================================
+% END OF FRENCH STRINGS
+% =============================================================================

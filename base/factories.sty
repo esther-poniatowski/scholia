@@ -1,0 +1,112 @@
+%% base/factories.sty
+%% Copyright 2025-2026 Esther Poniatowski <esther.poniatowski@ens.psl.eu>
+%
+% This work may be distributed and/or modified under the
+% conditions of the LaTeX Project Public License, either version 1.3c
+% of this license or (at your option) any later version.
+%
+% This work has the LPPL maintenance status `maintained'.
+% The Current Maintainer of this work is Esther Poniatowski.
+%
+\NeedsTeXFormat{LaTeX2e}[2020/10/01]
+\ProvidesPackage{scholia-factories}[2026/01/31 v0.1.0 Factory macros for code generation]
+
+% ============================================================================
+% FACTORY MACROS
+% PURPOSE: Generate repetitive command/environment definitions from templates
+%
+% This module provides factory macros that reduce code duplication by
+% generating families of related commands from simple declarations.
+% ============================================================================
+
+
+% ============================================================================
+% SEMANTIC LABEL FACTORY
+% PURPOSE: Generate inline label commands with consistent interface
+%
+% Usage:
+%   \scholia@label@new{typename}
+%   Creates \<typename>label command that wraps \inlineframebox
+%
+% The generated command accepts:
+%   - Starred form: adds navigation arrow
+%   - Unstarred form: label only
+% ============================================================================
+
+\newcommand{\scholia@label@new}[1]{%
+  \expandafter\NewDocumentCommand\csname #1label\endcsname{s m}{%
+    \IfBooleanTF{##1}%
+      {\inlineframebox[scholia-#1]*{##2}}%
+      {\inlineframebox[scholia-#1]{##2}}%
+  }%
+}
+
+
+% ============================================================================
+% CALLOUT TYPE FACTORY
+% PURPOSE: Generate callout box and mark environments from type name
+%
+% Usage:
+%   \scholia@callout@newtype{typename}
+%   Creates:
+%     - \<typename>box environment (full callout with optional title)
+%     - \<typename>mark environment (compact inline marker)
+%
+% Prerequisites:
+%   - Color scholia-<typename> must be defined
+%   - Icon \scholia@callout@icon@<typename> must be defined
+%   - Style "callout layout" must be defined in callouts/framework.sty
+% ============================================================================
+
+\newcommand{\scholia@callout@newtype}[1]{%
+  % Create the box environment
+  \newtcolorbox{#1box}[1][]{%
+    callout layout=scholia-#1,
+    title={\scholia@callout@title{\csname scholia@callout@icon@#1\endcsname}{##1}},
+  }%
+  % Create the mark (compact inline) environment
+  \scholia@callout@newmark{#1mark}{scholia-#1}{\csname scholia@callout@icon@#1\endcsname}%
+}
+
+
+% ============================================================================
+% HINT COMMAND FACTORY
+% PURPOSE: Generate inline hint commands with colored label prefix
+%
+% Usage:
+%   \scholia@hint@new{cmdname}{color}{labeltext}
+%   Creates \<cmdname> command that displays: [label] hint text
+%
+% Example:
+%   \scholia@hint@new{methodHint}{callout-method}{\scholia@str@callout@hint}
+% ============================================================================
+
+\newcommand{\scholia@hint@new}[3]{%
+  \expandafter\newcommand\csname #1\endcsname[1]{%
+    \par\smallskip\noindent
+    \inlineframebox[#2]{#3}\;\textcolor{#2!60!black}{##1}%
+    \par\smallskip
+  }%
+}
+
+
+% ============================================================================
+% ICON CONSTANTS
+% PURPOSE: Standardized icon display parameters
+% ============================================================================
+
+\newcommand{\scholia@icon@height}{1.1em}
+\newcommand{\scholia@icon@height@large}{1.8em}
+\newcommand{\scholia@icon@spacing}{0.4em}
+
+
+% ============================================================================
+% SPACING CONSTANTS
+% PURPOSE: Consistent spacing values across modules
+% ============================================================================
+
+\newlength{\scholia@spacing@icontext}
+\setlength{\scholia@spacing@icontext}{0.4em}
+
+
+\endinput

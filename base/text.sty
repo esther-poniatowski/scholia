@@ -1,0 +1,65 @@
+%% base/text.sty
+%% Copyright 2025-2026 Esther Poniatowski <esther.poniatowski@ens.psl.eu>
+%
+% This work may be distributed and/or modified under the
+% conditions of the LaTeX Project Public License, either version 1.3c
+% of this license or (at your option) any later version.
+%
+% This work has the LPPL maintenance status `maintained'.
+% The Current Maintainer of this work is Esther Poniatowski.
+%
+\NeedsTeXFormat{LaTeX2e}[2020/10/01]
+\ProvidesPackage{scholia-text}[2026/01/31 v0.1.0 Text-level utilities]
+
+% ============================================================================
+% TEXT-LEVEL UTILITIES
+% PURPOSE: Inline text formatting - highlighting, blanks, emphasis
+%          These operate at the character/word level within paragraphs
+% ============================================================================
+
+
+% ============================================================================
+% TEXT HIGHLIGHTING
+% PURPOSE: Subtle text highlighting for emphasis
+% USAGE: \highlight{text} creates a light gray background (supports line breaks)
+% NOTE: Uses scholia-highlight color defined in base/colors.sty
+% ============================================================================
+
+\sethlcolor{scholia-highlight}
+\soulregister\textbf{1}
+\soulregister\textit{1}
+
+\newcommand{\highlight}[1]{\hl{#1}}
+
+
+% ============================================================================
+% BLANK/FILL-IN UTILITIES
+% PURPOSE: Create blanks for fill-in-the-blank exercises and worksheets
+% USAGE:
+%   \dotsBlank{n}              - Creates n sets of dots
+%   \fillBlank{width}          - Dotted underline of specified width
+%   \blankLine{width}          - Simple underline of specified width
+%   \solutionBlank{width}{sol} - Shows solution or blank depending on mode
+%   \solutionDotsBlank{n}{sol} - Shows solution or dots depending on mode
+% ============================================================================
+
+\newcommand{\dotsBlank}[1]{%
+  \begingroup
+    \count0=#1\relax
+    \loop
+      \ifnum\count0>0
+        \ldots
+        \advance\count0 by -1\relax
+    \repeat
+  \endgroup
+}
+
+\newcommand{\fillBlank}[1]{\dotuline{\hspace*{#1}}}
+\newcommand{\blankLine}[1]{\underline{\hspace{#1}}}
+
+% Conditional blanks (require \ifsolutions boolean from exercises module)
+\newcommand{\solutionBlank}[2]{\ifsolutions #2\else \fillBlank{#1}\fi}
+\newcommand{\solutionDotsBlank}[2]{\ifsolutions #2\else \dotsBlank{#1}\fi}
+
+
+\endinput

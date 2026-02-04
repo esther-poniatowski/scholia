@@ -1,0 +1,285 @@
+%% grading/main.sty
+%% Copyright 2025-2026 Esther Poniatowski <esther.poniatowski@ens.psl.eu>
+%
+% This work may be distributed and/or modified under the
+% conditions of the LaTeX Project Public License, either version 1.3c
+% of this license or (at your option) any later version.
+%
+% This work has the LPPL maintenance status `maintained'.
+% The Current Maintainer of this work is Esther Poniatowski.
+%
+\NeedsTeXFormat{LaTeX2e}[2020/10/01]
+\ProvidesPackage{scholia-grading}[2026/01/31 v0.1.0 Grading tools]
+
+\definecolor{bareme-color}{RGB}{100,100,120}
+
+% Icon path (internal macro)
+\newcommand{\scholia@bareme@icon}{\includegraphics[height=1.1em]{clipboard-check.pdf}}
+
+% ---------------------------------------------------------------------------
+% STANDALONE GRADING BOX
+% Obsidian-style callout box for grading scales
+% USAGE:
+% \begin{gradebox}[Optional Title]
+%   \gradeitem{Question 1}{2 points}
+%   \gradeitem{Question 2}{3 points}
+%   \gradetotal{5 points}
+% \end{gradebox}
+% ---------------------------------------------------------------------------
+\tcbset{
+  bareme_box_style/.style={
+    enhanced,
+    breakable,
+    colback=bareme-color!6,
+    colframe=bareme-color!40,
+    colbacktitle=bareme-color!6,
+    coltitle=bareme-color,
+    fonttitle=\bfseries\sffamily,
+    boxrule=0.6pt,
+    arc=2mm,
+    left=4mm,
+    right=4mm,
+    top=3mm,
+    bottom=3mm,
+    before skip=10pt,
+    after skip=10pt,
+    title filled,
+  },
+}
+
+\newtcolorbox{gradebox}[1][]{%
+  bareme_box_style,
+  title={%
+    \scholia@bareme@icon\hspace{0.4em}%
+    \if\relax\detokenize{#1}\relax
+      \scholia@str@bareme@label
+    \else
+      \scholia@str@bareme@label\ -- #1%
+    \fi
+  },
+}
+
+% Helper commands for items within gradebox
+\newcommand{\gradeitem}[2]{%
+  \noindent\textbf{#1}\hfill#2\par
+  \vspace{2pt}
+}
+
+\newcommand{\gradetotal}[1]{%
+  \vspace{4pt}
+  \noindent\rule{\linewidth}{0.4pt}\par
+  \vspace{2pt}
+  \noindent\textbf{\scholia@str@bareme@total}\hfill\textbf{#1}\par
+}
+
+% ---------------------------------------------------------------------------
+% STRUCTURED GRADING TABLE
+% For detailed point allocation with subcategories
+% USAGE:
+% \begin{gradetable}{Title}
+%   \graderow{Criterion 1}{Description}{2 pts}
+%   \graderow{Criterion 2}{Description}{3 pts}
+%   \graderowtotal{5 pts}
+% \end{gradetable}
+% ---------------------------------------------------------------------------
+\newenvironment{gradetable}[1]{%
+  \par\vspace{8pt}
+  \noindent
+  \begin{tcolorbox}[
+    bareme_box_style,
+    title={\scholia@bareme@icon\hspace{0.4em}\scholia@str@bareme@label\ -- #1},
+    left=2mm, right=2mm, top=2mm, bottom=2mm
+  ]
+  \small
+  \begin{tabular}{@{\hspace{2mm}}p{0.25\linewidth}p{0.55\linewidth}r@{\hspace{2mm}}}
+    \textbf{\scholia@str@bareme@criterion} & \textbf{\scholia@str@bareme@description} & \textbf{\scholia@str@bareme@points} \\[2pt]
+    \hline\\[-8pt]
+}{%
+  \end{tabular}
+  \end{tcolorbox}
+  \par\vspace{8pt}
+}
+
+\newcommand{\graderow}[3]{%
+  #1 & #2 & #3 \\[3pt]
+}
+
+\newcommand{\graderowtotal}[1]{%
+  \\[-3pt]
+  \hline\\[-6pt]
+  \multicolumn{2}{@{\hspace{2mm}}l}{\textbf{\scholia@str@bareme@total}} & \textbf{#1} \\[2pt]
+}
+
+% ---------------------------------------------------------------------------
+% INLINE GRADING INDICATORS
+% Compact point indicators for use within exercise text
+% USAGE: Text of question \gradeinline{2 pts}
+% ---------------------------------------------------------------------------
+\newcommand{\gradeinline}[1]{%
+  \hfill\textcolor{bareme-color}{\small#1}%
+}
+
+% Starred version without brackets
+\newcommand{\gradeinlinestar}[1]{%
+  \hfill\textcolor{bareme-color}{\small#1}%
+}
+
+% ---------------------------------------------------------------------------
+% GRADING INTEGRATED WITH QUESTION NUMBERING
+% Automatically aligns with question/subquestion environments
+% USAGE:
+% \begin{question}
+%   Question text \gradeq{2 pts}
+% \end{question}
+%
+% \begin{subquestion}
+%   Subquestion text \gradesubq{1 pt}
+% \end{subquestion}
+% ---------------------------------------------------------------------------
+\newcommand{\gradeq}[1]{%
+  \hfill\textcolor{bareme-color}{[#1]}%
+}
+
+\newcommand{\gradesubq}[1]{%
+  \hfill\textcolor{bareme-color}{[#1]}%
+}
+
+% ---------------------------------------------------------------------------
+% GRADING SUMMARY BOX
+% Dotted-border box similar to summarybox, for end-of-exercise summaries
+% USAGE:
+% \begin{gradesummary}[Optional Title]
+%   Content describing the total grading breakdown
+% \end{gradesummary}
+% ---------------------------------------------------------------------------
+\newtcolorbox{gradesummary}[1][]{%
+  enhanced,
+  breakable,
+  colback=white,
+  colframe=bareme-color!60,
+  colbacktitle=white,
+  coltitle=black,
+  fonttitle=\bfseries\sffamily,
+  boxrule=1pt,
+  frame style={dotted},
+  arc=2mm,
+  left=4mm,
+  right=4mm,
+  top=3mm,
+  bottom=3mm,
+  before skip=10pt,
+  after skip=10pt,
+  title filled,
+  title={%
+    \scholia@bareme@icon\hspace{0.4em}%
+    \if\relax\detokenize{#1}\relax
+      \scholia@str@bareme@totalgrade
+    \else
+      #1%
+    \fi
+  },
+}
+
+% ---------------------------------------------------------------------------
+% DETAILED RUBRIC TABLE
+% Elegant table with rounded corners, light lines, and airy spacing
+% USAGE:
+% \begin{graderubric}
+%   \gradedetailedrow{Question 1.a}{Detailed criteria}{1}
+% \end{graderubric}
+%
+% With custom column widths:
+% \begin{graderubric}[0.25][0.60]
+%   ...
+% \end{graderubric}
+% where:
+% - First argument = width fraction of first column (default 0.22)
+% - Second argument = width fraction of second column (default 0.63)
+% ---------------------------------------------------------------------------
+\NewDocumentEnvironment{graderubric}{O{0.22} O{0.63}}{%
+  % #1 = First column width fraction (default: 0.22)
+  % #2 = Second column width fraction (default: 0.63)
+  \par\vspace{10pt}
+  % Light gray for table lines
+  \arrayrulecolor{black!25}
+  % More airy spacing
+  \renewcommand{\arraystretch}{1.3}
+  \begin{longtable}{|p{#1\textwidth}|p{#2\textwidth}|r|}
+    \hline
+    \rowcolor{bareme-color!10}
+    \textbf{\scholia@str@bareme@question} & \textbf{\scholia@str@bareme@criteria} & \textbf{\scholia@str@bareme@points} \\
+    \hline
+    \endfirsthead
+    \hline
+    \rowcolor{bareme-color!10}
+    \textbf{\scholia@str@bareme@question} & \textbf{\scholia@str@bareme@criteria} & \textbf{\scholia@str@bareme@points} \\
+    \hline
+    \endhead
+}{%
+  \end{longtable}
+  \arrayrulecolor{black}
+  \par\vspace{10pt}
+}
+
+% Helper commands for detailed rubric rows
+% #1 = Question label (bold)
+% #2 = Detailed criteria (can be multi-line)
+% #3 = Points (numeric value for blank format)
+\newcommand{\gradedetailedrow}[3]{%
+  \textbf{#1} & #2 & \_\_/#3 \\
+  \hline
+}
+
+% Alternative: Row with sub-criteria as itemize
+% #1 = Question label
+% #2 = Criteria as itemize content
+% #3 = Points
+\newcommand{\gradedetailedrowlist}[3]{%
+  \textbf{#1} &
+  \begin{minipage}[t]{\linewidth}
+    \vspace{2pt}
+    #2
+    \vspace{2pt}
+  \end{minipage} &
+  \_\_/#3 \\
+  \hline
+}
+
+% Compact version for competency rows
+% #1 = Competency name
+% #2 = Criteria description
+% #3 = Points
+\newcommand{\gradecompetency}[3]{%
+  \textbf{#1} & #2 & \_\_/#3 \\
+  \hline
+}
+
+% ---------------------------------------------------------------------------
+% AUTOMATIC POINT TRACKING
+% Optional feature for automatically summing points
+% ---------------------------------------------------------------------------
+
+% Counter for automatic point tracking
+\newcounter{baremePoints}
+
+\newcommand{\resetgradepoints}{%
+  \setcounter{baremePoints}{0}%
+}
+
+\newcommand{\addgradepoints}[1]{%
+  \addtocounter{baremePoints}{#1}%
+}
+
+\newcommand{\showgradetotal}{%
+  \textbf{\scholia@str@bareme@total: \arabic{baremePoints} \scholia@str@bareme@pointsuffix}%
+}
+
+% Tracked versions of commands (automatically accumulate points)
+\newcommand{\gradeitemtracked}[3]{%
+  % #1 = label, #2 = description, #3 = points (numeric)
+  \addgradepoints{#3}%
+  \gradeitem{#1}{#3 pts}%
+}
+
+
+\endinput

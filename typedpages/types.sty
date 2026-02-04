@@ -1,0 +1,112 @@
+%% typedpages/types.sty
+%% Copyright 2025-2026 Esther Poniatowski <esther.poniatowski@ens.psl.eu>
+%
+% This work may be distributed and/or modified under the
+% conditions of the LaTeX Project Public License, either version 1.3c
+% of this license or (at your option) any later version.
+%
+% This work has the LPPL maintenance status `maintained'.
+% The Current Maintainer of this work is Esther Poniatowski.
+%
+\NeedsTeXFormat{LaTeX2e}[2020/10/01]
+\ProvidesPackage{scholia-typedpages-types}[2026/01/31 v0.1.0 Typed page type definitions]
+
+% NOTE: Semantic colors are defined in base/colors.sty (scholia-* namespace).
+% This file uses those shared colors for type registrations.
+
+
+% ============================================================================
+% ICON DEFINITIONS (internal)
+% PURPOSE: Map each page type to its corresponding icon filename
+% All icons must be PDF files located in the icons/pdf/ directory
+% ============================================================================
+
+\def\scholia@typedpage@icon@notion{library-big.pdf}              % Library (knowledge repository)
+\def\scholia@typedpage@icon@exercise{pencil-line.pdf}             % Pencil (practice work)
+\def\scholia@typedpage@icon@solution{search-check.pdf}            % Magnifying glass with check (verification)
+\def\scholia@typedpage@icon@autocheck{list-checks.pdf}            % Checklist (self-evaluation)
+\def\scholia@typedpage@icon@method{compass.pdf}                   % Compass (guidance, direction)
+\def\scholia@typedpage@icon@assessment{flag.pdf}                  % Flag (milestone, checkpoint)
+\def\scholia@typedpage@icon@summary{clipboard-check.pdf}          % Clipboard with check (inventory)
+\def\scholia@typedpage@icon@keypoint{star.pdf}                    % Star (key highlights)
+\def\scholia@typedpage@icon@research{telescope.pdf}               % Telescope (cultural exploration)
+\def\scholia@typedpage@icon@presentation{megaphone.pdf}           % Megaphone (presentations)
+\def\scholia@typedpage@icon@diagnostic{file-user.pdf}             % User file (student records)
+
+
+% ============================================================================
+% TYPE REGISTRATION (internal)
+% PURPOSE: Register page types using the core framework API
+%
+% Syntax: \scholia@typedpage@setconfig{type-key}{Display Name}{color-name}{icon-filename}
+%
+% CRITICAL: Parameter order:
+%   #1 = type-key (e.g., "notion")
+%   #2 = Display Name (e.g., "Notions")
+%   #3 = color-name (e.g., "scholia-notion")
+%   #4 = icon-filename (e.g., "library-big.pdf")
+%
+% WARNING: Do not use accented characters in type keys
+% ============================================================================
+
+\scholia@typedpage@setconfig{notion}{\scholia@str@typedpage@notion}{scholia-notion}{\scholia@typedpage@icon@notion}
+\scholia@typedpage@setconfig{exercise}{\scholia@str@typedpage@exercise}{scholia-exercise}{\scholia@typedpage@icon@exercise}
+\scholia@typedpage@setconfig{solution}{\scholia@str@typedpage@solution}{scholia-solution}{\scholia@typedpage@icon@solution}
+\scholia@typedpage@setconfig{autocheck}{\scholia@str@typedpage@autocheck}{scholia-autocheck}{\scholia@typedpage@icon@autocheck}
+\scholia@typedpage@setconfig{method}{\scholia@str@typedpage@method}{scholia-method}{\scholia@typedpage@icon@method}
+\scholia@typedpage@setconfig{assessment}{\scholia@str@typedpage@assessment}{scholia-assessment}{\scholia@typedpage@icon@assessment}
+\scholia@typedpage@setconfig{summary}{\scholia@str@typedpage@summary}{scholia-summary}{\scholia@typedpage@icon@summary}
+\scholia@typedpage@setconfig{keypoint}{\scholia@str@typedpage@keypoint}{scholia-keypoint}{\scholia@typedpage@icon@keypoint}
+\scholia@typedpage@setconfig{research}{\scholia@str@typedpage@research}{scholia-research}{\scholia@typedpage@icon@research}
+\scholia@typedpage@setconfig{presentation}{\scholia@str@typedpage@presentation}{scholia-presentation}{\scholia@typedpage@icon@presentation}
+\scholia@typedpage@setconfig{diagnostic}{\scholia@str@typedpage@diagnostic}{scholia-diagnostic}{\scholia@typedpage@icon@diagnostic}
+
+
+% ============================================================================
+% SPECIALIZED ENVIRONMENTS
+% PURPOSE: Define full-page environments for specific use cases
+%
+% These environments wrap the generic typedpagefull environment with
+% predefined type configurations for common scenarios
+% ============================================================================
+
+% --- SUMMARY PAGE (Full-page summary) ---
+% Use case: Chapter summaries, competency inventories, review sheets
+%
+% Syntax:
+%   \begin{summarypage}{reference}{chapter}{title}
+%     Summary content here (tables, lists, etc.)
+%   \end{summarypage}
+%
+% Visual characteristics:
+% - Full-page frame with light gray border
+% - Suppressed headers/footers for clean presentation
+% - Breakable across multiple pages if needed
+\NewDocumentEnvironment{summarypage}{m m m}{%
+  \begin{typedpagefull}{#1}{summary}{#2}{#3}
+}{%
+  \end{typedpagefull}
+}
+
+
+% --- KEY POINT PAGE (Full-page key points) ---
+% Use case: Essential concepts, formulas, theorems to memorize
+%
+% Syntax:
+%   \begin{keypointpage}{reference}{chapter}{title}
+%     Key points here (highlighted concepts, formulas, etc.)
+%   \end{keypointpage}
+%
+% Visual characteristics:
+% - Full-page frame with gold/bronze border (high visual salience)
+% - Headers and footers without separator lines (uses norules option)
+% - Designed for maximum memorization impact
+% - Ideal for synthesis at end of chapter
+\NewDocumentEnvironment{keypointpage}{m m m}{%
+  \begin{typedpagefull}[norules]{#1}{keypoint}{#2}{#3}
+}{%
+  \end{typedpagefull}
+}
+
+
+\endinput

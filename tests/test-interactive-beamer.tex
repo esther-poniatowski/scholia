@@ -1,0 +1,119 @@
+% FILE: common/scholia/tests/test-interactive-beamer.tex
+% ==================================================================================================
+% TEST FILE: Interactive Hide/Reveal Features (Beamer)
+%
+% PURPOSE:
+%   Test the OCG-based hide/reveal functionality in Beamer presentations
+%
+% REQUIREMENTS:
+%   - pdflatex, lualatex, or xelatex
+%   - PDF viewer with OCG/JavaScript support (Adobe Reader, PDF.js)
+%
+% USAGE:
+%   pdflatex test-interactive-beamer.tex
+%   Open test-interactive-beamer.pdf in Adobe Reader
+%
+% ==================================================================================================
+\documentclass{beamer}
+
+% Path to common directory (parent of scholia)
+\newcommand{\CommonPath}{../..}
+
+% Load scholia with beamer and interactive options
+\usepackage[beamer,interactive,french]{\CommonPath/scholia/scholia}
+
+\title{Test: Interactive Features in Beamer}
+\author{Scholia Package Tests}
+\date{\today}
+
+\begin{document}
+
+\begin{frame}
+  \titlepage
+\end{frame}
+
+% ==================================================================================================
+\begin{frame}{Basic Hide Command}
+% ==================================================================================================
+
+The \texttt{\textbackslash hide} command works in Beamer:
+
+\begin{itemize}
+  \item The capital of France is \hide{Paris}
+  \item The answer is \hide{42}
+  \item In math: $\pi \approx \hide{3.14159}$
+\end{itemize}
+
+\textbf{Click on the dotted underlines to reveal!}
+
+\end{frame}
+
+% ==================================================================================================
+\begin{frame}{Custom Colors}
+% ==================================================================================================
+
+Hidden content with custom reveal colors:
+
+\begin{itemize}
+  \item Default: \hide{black text}
+  \item Red: \hide[red]{red text}
+  \item Blue: \hide[blue]{blue text}
+  \item Green: \hide[green!60!black]{green text}
+\end{itemize}
+
+\end{frame}
+
+% ==================================================================================================
+\begin{frame}{Math Mode in Beamer}
+% ==================================================================================================
+
+The quadratic formula:
+\[
+  x = \hide{\frac{-b \pm \sqrt{b^2 - 4ac}}{2a}}
+\]
+
+Derivatives:
+\begin{align*}
+  \frac{d}{dx}[x^n] &= \hide{nx^{n-1}} \\
+  \frac{d}{dx}[\sin x] &= \hide{\cos x} \\
+  \frac{d}{dx}[e^x] &= \hide{e^x}
+\end{align*}
+
+\end{frame}
+
+% ==================================================================================================
+\begin{frame}{Integration with Callouts}
+% ==================================================================================================
+
+\definitionmark{Important Formula}
+
+The formula for the area of a circle:
+\[
+  A = \hide{\pi r^2}
+\]
+
+\methodmark{To calculate}
+
+Steps: Identify the radius $r$, then compute \hide{$\pi r^2$}.
+
+\end{frame}
+
+% ==================================================================================================
+\begin{frame}{Conclusion}
+% ==================================================================================================
+
+\textbf{Test Summary:}
+
+\begin{itemize}
+  \item \hide{Basic hide works}
+  \item \hide{Colors work}
+  \item \hide{Math mode works}
+  \item \hide{Beamer integration works}
+\end{itemize}
+
+\bigskip
+\textbf{All tests passed if you can reveal each item!}
+
+\end{frame}
+
+\end{document}

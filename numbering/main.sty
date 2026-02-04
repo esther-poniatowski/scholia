@@ -1,0 +1,277 @@
+%% numbering/main.sty
+%% Copyright 2025-2026 Esther Poniatowski <esther.poniatowski@ens.psl.eu>
+%
+% This work may be distributed and/or modified under the
+% conditions of the LaTeX Project Public License, either version 1.3c
+% of this license or (at your option) any later version.
+%
+% This work has the LPPL maintenance status `maintained'.
+% The Current Maintainer of this work is Esther Poniatowski.
+%
+\NeedsTeXFormat{LaTeX2e}[2020/10/01]
+\ProvidesPackage{scholia-numbering}[2026/01/31 v0.1.0 Numbering systems]
+
+% ============================================================================
+% NUMBERING SYSTEMS
+% PURPOSE: Generic counter environments with visual markers
+%
+% Two visual styles are provided:
+%   - Squared items: [1], [2], [3]... with lettered sub-items (a), (b), (c)...
+%   - Circled items: ①, ②, ③... with lettered sub-items (a), (b), (c)...
+%
+% Semantic aliases map to common use cases:
+%   - step/substep → squareditem/squaredsubitem (procedural steps)
+%   - question/subquestion → circleditem/circledsubitem (exercise questions)
+% ============================================================================
+
+
+% ============================================================================
+% SQUARED ITEM SYSTEM
+% Visual: [1] [2] [3]... with (a) (b) (c)... sub-items
+% ============================================================================
+
+% --- Counters ---
+\newcounter{scholia@squarednum}
+\newcounter{scholia@squaredsubnum}[scholia@squarednum]
+
+% --- Indentation Lengths ---
+\newlength{\scholia@squaredindent}
+\newlength{\scholia@squaredsubindent}
+
+% --- Internal: Squared number formatting ---
+\newcommand{\scholia@numbering@squarenum}[1]{%
+    \setlength{\fboxsep}{1.5pt}%
+    \fbox{\scriptsize\rule{0pt}{1.3ex}#1}%
+}
+
+\settowidth{\scholia@squaredindent}{\scholia@numbering@squarenum{9}\;}
+\settowidth{\scholia@squaredsubindent}{\quad(\alph{scholia@squaredsubnum})\;}
+
+% ============================================================================
+% squareditem Environment
+%
+% Creates a numbered item with squared number label: [1], [2], etc.
+% Multi-line content aligns with the first line of text.
+%
+% Usage:
+%   \begin{squareditem}
+%     Content here...
+%   \end{squareditem}
+%
+%   \begin{squareditem}[Title]
+%     Content with bold title...
+%   \end{squareditem}
+% ============================================================================
+\NewDocumentEnvironment{squareditem}{O{}}{%
+\stepcounter{scholia@squarednum}%
+\par\noindent
+\scholia@numbering@squarenum{\thescholia@squarednum}\;%
+\ifx&#1&%
+    % No optional argument: content continues on same line with hanging indent
+    \hangindent=\scholia@squaredindent
+    \hangafter=1
+\else
+    % Optional argument: title with hanging indent, content at standard margin
+    \hangindent=\scholia@squaredindent
+    \hangafter=1
+    \textbf{#1}\par
+    \noindent  % Content returns to normal left margin
+\fi
+}{}
+
+% ============================================================================
+% squaredsubitem Environment
+%
+% Creates a lettered sub-item nested under the current squared item.
+% Detects horizontal/vertical mode to determine appropriate indentation.
+%
+% Usage:
+%   \begin{squaredsubitem}
+%     Sub-content here...
+%   \end{squaredsubitem}
+% ============================================================================
+\NewDocumentEnvironment{squaredsubitem}{O{}}{%
+\stepcounter{scholia@squaredsubnum}%
+\ifhmode
+    % Continuing on same line as parent number
+    \hangindent=\dimexpr\scholia@squaredindent+\scholia@squaredsubindent\relax
+    \hangafter=1
+    (\alph{scholia@squaredsubnum})\;%
+    \ifx&#1&%
+    \else
+        \hangindent=\dimexpr\scholia@squaredindent+\scholia@squaredsubindent\relax
+        \hangafter=1
+        \textbf{#1}\par
+        \noindent
+    \fi
+\else
+    % Starting new line
+    \par\noindent
+    \hspace{\scholia@squaredindent}%
+    \hangindent=\dimexpr\scholia@squaredindent+\scholia@squaredsubindent\relax
+    \hangafter=1
+    (\alph{scholia@squaredsubnum})\;%
+    \ifx&#1&%
+    \else
+        \hangindent=\dimexpr\scholia@squaredindent+\scholia@squaredsubindent\relax
+        \hangafter=1
+        \textbf{#1}\par
+        \noindent
+    \fi
+\fi
+}{\par}
+
+% ============================================================================
+% Lightweight Squared Item Command (\squaremark)
+%
+% Inline command for compact numbered lists with squared markers.
+% Usage: \squaremark Text of the item...
+% ============================================================================
+\newcommand{\squaremark}{%
+  \stepcounter{scholia@squarednum}%
+  \par\noindent
+  \hangindent=\scholia@squaredindent
+  \hangafter=1
+  \scholia@numbering@squarenum{\thescholia@squarednum}\;%
+}
+
+% ============================================================================
+% Lightweight Squared Subitem Command (\squaresubmark)
+%
+% Inline command for compact lettered sub-items under squared items.
+% Usage: \squaresubmark Text of the subitem...
+% ============================================================================
+\newcommand{\squaresubmark}{%
+  \stepcounter{scholia@squaredsubnum}%
+  \par\noindent
+  \hspace{\scholia@squaredindent}%
+  \hangindent=\dimexpr\scholia@squaredindent+\scholia@squaredsubindent\relax
+  \hangafter=1
+  (\alph{scholia@squaredsubnum})\;%
+}
+
+
+% ============================================================================
+% CIRCLED ITEM SYSTEM
+% Visual: ①, ②, ③... with ⓐ, ⓑ, ⓒ... sub-items
+% ============================================================================
+
+% --- Counters ---
+\newcounter{scholia@circlednum}
+\newcounter{scholia@circledsubnum}[scholia@circlednum]
+
+% --- Internal: Circled letter formatting (smaller for subitems) ---
+\newcommand{\scholia@numbering@circlealph}[1]{%
+  \textcircled{\scriptsize #1}%
+}
+
+% --- Indentation Lengths ---
+\newlength{\scholia@circledindent}
+\newlength{\scholia@circledsubindent}
+\settowidth{\scholia@circledindent}{\textcircled{9}\;}
+\settowidth{\scholia@circledsubindent}{\quad\scholia@numbering@circlealph{a}\;}
+
+% ============================================================================
+% Lightweight Circled Item Command (\circmark)
+%
+% Inline command for compact numbered lists.
+% Usage: \circmark Text of the item...
+% ============================================================================
+\newcommand{\circmark}{%
+  \stepcounter{scholia@circlednum}%
+  \par\noindent
+  \hangindent=\scholia@circledindent
+  \hangafter=1
+  \textcircled{\thescholia@circlednum}\;%
+}
+
+% ============================================================================
+% Lightweight Circled Subitem Command (\circsubmark)
+%
+% Inline command for compact circled-letter sub-items.
+% Usage: \circsubmark Text of the subitem...
+% ============================================================================
+\newcommand{\circsubmark}{%
+  \stepcounter{scholia@circledsubnum}%
+  \par\noindent
+  \hspace{\scholia@circledindent}%
+  \hangindent=\dimexpr\scholia@circledindent+\scholia@circledsubindent\relax
+  \hangafter=1
+  \scholia@numbering@circlealph{\alph{scholia@circledsubnum}}\;%
+}
+
+% ============================================================================
+% circleditem Environment
+%
+% Creates a numbered item with circled number label: ①, ②, etc.
+% Multi-line content aligns with the first line of text.
+%
+% Usage:
+%   \begin{circleditem}
+%     Content here...
+%   \end{circleditem}
+% ============================================================================
+\newenvironment{circleditem}{%
+\stepcounter{scholia@circlednum}%
+\par\noindent
+\hangindent=\scholia@circledindent
+\hangafter=1
+\textcircled{\thescholia@circlednum}\;%
+}{}
+
+% ============================================================================
+% circledsubitem Environment
+%
+% Creates a circled-letter sub-item nested under the current circled item.
+% Detects horizontal/vertical mode to determine appropriate indentation.
+%
+% Usage:
+%   \begin{circledsubitem}
+%     Sub-content here...
+%   \end{circledsubitem}
+% ============================================================================
+\newenvironment{circledsubitem}{%
+\stepcounter{scholia@circledsubnum}%
+\ifhmode
+    % Horizontal mode: continuing on same line as parent number
+    \hangindent=\dimexpr\scholia@circledindent+\scholia@circledsubindent\relax
+    \hangafter=1
+    \scholia@numbering@circlealph{\alph{scholia@circledsubnum}}\;%
+\else
+    % Vertical mode: starting new line, requires full indentation
+    \par\noindent
+    \hspace{\scholia@circledindent}%
+    \hangindent=\dimexpr\scholia@circledindent+\scholia@circledsubindent\relax
+    \hangafter=1
+    \scholia@numbering@circlealph{\alph{scholia@circledsubnum}}\;%
+\fi
+}{\par}
+
+
+% ============================================================================
+% SEMANTIC ALIASES
+% PURPOSE: Domain-specific names for common use cases
+% ============================================================================
+
+% --- Procedural Steps (squared items) ---
+% Use case: Method steps, algorithmic procedures, sequential instructions
+\let\step\squareditem
+\let\endstep\endsquareditem
+\let\substep\squaredsubitem
+\let\endsubstep\endsquaredsubitem
+\let\s\squaremark
+\let\subs\squaresubmark
+
+% --- Exercise Questions (circled items) ---
+% Use case: Exercise questions, exam problems, numbered tasks
+\let\question\circleditem
+\let\endquestion\endcircleditem
+\let\subquestion\circledsubitem
+\let\endsubquestion\endcircledsubitem
+
+% --- Lightweight aliases ---
+\let\q\circmark
+\let\subq\circsubmark
+
+
+\endinput

@@ -1,0 +1,86 @@
+%% base/boxes.sty
+%% Copyright 2025-2026 Esther Poniatowski <esther.poniatowski@ens.psl.eu>
+%
+% This work may be distributed and/or modified under the
+% conditions of the LaTeX Project Public License, either version 1.3c
+% of this license or (at your option) any later version.
+%
+% This work has the LPPL maintenance status `maintained'.
+% The Current Maintainer of this work is Esther Poniatowski.
+%
+\NeedsTeXFormat{LaTeX2e}[2020/10/01]
+\ProvidesPackage{scholia-boxes}[2026/01/31 v0.1.0 Box utilities]
+
+% ============================================================================
+% BOX UTILITIES
+% PURPOSE: Inline and floating box elements for annotations and frames
+%          These create visually distinct bounded regions
+% ============================================================================
+
+
+% ============================================================================
+% INLINE FRAMES
+% PURPOSE: Parameterized command for creating inline frames with optional arrow
+%
+% Syntax:
+%   \inlineframebox[color]{content}       - Frame only
+%   \inlineframebox[color]*{content}      - Arrow + frame
+%
+% Parameters:
+%   [color]   : optional base color (default: blue)
+%   *         : star modifier adds a rightward arrow before the frame
+%   {content} : text content to display inside frame
+% ============================================================================
+
+\tcbset{
+  inlineframe/.style={
+    enhanced,
+    boxsep=1pt,
+    left=2pt,
+    right=2pt,
+    top=1pt,
+    bottom=1pt,
+    nobeforeafter,
+    tcbox raise base,
+    colback=#1!10!white,
+    colframe=#1!60!black,
+    coltext=#1!40!black,
+    boxrule=0.5pt,
+    arc=2pt,
+  }
+}
+
+\NewDocumentCommand{\inlineframebox}{O{blue} s m}{%
+  \begingroup
+  \colorlet{inlinebase}{#1}%
+  \colorlet{inlinearrowcolor}{inlinebase!60!black}%
+  \IfBooleanTF{#2}{%
+    \textcolor{inlinearrowcolor}{\ensuremath{\rightarrow}}\;%
+    \tcbox[inlineframe=inlinebase]{#3}%
+  }{%
+    \tcbox[inlineframe=inlinebase]{#3}%
+  }%
+  \endgroup
+}
+
+
+% ============================================================================
+% ANNOTATION BOX
+% PURPOSE: Generic colored annotation tag using TikZ
+% USAGE: \annotationBox{color}{text}
+%
+% Creates a small rounded box with colored background, suitable for
+% inline annotations, labels, or category markers.
+% ============================================================================
+
+\newcommand{\annotationBox}[2]{%
+  \tikz[baseline=(X.base)]{%
+    \node[fill=#1!25, rounded corners=3pt, inner sep=2pt, font=\footnotesize\bfseries, text=#1!80!black] (X) {#2};%
+  }%
+}
+
+% Legacy alias for backward compatibility
+\let\codeBox\annotationBox
+
+
+\endinput

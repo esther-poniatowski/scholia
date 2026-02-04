@@ -1,0 +1,323 @@
+%% interactive/main.sty
+%% Copyright 2025-2026 Esther Poniatowski <esther.poniatowski@ens.psl.eu>
+%
+% This work may be distributed and/or modified under the
+% conditions of the LaTeX Project Public License, either version 1.3c
+% of this license or (at your option) any later version.
+%
+% This work has the LPPL maintenance status `maintained'.
+% The Current Maintainer of this work is Esther Poniatowski.
+%
+% ACKNOWLEDGMENT:
+%   This module is based on an implementation suggested by Réginald Bayle.
+%   Original concept: OCG-based hide/reveal for progressive content disclosure.
+%
+\NeedsTeXFormat{LaTeX2e}[2020/10/01]
+\ProvidesPackage{scholia-interactive}[2026/02/02 v0.1.0 Interactive PDF toggle features]
+
+% ============================================================================
+% INTERACTIVE PDF TOGGLE FUNCTIONALITY
+% PURPOSE: Provide clickable hide/reveal content in PDFs using OCG layers
+%
+% OVERVIEW:
+%   This module enables progressive content disclosure in PDF documents.
+%   Hidden content appears as underlined placeholder text that reveals
+%   the actual content when clicked. This is useful for:
+%   - Teacher presentations with revealable answers
+%   - Self-study materials with hidden hints
+%   - Interactive worksheets
+%
+% TECHNICAL APPROACH:
+%   Uses PDF Optional Content Groups (OCG) via the ocgx2 package.
+%   Each hidden element creates a unique OCG layer that toggles on click.
+%   The content is rendered twice: once as placeholder, once as reveal.
+%
+% REQUIREMENTS:
+%   - ocgx2 package (loaded automatically with printocg=always)
+%   - tikz package (for OCG integration)
+%   - PDF viewer with JavaScript support (Adobe Reader, PDF.js)
+%
+% USAGE:
+%   \hide{hidden text}           % Basic hide/reveal
+%   \hide[red]{text}             % Custom reveal color
+%   \Hide{1}{2-}{text}           % Beamer-compatible (hidden on slide 1, shown from 2)
+%
+% LIMITATIONS:
+%   - Requires PDF viewers with OCG/JavaScript support
+%   - Some viewers (Preview.app) may not support toggling
+%   - Print behavior depends on printocg option
+% ============================================================================
+
+% -----------------------------------------------------------------------------
+% PACKAGE DEPENDENCIES
+% -----------------------------------------------------------------------------
+
+% ocgx2 provides cross-engine OCG support (pdflatex, lualatex, xelatex)
+% printocg=always ensures hidden content prints even when visually hidden
+\RequirePackage[tikz,printocg=always]{ocgx2}
+
+% xspace for smart spacing after commands
+\@ifpackageloaded{xspace}{}{\RequirePackage{xspace}}
+
+% ulem for better underline support (more robust than soul's dotuline)
+\@ifpackageloaded{ulem}{}{\RequirePackage[normalem]{ulem}}
+
+% -----------------------------------------------------------------------------
+% INTERNAL STATE
+% -----------------------------------------------------------------------------
+
+% Counter for unique OCG layer identifiers
+\newcounter{scholia@hide@counter}
+
+% Length for measuring content width (overlay positioning)
+\newlength{\scholia@hide@width}
+
+% Boolean for math mode detection
+\newif\ifscholia@hide@mathmode
+
+% Default reveal color (can be overridden per-call)
+% Uses package background or falls back to defined color
+\ifdefined\bg
+  \colorlet{scholia-hide-reveal}{bg}
+\else
+  \colorlet{scholia-hide-reveal}{white}
+\fi
+
+% Underline color for hidden content indicator
+\colorlet{scholia-hide-underline}{black!25}
+
+% -----------------------------------------------------------------------------
+% INTERNAL: UNDERLINED TEXT WRAPPER
+% -----------------------------------------------------------------------------
+% Creates dotted underline effect using TikZ for maximum compatibility
+%
+% #1: text color
+% #2: content to underline
+
+\newcommand{\scholia@hide@underline}[2]{%
+  \bgroup
+  % Set up dotted underline style
+  \def\ULdepth{1.5pt}%
+  \def\ULthickness{0.4pt}%
+  \setbox0=\hbox{#2}%
+  \textcolor{#1}{#2}%
+  \llap{%
+    \begin{tikzpicture}[baseline=(char.base)]
+      \node[inner sep=0pt] (char) {\phantom{#2}};
+      \draw[scholia-hide-underline,densely dotted,line width=\ULthickness]
+        (char.south west) -- (char.south east);
+    \end{tikzpicture}%
+  }%
+  \egroup
+}
+
+% Simpler version without TikZ overhead - uses basic rule
+\newcommand{\scholia@hide@underline@simple}[2]{%
+  \leavevmode
+  \setbox0=\hbox{\textcolor{#1}{#2}}%
+  \copy0%
+  \kern-\wd0%
+  \lower1.5pt\hbox to\wd0{%
+    \textcolor{scholia-hide-underline}{\xleaders\hbox{.}\hfil}%
+  }%
+}
+
+% -----------------------------------------------------------------------------
+% INTERNAL: FORMATTED CONTENT WRAPPER
+% -----------------------------------------------------------------------------
+% Wraps content with appropriate text color and underline styling
+% Handles both math and text mode transparently
+%
+% #1: color name for text
+% #2: content to format
+
+\newcommand{\scholia@hide@format}[2]{%
+  \leavevmode
+  % Render content with dotted underline
+  \ifscholia@hide@mathmode
+    \scholia@hide@underline@simple{#1}{$#2$}%
+  \else
+    \scholia@hide@underline@simple{#1}{#2}%
+  \fi
+}
+
+% Plain format (no underline) for internal use
+\newcommand{\scholia@hide@plain}[2]{%
+  \ifscholia@hide@mathmode
+    \textcolor{#1}{$#2$}%
+  \else
+    \textcolor{#1}{#2}%
+  \fi
+}
+
+% -----------------------------------------------------------------------------
+% LOW-LEVEL: TOGGLE LAYER LINK
+% -----------------------------------------------------------------------------
+% Creates a clickable link that toggles an OCG layer visibility
+% Uses ocgx2's JavaScript-based toggle mechanism
+%
+% #1: OCG layer reference name (internal identifier)
+% #2: clickable content (the link text)
+
+\newcommand{\scholia@togglelayer}[2]{%
+  \switchocg{#1}{#2}%
+}
+
+% -----------------------------------------------------------------------------
+% MAIN COMMAND: \hide
+% -----------------------------------------------------------------------------
+% Creates hidden content that can be revealed by clicking
+%
+% Syntax:
+%   \hide{content}           % Use default reveal color
+%   \hide[color]{content}    % Use specified reveal color
+%
+% Behavior:
+%   - Content appears as dotted underline placeholder
+%   - Clicking reveals the actual content
+%   - Works in both text and math mode
+%   - Each instance has unique OCG layer (independent toggling)
+%
+% Arguments:
+%   [#1]: Optional color for revealed text (default: black)
+%   #2:   Content to hide
+
+\NewDocumentCommand{\hide}{O{.} m}{%
+  % Detect math mode for proper content wrapping
+  \relax\ifmmode\scholia@hide@mathmodetrue\else\scholia@hide@mathmodefalse\fi
+  %
+  % Generate unique layer identifier
+  \stepcounter{scholia@hide@counter}%
+  \edef\scholia@hide@layername{scholia-hide-\arabic{scholia@hide@counter}}%
+  \edef\scholia@hide@layerref{scholia-hide-ref-\arabic{scholia@hide@counter}}%
+  %
+  % Measure content width for overlay positioning
+  \settowidth{\scholia@hide@width}{%
+    \scholia@hide@format{black}{#2}%
+  }%
+  %
+  % Render placeholder (always visible, serves as base layer)
+  \scholia@hide@format{scholia-hide-reveal}{#2}%
+  %
+  % Move back to overlay the reveal content
+  \nobreak\hspace{-\scholia@hide@width}%
+  %
+  % Determine reveal color
+  \ifx.#1.%
+    \def\scholia@hide@revealcolor{black}%
+  \else
+    \def\scholia@hide@revealcolor{#1}%
+  \fi
+  %
+  % OCG layer for revealed content (initially hidden, status=0)
+  \begin{ocg}{\scholia@hide@layername}{\scholia@hide@layerref}{0}%
+    % Clickable reveal content
+    \scholia@togglelayer{\scholia@hide@layerref}{%
+      \scholia@hide@format{\scholia@hide@revealcolor}{#2}%
+    }%
+  \end{ocg}%
+  \xspace
+}
+
+% -----------------------------------------------------------------------------
+% ALTERNATIVE: \hideNoUnderline
+% -----------------------------------------------------------------------------
+% Same as \hide but without the dotted underline indicator
+% Useful when the placeholder should be completely invisible
+%
+% This variant shows content as invisible (background color only)
+% and reveals on click without underline decoration
+
+\NewDocumentCommand{\hideNoUnderline}{O{.} m}{%
+  \relax\ifmmode\scholia@hide@mathmodetrue\else\scholia@hide@mathmodefalse\fi
+  %
+  \stepcounter{scholia@hide@counter}%
+  \edef\scholia@hide@layername{scholia-hide-\arabic{scholia@hide@counter}}%
+  \edef\scholia@hide@layerref{scholia-hide-ref-\arabic{scholia@hide@counter}}%
+  %
+  % Measure content width
+  \settowidth{\scholia@hide@width}{%
+    \scholia@hide@plain{black}{#2}%
+  }%
+  %
+  % Render invisible placeholder
+  \scholia@hide@plain{scholia-hide-reveal}{#2}%
+  %
+  % Move back for overlay
+  \nobreak\hspace{-\scholia@hide@width}%
+  %
+  % Determine reveal color
+  \ifx.#1.%
+    \def\scholia@hide@revealcolor{black}%
+  \else
+    \def\scholia@hide@revealcolor{#1}%
+  \fi
+  %
+  % OCG layer
+  \begin{ocg}{\scholia@hide@layername}{\scholia@hide@layerref}{0}%
+    \scholia@togglelayer{\scholia@hide@layerref}{%
+      \scholia@hide@plain{\scholia@hide@revealcolor}{#2}%
+    }%
+  \end{ocg}%
+  \xspace
+}
+
+% -----------------------------------------------------------------------------
+% BEAMER INTEGRATION: \Hide
+% -----------------------------------------------------------------------------
+% Combines OCG hiding with Beamer's overlay specifications
+% Allows content to be hidden interactively AND controlled by slide number
+%
+% Syntax:
+%   \Hide{hide-slides}{show-slides}{content}
+%   \Hide[color]{hide-slides}{show-slides}{content}
+%
+% Arguments:
+%   [#1]: Optional reveal color
+%   #2:   Slide specification where content is hidden (e.g., "1", "1-3")
+%   #3:   Slide specification where content is shown (e.g., "2-", "4-")
+%   #4:   Content
+%
+% Example:
+%   \Hide{1}{2-}{answer}  % Hidden on slide 1, revealed from slide 2
+
+\ifscholia@beamer
+  \NewDocumentCommand{\Hide}{O{.} m m m}{%
+    \only<#2>{\hide[#1]{#4}}%
+    \only<#3>{#4}%
+  }
+\else
+  % In article mode, \Hide behaves like \hide (ignores slide specs)
+  \NewDocumentCommand{\Hide}{O{.} m m m}{%
+    \hide[#1]{#4}%
+  }
+\fi
+
+% -----------------------------------------------------------------------------
+% REVEAL ALL COMMAND (placeholder)
+% -----------------------------------------------------------------------------
+% Toggle all hidden content to revealed state
+% Useful for teacher mode or printing solutions
+%
+% Note: Full implementation requires JavaScript embedding
+
+\newcommand{\revealAll}{%
+  \PackageWarning{scholia-interactive}{%
+    \string\revealAll\space is not yet implemented.
+    Use PDF viewer's layer panel to show all layers.%
+  }%
+}
+
+% -----------------------------------------------------------------------------
+% HIDE ALL COMMAND (placeholder)
+% -----------------------------------------------------------------------------
+% Toggle all hidden content back to hidden state
+
+\newcommand{\hideAll}{%
+  \PackageWarning{scholia-interactive}{%
+    \string\hideAll\space is not yet implemented.
+    Use PDF viewer's layer panel to hide all layers.%
+  }%
+}
+
+\endinput

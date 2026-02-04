@@ -1,0 +1,290 @@
+%% callouts/types.sty
+%% Copyright 2025-2026 Esther Poniatowski <esther.poniatowski@ens.psl.eu>
+%
+% This work may be distributed and/or modified under the
+% conditions of the LaTeX Project Public License, either version 1.3c
+% of this license or (at your option) any later version.
+%
+% This work has the LPPL maintenance status `maintained'.
+% The Current Maintainer of this work is Esther Poniatowski.
+%
+\NeedsTeXFormat{LaTeX2e}[2020/10/01]
+\ProvidesPackage{scholia-callouts-types}[2026/01/31 v0.1.0 Callout type definitions]
+
+% NOTE: Colors are defined in base/colors.sty (scholia-* namespace)
+
+
+% ============================================================================
+% SECTION 2: ICON DEFINITIONS (internal)
+% PURPOSE: Map each callout type to its corresponding icon filename
+% All icons must be PDF files located in the icons/pdf/ directory
+% ============================================================================
+
+\def\scholia@callout@icon@warning{triangle-alert.pdf}               % Warning triangle
+\def\scholia@callout@icon@definition{book-marked.pdf}                % Bookmarked book
+\def\scholia@callout@icon@tip{lightbulb.pdf}                         % Light bulb
+\def\scholia@callout@icon@method{pencil.pdf}                         % Pencil
+\def\scholia@callout@icon@notation{component.pdf}                    % Component symbol
+\def\scholia@callout@icon@objective{locate-fixed.pdf}                % Target/location marker
+\def\scholia@callout@icon@theorem{pin.pdf}                           % Pin/tack
+\def\scholia@callout@icon@remark{search.pdf}                         % Magnifying glass
+\def\scholia@callout@icon@error{ban.pdf}                             % Ban/prohibition symbol
+\def\scholia@callout@icon@instruction{megaphone.pdf}                 % Megaphone
+\def\scholia@callout@icon@summary{goal.pdf}                          % Goal/finish flag
+\def\scholia@callout@icon@question{message-circle-question-mark.pdf} % Question bubble
+\def\scholia@callout@icon@proof{cog.pdf}                             % Cog (proof mechanism)
+
+
+% ============================================================================
+% SECTION 3: STANDARD CALLOUT TYPES (using factory)
+% PURPOSE: Define callout environments using the factory macro
+%
+% Each callout type provides two environments:
+% - <type>box  : full callout with content area
+% - <type>mark : compact inline marker (no body area)
+%
+% Factory macro: \scholia@callout@newtype{typename}
+% Prerequisites: scholia-<typename> color and \scholia@callout@icon@<typename>
+% ============================================================================
+
+% Standard callout types (generated via factory)
+\scholia@callout@newtype{warning}       % Warnings, alerts
+\scholia@callout@newtype{definition}    % Mathematical definitions
+\scholia@callout@newtype{tip}           % Helpful tips, strategies
+\scholia@callout@newtype{method}        % Step-by-step procedures
+\scholia@callout@newtype{notation}      % Notation conventions
+\scholia@callout@newtype{objective}     % Learning objectives
+\scholia@callout@newtype{theorem}       % Theorems, propositions
+\scholia@callout@newtype{remark}        % Observations, remarks
+\scholia@callout@newtype{error}         % Common errors
+\scholia@callout@newtype{instruction}   % Instructions, directives
+\scholia@callout@newtype{question}      % Questions for reflection
+
+
+% ============================================================================
+% SECTION 4: SPECIAL CALLOUT TYPES (custom styling)
+% PURPOSE: Callout types with non-standard visual styling
+% ============================================================================
+
+% --- SUMMARY ---
+% Use case: Summary, synthesis, recap of key points
+% Special styling: light gray with dotted frame for subtle visual separation
+% NOTE: Uses scholia-summary-light (light gray) instead of scholia-summary (gray-brown)
+\newtcolorbox{summarybox}[1][]{%
+  callout layout=scholia-summary-light,
+  colback=scholia-summary-light!5,
+  colframe=scholia-summary-light!60,
+  colbacktitle=scholia-summary-light!5,
+  coltitle=black,
+  boxrule=1pt,
+  frame style={dotted},
+  title={\scholia@callout@title{\scholia@callout@icon@summary}{#1}},
+}
+
+% summarymark: special styling (black text, custom borderline)
+\NewDocumentCommand{\summarymark}{O{} m}{%
+  \begin{tcolorbox}[%
+    callout titleonly=scholia-summary-light,
+    coltitle=black,
+    borderline={1pt}{0pt}{scholia-summary-light!60},
+    title={\scholia@callout@title{\scholia@callout@icon@summary}{#2}},
+    #1%
+  ]\end{tcolorbox}%
+}
+
+
+% --- METHOD CONCISE ---
+% Identical to methodbox but without title bar (no logo, no reserved space)
+\newtcolorbox{methodconcise}{
+  callout layout=scholia-method,
+}
+
+
+% --- PROOF ---
+% Use case: Mathematical proofs and demonstrations
+% Special styling: white background with dotted gray frame, no title separator
+\newtcolorbox{proofbox}[1][]{%
+  enhanced,
+  arc=2mm,
+  colback=white,
+  colframe=white,
+  colbacktitle=white,
+  coltitle=scholia-proof,
+  fonttitle=\bfseries\sffamily,
+  attach boxed title to top left={yshift=-2mm, xshift=3mm},
+  boxed title style={colback=white, colframe=white, boxrule=0pt},
+  borderline={1pt}{0pt}{scholia-proof!60, dotted},
+  left=3mm,
+  right=3mm,
+  top=4mm,
+  bottom=2mm,
+  before skip=6pt,
+  after skip=6pt,
+  title={\scholia@callout@title{\scholia@callout@icon@proof}{#1}},
+}
+
+% proofmark: special styling (white background, dotted borderline)
+\NewDocumentCommand{\proofmark}{O{} m}{%
+  \begin{tcolorbox}[%
+    enhanced,
+    arc=2mm,
+    colback=white,
+    colframe=white,
+    colbacktitle=white,
+    coltitle=scholia-proof,
+    fonttitle=\bfseries\sffamily,
+    borderline={1pt}{0pt}{scholia-proof!60, dotted},
+    boxsep=0pt,
+    top=1.5mm,
+    bottom=1.5mm,
+    left=3mm,
+    right=3mm,
+    before skip=10pt,
+    after skip=10pt,
+    title={\scholia@callout@title{\scholia@callout@icon@proof}{#2}},
+    #1%
+  ]\end{tcolorbox}%
+}
+
+
+% Internal macro to create a "concise" callout (colored background, no title or logo)
+% Usage: \scholia@callout@newconcise{name}{colback}{colframe}
+% Example: \scholia@callout@newconcise{method}{callout-method!100!white}{callout-method!80!black}
+\newcommand{\scholia@callout@newconcise}[3]{%
+  \expandafter\newtcolorbox\csname #1concise\endcsname{%
+    colback=#2,
+    colframe=#3,
+    boxrule=0pt,
+    arc=2pt,
+    left=6pt,
+    right=6pt,
+    top=6pt,
+    bottom=6pt,
+    enhanced,
+    sharp corners=south,
+    before skip=6pt,
+    after skip=6pt,
+    boxsep=0pt,
+  }
+}
+
+
+% --- EXAMPLE ILLUSTRATION ---
+% Use case: Examples in parallel to theoretical boxes
+% Minimal styling to avoid visual competition with main callout boxes
+% Title "Example" overlaid on top border with white background
+% Standard name (English)
+\newtcolorbox{exampleillustration}{
+  enhanced,
+  arc=1mm,
+  colback=white,
+  colframe=white,
+  boxrule=0pt,
+  borderline={0.6pt}{0pt}{gray!50, dotted},
+  left=2.5mm,
+  right=2.5mm,
+  top=4mm,
+  bottom=2mm,
+  before skip=6pt,
+  after skip=6pt,
+  attach boxed title to top left={yshift=-2mm, xshift=3mm},
+  boxed title style={colback=white, colframe=white, boxrule=0pt, sharp corners},
+  fonttitle=\small\itshape,
+  coltitle=gray!70,
+  title={\scholia@str@callout@example},
+}
+
+
+% ============================================================================
+% SECTION 5: INLINE HINT COMMANDS
+% PURPOSE: Brief inline markers for methodological guidance
+% ============================================================================
+
+% --- METHOD HINT INLINE ---
+% Use case: Brief methodological hints within corrections or exercises
+% Provides a subtle visual marker without the full weight of a methodbox
+%
+% Usage:
+%   \methodHint{Use the multiplication coefficient.}
+%
+% Visual: Light blue inline frame with colored text
+\newcommand{\methodHint}[1]{%
+  \par\smallskip
+  \noindent
+  \inlineframebox[scholia-method]{\scholia@str@callout@method}\;\textcolor{scholia-method!60!black}{#1}%
+  \par\smallskip
+}
+
+
+% --- APPROACH HINT INLINE ---
+% Use case: Introduce resolution approaches in corrections (first or alternative)
+% Distinguishes different valid methods for solving the same problem
+%
+% Usage:
+%   \approachHint{Via the proportion definition.}        % First approach
+%   \approachHint*{Via percentage of percentage.}        % Alternative approach
+%
+% Visual: Orange inline frame with colored text
+\newcommand{\approachHint}{%
+  \@ifstar{\scholia@approachalt}{\scholia@approachprim}%
+}
+\newcommand{\scholia@approachprim}[1]{%
+  \par\smallskip
+  \noindent
+  \inlineframebox[scholia-exercise]{\scholia@str@callout@approach\ 1}\;\textcolor{scholia-exercise!60!black}{#1}%
+  \par\smallskip
+}
+\newcommand{\scholia@approachalt}[1]{%
+  \par\smallskip
+  \noindent
+  \inlineframebox[scholia-exercise]{\scholia@str@callout@approach\ 2}\;\textcolor{scholia-exercise!60!black}{#1}%
+  \par\smallskip
+}
+
+
+% ============================================================================
+% SECTION 6: TIKZ NODE STYLES FOR SPECIFIC CALLOUT TYPES
+% PURPOSE: Define TikZ node variants of callout boxes for parallel layouts
+%
+% These styles are used when callout content needs to be positioned alongside
+% examples using TikZ positioning. They replicate the visual style of tcolorbox
+% callouts but as TikZ nodes for precise alignment control.
+% ============================================================================
+
+% Definition box as TikZ node
+\tikzset{
+  defnode/.style={callout tikznode=scholia-definition}
+}
+
+% Theorem box as TikZ node
+\tikzset{
+  theoremnode/.style={callout tikznode=scholia-theorem}
+}
+
+% Warning box as TikZ node
+\tikzset{
+  warningnode/.style={callout tikznode=scholia-warning}
+}
+
+% Tip box as TikZ node
+\tikzset{
+  tipnode/.style={callout tikznode=scholia-tip}
+}
+
+% Example box as TikZ node (standard size)
+\tikzset{
+  exnode/.style={example tikznode}
+}
+
+% Example box as TikZ node (smaller padding for compact layouts)
+\tikzset{
+  smallexnode/.style={
+    rectangle, draw=gray!40, line width=0.6pt, rounded corners=1mm,
+    fill=white, dotted,
+    text width=0.45\textwidth, align=left,
+    inner sep=2mm, outer sep=0pt
+  }
+}
+
+
+\endinput

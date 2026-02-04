@@ -1,0 +1,71 @@
+%% base/article.sty
+%% Copyright 2025-2026 Esther Poniatowski <esther.poniatowski@ens.psl.eu>
+%
+% This work may be distributed and/or modified under the
+% conditions of the LaTeX Project Public License, either version 1.3c
+% of this license or (at your option) any later version.
+%
+% This work has the LPPL maintenance status `maintained'.
+% The Current Maintainer of this work is Esther Poniatowski.
+%
+\NeedsTeXFormat{LaTeX2e}[2020/10/01]
+\ProvidesPackage{scholia-base-article}[2026/01/31 v0.1.0 Article class configuration]
+
+\geometry{
+    a4paper,
+    margin=2cm
+}
+
+% ============================================================================
+% SECTION FORMATTING
+% DEPENDENCIES: titlesec
+% PURPOSE: Configure hierarchical title appearance and spacing
+% ============================================================================
+\titleformat{\section}
+    {\normalfont\Large\bfseries}
+    {\thesection.}
+    {1em}
+    {}
+
+\titleformat{\subsection}
+    {\normalfont\large\bfseries}
+    {\thesubsection.}
+    {1em}
+    {}
+
+\titleformat{\subsubsection}
+    {\normalfont\bfseries}
+    {\thesubsubsection.}
+    {1em}
+    {}
+
+% Numbering style
+\renewcommand{\thesection}{\Roman{section}}
+\renewcommand{\thesubsection}{\arabic{subsection}}
+\renewcommand{\thesubsubsection}{\alph{subsubsection}}
+
+% Title labeling
+\titlelabel{\thetitle.\quad}
+
+% Vertical spacing
+\titlespacing*{\section}{0pt}{1.8\baselineskip}{0.7\baselineskip}
+\titlespacing*{\subsection}{0pt}{1.4\baselineskip}{0.5\baselineskip}
+\titlespacing*{\subsubsection}{0pt}{1.0\baselineskip}{0.4\baselineskip}
+
+% ============================================================================
+% HEADER AND FOOTER STYLING
+% DEPENDENCIES: fancyhdr, lastpage, refcount, everypage
+% PURPOSE: Configure page headers, footers, and running heads
+% Note: Header/footer content typically set by document-specific macros
+% (e.g., macros-fiches.tex). This file provides baseline configuration only.
+% The improved system configures:
+%   - Gray header/footer separators
+%   - Header content (reference + chapter)
+%   - Footer content (author/year + relative page number)
+% Do NOT redefine \headrule, \footrule, or fancyhdr content here
+% ============================================================================
+\pagestyle{fancy} % Initialize fancyhdr
+\fancyhf{}        % Clear all fields for custom header/footer
+
+
+\endinput

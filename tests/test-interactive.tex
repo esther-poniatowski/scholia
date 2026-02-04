@@ -1,0 +1,231 @@
+% FILE: common/scholia/tests/test-interactive.tex
+% ==================================================================================================
+% TEST FILE: Interactive Hide/Reveal Features
+%
+% PURPOSE:
+%   Test the OCG-based hide/reveal functionality provided by interactive/main.sty
+%
+% REQUIREMENTS:
+%   - pdflatex, lualatex, or xelatex
+%   - PDF viewer with OCG/JavaScript support (Adobe Reader, PDF.js)
+%   - Note: Preview.app on macOS does NOT support OCG toggling
+%
+% USAGE:
+%   pdflatex test-interactive.tex
+%   Open test-interactive.pdf in Adobe Reader
+%   Click on dotted underlines to reveal hidden content
+%
+% ==================================================================================================
+\documentclass[11pt,a4paper]{article}
+
+% Path to common directory (parent of scholia)
+\newcommand{\CommonPath}{../..}
+
+% Load scholia with interactive option
+\usepackage[interactive,french]{\CommonPath/scholia/scholia}
+
+% Additional packages for testing
+\usepackage{amsmath}
+\usepackage{lipsum}
+
+\title{Test: Interactive Hide/Reveal Features}
+\author{Scholia Package Tests}
+\date{\today}
+
+\begin{document}
+\maketitle
+
+\section{Introduction}
+
+This document tests the interactive hide/reveal functionality provided by the
+\texttt{scholia} package with the \texttt{interactive} option.
+
+\textbf{Instructions:}
+\begin{enumerate}
+  \item Open this PDF in a viewer that supports OCG layers (Adobe Reader, PDF.js)
+  \item Click on the dotted underlined areas to reveal hidden content
+  \item Click again to hide the content
+\end{enumerate}
+
+Note: Apple Preview and some other viewers do not support OCG toggling.
+
+% ==================================================================================================
+\section{Basic Hide Command}
+% ==================================================================================================
+
+\subsection{Simple Text}
+
+The capital of France is \hide{Paris}.
+
+The answer to $2 + 2$ is \hide{4}.
+
+A complete sentence can be hidden: \hide{This entire sentence is hidden until clicked.}
+
+\subsection{Multiple Hidden Elements}
+
+Fill in the blanks:
+\begin{itemize}
+  \item The largest planet is \hide{Jupiter}.
+  \item Water boils at \hide{100} degrees Celsius.
+  \item The chemical symbol for gold is \hide{Au}.
+  \item Light travels at approximately \hide{300,000 km/s}.
+\end{itemize}
+
+% ==================================================================================================
+\section{Math Mode Compatibility}
+% ==================================================================================================
+
+\subsection{Inline Math}
+
+The quadratic formula is $x = \hide{\frac{-b \pm \sqrt{b^2 - 4ac}}{2a}}$.
+
+Given $f(x) = x^2$, we have $f'(x) = \hide{2x}$.
+
+The derivative of $\sin(x)$ is $\hide{\cos(x)}$.
+
+\subsection{Display Math}
+
+Solve for $x$:
+\[
+  x^2 - 5x + 6 = 0 \implies x = \hide{2} \text{ or } x = \hide{3}
+\]
+
+The integral:
+\[
+  \int_0^1 x^2 \, dx = \hide{\left[\frac{x^3}{3}\right]_0^1} = \hide{\frac{1}{3}}
+\]
+
+\subsection{Aligned Equations}
+
+\begin{align*}
+  (a + b)^2 &= \hide{a^2 + 2ab + b^2} \\
+  (a - b)^2 &= \hide{a^2 - 2ab + b^2} \\
+  (a + b)(a - b) &= \hide{a^2 - b^2}
+\end{align*}
+
+% ==================================================================================================
+\section{Custom Colors}
+% ==================================================================================================
+
+The default reveal color is black. You can specify a custom color:
+
+\begin{itemize}
+  \item Default color: \hide{This text appears in black}
+  \item Red text: \hide[red]{This text appears in red}
+  \item Blue text: \hide[blue]{This text appears in blue}
+  \item Green text: \hide[green!60!black]{This text appears in dark green}
+  \item Custom color: \hide[orange]{This text appears in orange}
+\end{itemize}
+
+% ==================================================================================================
+\section{Nested and Complex Content}
+% ==================================================================================================
+
+\subsection{Formatted Text}
+
+Hidden content can include formatting:
+\begin{itemize}
+  \item Bold: \hide{\textbf{bold text}}
+  \item Italic: \hide{\textit{italic text}}
+  \item Combined: \hide{\textbf{\textit{bold italic}}}
+\end{itemize}
+
+\subsection{Multiple Words}
+
+The three primary colors are \hide{red, blue, and yellow}.
+
+In French: Les trois couleurs primaires sont \hide{le rouge, le bleu et le jaune}.
+
+% ==================================================================================================
+\section{Integration with Scholia Features}
+% ==================================================================================================
+
+\subsection{With Callout Boxes}
+
+\begin{definitionbox}{Pythagorean Theorem}
+  In a right triangle with legs $a$ and $b$ and hypotenuse $c$:
+  \[
+    \hide{a^2 + b^2 = c^2}
+  \]
+\end{definitionbox}
+
+\begin{methodbox}{Solving Quadratic Equations}
+  To solve $ax^2 + bx + c = 0$:
+  \begin{enumerate}
+    \item Calculate the discriminant: $\Delta = \hide{b^2 - 4ac}$
+    \item If $\Delta > 0$: two solutions $x = \hide{\frac{-b \pm \sqrt{\Delta}}{2a}}$
+    \item If $\Delta = 0$: one solution $x = \hide{\frac{-b}{2a}}$
+    \item If $\Delta < 0$: \hide{no real solutions}
+  \end{enumerate}
+\end{methodbox}
+
+\subsection{With Exercise Environment}
+
+\begin{exauto}[Derivatives][1]
+  Calculate the following derivatives:
+  \begin{enumerate}
+    \item $f(x) = 3x^4 - 2x^2 + 5$ \quad $\Rightarrow$ \quad $f'(x) = \hide{12x^3 - 4x}$
+    \item $g(x) = \sin(2x)$ \quad $\Rightarrow$ \quad $g'(x) = \hide{2\cos(2x)}$
+    \item $h(x) = e^{x^2}$ \quad $\Rightarrow$ \quad $h'(x) = \hide{2x \cdot e^{x^2}}$
+  \end{enumerate}
+\end{exauto}
+
+% ==================================================================================================
+\section{Edge Cases}
+% ==================================================================================================
+
+\subsection{Empty Content}
+
+An empty hide command: \hide{} (should produce nothing).
+
+\subsection{Special Characters}
+
+Hide with special characters: \hide{10\% discount, \$100, \& more}.
+
+\subsection{Long Content}
+
+A longer hidden passage: \hide{This is a much longer piece of text that demonstrates
+how the hide command handles content that spans multiple words and could potentially
+wrap across lines in the final document.}
+
+\subsection{Adjacent Hidden Elements}
+
+Two hidden elements side by side: \hide{first}\hide{second}.
+
+With space: \hide{first} \hide{second}.
+
+% ==================================================================================================
+\section{Performance Check}
+% ==================================================================================================
+
+This section tests multiple hidden elements to ensure the counter mechanism works:
+
+\begin{enumerate}
+  \item Answer: \hide{A}
+  \item Answer: \hide{B}
+  \item Answer: \hide{C}
+  \item Answer: \hide{D}
+  \item Answer: \hide{E}
+  \item Answer: \hide{F}
+  \item Answer: \hide{G}
+  \item Answer: \hide{H}
+  \item Answer: \hide{I}
+  \item Answer: \hide{J}
+\end{enumerate}
+
+% ==================================================================================================
+\section{Conclusion}
+% ==================================================================================================
+
+All tests above should demonstrate:
+\begin{itemize}
+  \item Basic hide/reveal functionality with clickable toggling
+  \item Proper handling of text and math modes
+  \item Custom color support
+  \item Integration with other scholia features
+  \item Correct counter management for unique layer IDs
+\end{itemize}
+
+If all hidden content can be revealed by clicking, the test is successful.
+
+\end{document}

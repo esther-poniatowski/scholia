@@ -1,0 +1,241 @@
+%% scholia.sty
+%% Copyright 2025-2026 Esther Poniatowski <esther.poniatowski@ens.psl.eu>
+%
+% This work may be distributed and/or modified under the
+% conditions of the LaTeX Project Public License, either version 1.3c
+% of this license or (at your option) any later version.
+% The latest version of this license is in
+%   https://www.latex-project.org/lppl.txt
+% and version 1.3c or later is part of all distributions of LaTeX
+% version 2008 or later.
+%
+% This work has the LPPL maintenance status `maintained'.
+%
+% The Current Maintainer of this work is Esther Poniatowski.
+%
+% This work consists of all files listed in MANIFEST.md.
+%
+%% ==================================================================================================
+%% SCHOLIA - Educational document formatting for mathematics pedagogy
+%%
+%% A LaTeX package providing:
+%% - Callout boxes (warnings, definitions, theorems, tips, etc.)
+%% - Exercise environments with grading scales
+%% - Fiche (worksheet) layouts with cross-referencing
+%% - Structured numbering systems (steps, questions)
+%% - i18n support (French/English)
+%%
+%% USAGE:
+%%   \usepackage{scholia}                    % Default (English)
+%%   \usepackage[french]{scholia}            % French strings
+%%   \usepackage[beamer]{scholia}            % For Beamer presentations
+%%   \usepackage[solutions]{scholia}         % Show solutions in exercises
+%%   \usepackage[interactive]{scholia}       % Enable OCG hide/reveal features
+%%
+%% ==================================================================================================
+
+\NeedsTeXFormat{LaTeX2e}[2020/10/01]
+\ProvidesPackage{scholia}[2026/01/31 v0.1.0 Educational document formatting for mathematics pedagogy]
+
+%% ==================================================================================================
+%% PACKAGE OPTIONS
+%% ==================================================================================================
+
+% Boolean flags for options
+\newif\ifscholia@beamer\scholia@beamerfalse
+\newif\ifscholia@english\scholia@englishtrue
+\newif\ifscholia@draft\scholia@draftfalse
+\newif\ifscholia@noicons\scholia@noiconsfalse
+\newif\ifscholia@minimal\scholia@minimalfalse
+\newif\ifscholia@solutions\scholia@solutionsfalse
+\newif\ifscholia@interactive\scholia@interactivefalse
+
+% Declare options
+\DeclareOption{beamer}{\scholia@beamertrue}
+\DeclareOption{english}{\scholia@englishtrue}
+\DeclareOption{french}{\scholia@englishfalse}
+\DeclareOption{draft}{\scholia@drafttrue}
+\DeclareOption{noicons}{\scholia@noiconstrue}
+\DeclareOption{minimal}{\scholia@minimaltrue\scholia@noiconstrue}
+\DeclareOption{solutions}{\scholia@solutionstrue}
+\DeclareOption{interactive}{\scholia@interactivetrue}
+
+% Unknown option handler
+\DeclareOption*{%
+  \PackageWarning{scholia}{Unknown option '\CurrentOption' ignored}%
+}
+
+\ProcessOptions\relax
+
+%% ==================================================================================================
+%% LANGUAGE CONFIGURATION
+%% ==================================================================================================
+
+% Set language based on option
+\ifscholia@english
+  \def\scholia@language{en}
+\else
+  \def\scholia@language{fr}
+\fi
+
+%% ==================================================================================================
+%% INTERNAL PATH SETUP
+%% ==================================================================================================
+
+% Determine package installation path
+% - CTAN/TDS installation: files are in texmf tree, use current directory
+% - Local installation: user defines \CommonPath before loading scholia
+%   Package files are in \CommonPath/scholia/ subdirectory
+
+\ifdefined\CommonPath
+  % User-defined base path (for local installations)
+  % Package files are in the scholia/ subdirectory of \CommonPath
+  \def\scholia@basepath{\CommonPath/scholia}
+\else
+  % Standard installation: package files in same directory or TDS structure
+  \def\scholia@basepath{.}
+\fi
+
+%% ==================================================================================================
+%% CLASS DETECTION
+%% ==================================================================================================
+
+% Detect if running in beamer class
+% Use \@ifclassloaded which is always available
+\@ifclassloaded{beamer}{\scholia@beamertrue}{}
+
+%% ==================================================================================================
+%% REQUIRED PACKAGES
+%% ==================================================================================================
+
+% Scholia requires these packages for its features.
+% Using \RequirePackage ensures they are loaded (no-op if already loaded).
+% Packages are grouped by feature area for clarity.
+
+% -----------------------------------------------------------------------------
+% CORE UTILITIES (always required)
+% -----------------------------------------------------------------------------
+\RequirePackage{xparse}           % Advanced command definitions (\NewDocumentCommand)
+\RequirePackage{etoolbox}         % Programming facilities (\ifdefvoid, \appto)
+\RequirePackage{calc}             % Length arithmetic (\dimexpr)
+
+% -----------------------------------------------------------------------------
+% TYPOGRAPHY AND LAYOUT (required for base/style.sty and base/article.sty)
+% -----------------------------------------------------------------------------
+\@ifpackageloaded{geometry}{}{\RequirePackage{geometry}}
+\@ifpackageloaded{setspace}{}{\RequirePackage{setspace}}
+\@ifpackageloaded{newunicodechar}{}{\RequirePackage{newunicodechar}}
+\@ifpackageloaded{soul}{}{\RequirePackage{soul}}  % Text highlighting (exercises)
+\@ifpackageloaded{hyperref}{}{\RequirePackage{hyperref}}  % Links and PDF metadata
+\ifscholia@beamer\else
+  \@ifpackageloaded{titlesec}{}{\RequirePackage{titlesec}}
+  \@ifpackageloaded{fancyhdr}{}{\RequirePackage{fancyhdr}}
+\fi
+
+% -----------------------------------------------------------------------------
+% GRAPHICS AND BOXES (always required for callouts/exercises)
+% -----------------------------------------------------------------------------
+\@ifpackageloaded{xcolor}{}{\RequirePackage{xcolor}}
+\@ifpackageloaded{graphicx}{}{%
+  \ifscholia@noicons\else
+    \RequirePackage{graphicx}     % Image inclusion (for icons)
+  \fi
+}
+
+% tcolorbox is essential for callouts and exercises
+\@ifpackageloaded{tcolorbox}{%
+  \tcbuselibrary{skins,breakable,xparse}%
+}{%
+  \RequirePackage[most]{tcolorbox}
+  \tcbuselibrary{skins,breakable,xparse}%
+}
+
+% -----------------------------------------------------------------------------
+% TIKZ (required for graphics, reference frames)
+% -----------------------------------------------------------------------------
+\@ifpackageloaded{tikz}{}{%
+  \RequirePackage{tikz}%
+}
+\usetikzlibrary{positioning,calc,shadows,fit,backgrounds}
+
+% -----------------------------------------------------------------------------
+% MATH (required for difficulty stars in exercises)
+% -----------------------------------------------------------------------------
+\@ifpackageloaded{amssymb}{}{\RequirePackage{amssymb}}
+
+% -----------------------------------------------------------------------------
+% LISTS (required for exercises)
+% -----------------------------------------------------------------------------
+\@ifpackageloaded{enumitem}{}{\RequirePackage{enumitem}}
+
+% -----------------------------------------------------------------------------
+% TABLES (required for grading - conditional in minimal mode)
+% -----------------------------------------------------------------------------
+\ifscholia@minimal\else
+  \@ifpackageloaded{array}{}{\RequirePackage{array}}
+  \@ifpackageloaded{tabularx}{}{\RequirePackage{tabularx}}
+  \@ifpackageloaded{colortbl}{}{\RequirePackage{colortbl}}
+  \@ifpackageloaded{longtable}{}{\RequirePackage{longtable}}
+\fi
+
+%% ==================================================================================================
+%% LOAD SCHOLIA COMPONENTS
+%% ==================================================================================================
+
+% --- Language Strings ---
+\input{\scholia@basepath/i18n/strings-\scholia@language}
+
+% --- Base Modules ---
+\input{\scholia@basepath/base/colors.sty}
+\input{\scholia@basepath/base/style.sty}
+\input{\scholia@basepath/base/graphics.sty}
+\input{\scholia@basepath/base/code.sty}
+\input{\scholia@basepath/base/text.sty}
+\input{\scholia@basepath/base/boxes.sty}
+\input{\scholia@basepath/base/layout.sty}
+\input{\scholia@basepath/base/factories.sty}
+
+% --- Class-Specific Styles ---
+\ifscholia@beamer
+  \input{\scholia@basepath/base/beamer.sty}
+\else
+  \input{\scholia@basepath/base/article.sty}
+\fi
+
+% --- Callouts (framework + types) ---
+\input{\scholia@basepath/callouts/framework.sty}
+\input{\scholia@basepath/callouts/types.sty}
+
+% --- Typed Pages (article only) ---
+\ifscholia@beamer
+  % Beamer does not use typed pages
+\else
+  \input{\scholia@basepath/typedpages/framework.sty}
+  \input{\scholia@basepath/typedpages/types.sty}
+\fi
+
+% --- Semantic Labels (inline content markers) ---
+\input{\scholia@basepath/labels/main.sty}
+
+% --- Domain-Specific Modules ---
+\input{\scholia@basepath/grading/main.sty}
+\input{\scholia@basepath/exercises/main.sty}
+\input{\scholia@basepath/math/main.sty}
+\input{\scholia@basepath/numbering/main.sty}
+
+% --- Conditional Modules ---
+\ifscholia@beamer
+  \input{\scholia@basepath/progression/main.sty}
+\else
+  \input{\scholia@basepath/summary/main.sty}
+\fi
+
+% --- Interactive Module (optional, requires interactive option) ---
+\ifscholia@interactive
+  \input{\scholia@basepath/interactive/main.sty}
+\fi
+
+%% ==================================================================================================
+%% END OF SCHOLIA PACKAGE
+%% ==================================================================================================
+\endinput

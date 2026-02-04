@@ -1,0 +1,218 @@
+%% callouts/framework.sty
+%% Copyright 2025-2026 Esther Poniatowski <esther.poniatowski@ens.psl.eu>
+%
+% This work may be distributed and/or modified under the
+% conditions of the LaTeX Project Public License, either version 1.3c
+% of this license or (at your option) any later version.
+%
+% This work has the LPPL maintenance status `maintained'.
+% The Current Maintainer of this work is Esther Poniatowski.
+%
+\NeedsTeXFormat{LaTeX2e}[2020/10/01]
+\ProvidesPackage{scholia-callouts-framework}[2026/01/31 v0.1.0 Callout box framework]
+
+\newcommand{\scholia@callout@icon}[1]{\raisebox{-0.15em}{\includegraphics[height=1.1em]{#1}}}
+
+% Internal macro: build "icon + optional title text"
+% #1 = icon filename
+% #2 = title text (may be empty)
+% Returns: icon alone (if title empty) or icon + space + title text
+\newcommand{\scholia@callout@title}[2]{%
+  \if\relax\detokenize{#2}\relax%
+    \scholia@callout@icon{#1}%
+  \else%
+    \scholia@callout@icon{#1}\hspace{0.4em}#2%
+  \fi%
+}
+
+% ============================================================================
+% AUTOMATIC CALLOUT NODE TITLE MACROS (internal)
+% PURPOSE: Generate properly formatted titles for TikZ callout nodes
+% USAGE: \scholia@callout@nodetitle{type}{title text}
+%        where type = definition, theorem, warning, tip, method, remark, etc.
+% ============================================================================
+
+% Internal macro: build full callout node title with color, icon, and text
+% #1 = callout type (definition, theorem, warning, tip, method, remark, etc.)
+% #2 = title text
+% Returns: complete formatted title with appropriate color and icon
+% Uses conditionals to map type to icon filename
+\newcommand{\scholia@callout@nodetitle}[2]{%
+  \textcolor{scholia-#1}{%
+    \scholia@callout@geticon{#1}%
+    \hspace{0.4em}\textbf{\sffamily #2}%
+  }%
+}
+
+% Internal helper to map callout type to icon and include it
+\newcommand{\scholia@callout@geticon}[1]{%
+  \def\scholia@callout@tempicon{}%
+  \ifnum\pdfstrcmp{#1}{definition}=0\def\scholia@callout@tempicon{book-marked.pdf}\fi
+  \ifnum\pdfstrcmp{#1}{theorem}=0\def\scholia@callout@tempicon{pin.pdf}\fi
+  \ifnum\pdfstrcmp{#1}{warning}=0\def\scholia@callout@tempicon{triangle-alert.pdf}\fi
+  \ifnum\pdfstrcmp{#1}{tip}=0\def\scholia@callout@tempicon{lightbulb.pdf}\fi
+  \ifnum\pdfstrcmp{#1}{method}=0\def\scholia@callout@tempicon{pencil.pdf}\fi
+  \ifnum\pdfstrcmp{#1}{remark}=0\def\scholia@callout@tempicon{search.pdf}\fi
+  \raisebox{-0.15em}{\includegraphics[height=1.1em]{\scholia@callout@tempicon}}%
+}
+
+% ============================================================================
+% TIKZ NODE STYLES FOR PARALLEL BOXES
+% PURPOSE: Define TikZ node styles for theoretical boxes with parallel examples
+% USE CASE: When theoretical content (definitions, theorems) needs to be
+%           displayed alongside illustrative examples with visual alignment
+% ============================================================================
+
+% Generic TikZ node style for callout boxes in parallel layouts
+% #1 = callout color name (e.g., callout-definition)
+% Creates a colored box with rounded corners matching tcolorbox callout style
+\tikzset{
+  callout tikznode/.style={
+    rectangle, draw, thick, rounded corners=2mm,
+    fill=#1!8, draw=#1!8,
+    text width=0.45\textwidth, align=left,
+    inner sep=3mm, outer sep=0pt
+  }
+}
+
+% TikZ node style for example boxes (white background with dotted gray border)
+% Minimal styling to avoid competing with main callout boxes
+\tikzset{
+  example tikznode/.style={
+    rectangle, draw=gray!40, line width=0.6pt, rounded corners=1mm,
+    fill=white, dotted,
+    text width=0.45\textwidth, align=left,
+    inner sep=2.5mm, outer sep=0pt
+  }
+}
+
+% ============================================================================
+% GENERIC CALLOUT LAYOUT STYLES
+% PURPOSE: Define reusable tcolorbox styles for callout boxes
+%
+% Two generic styles are provided:
+% 1. callout layout    : full box with title bar and content area
+% 2. callout titleonly : concise title-only box (no visible body area)
+%
+% Both styles accept one parameter: the base color name
+% ============================================================================
+
+% Generic full callout layout style
+% Parameter #1 = base color name (e.g., callout-warning)
+%
+% Visual characteristics:
+% - Rounded corners (2mm arc)
+% - Subtle colored background (8% tint of base color)
+% - Matching frame color (8% tint)
+% - Title area filled with same background
+% - Bold sans-serif title text in base color
+% - Internal padding: 3mm horizontal, 2mm vertical
+% - External spacing: 14pt before/after
+\tcbset{
+  callout layout/.style={
+    enhanced,
+    boxrule=0.8pt,
+    arc=2mm,
+    colback=#1!8,
+    colframe=#1!8,
+    colbacktitle=#1!8,
+    coltitle=#1,
+    fonttitle=\bfseries\sffamily,
+    left=3mm,
+    right=3mm,
+    top=2mm,
+    bottom=2mm,
+    before skip=14pt,
+    after skip=14pt,
+    title filled,
+  },
+}
+
+% Generic title-only callout layout style
+% Parameter #1 = base color name (e.g., callout-warning)
+%
+% Visual characteristics:
+% - Draws only a titled bar without inner content area
+% - Rounded corners (2mm arc)
+% - Subtle colored background for title (8% tint)
+% - Bold sans-serif title text in base color
+% - Increased vertical padding in title (1.5mm top/bottom)
+% - No body area (interior/frame hidden)
+% - Horizontal padding: 3mm
+% - External spacing: 10pt before/after
+% - Borderline around title bar only (0.8pt)
+%
+% Use case: Concise callout badges without reserving space for body text
+\tcbset{
+  callout titleonly/.style={
+    enhanced,
+    boxrule=0.8pt,
+    arc=2mm,
+    colbacktitle=#1!8,
+    colframe=#1!8,
+    coltitle=#1,
+    fonttitle=\bfseries\sffamily,
+    toptitle=1.5mm,
+    bottomtitle=1.5mm,
+    % Remove body area
+    interior hidden,
+    frame hidden,
+    % Draw framed title bar only
+    title filled,
+    boxsep=0pt,
+    top=0mm,
+    bottom=0mm,
+    left=3mm,
+    right=3mm,
+    enlarge top by=1pt,
+    enlarge bottom by=1pt,
+    % Visual border around title only
+    borderline={0.8pt}{0pt}{#1!8},
+    before skip=10pt,
+    after skip=10pt,
+  },
+}
+
+% ============================================================================
+% CENTERED OPTION
+% PURPOSE: Allow centering content in any callout element
+%
+% USAGE for *box environments:
+%   \begin{questionbox}[Titre de la question]
+%     Contenu...
+%   \end{questionbox}
+%
+% USAGE for *mark commands:
+%   \questionmark{Titre de la question}
+%
+%   With centering:
+%   \questionmark[centered]{Titre centré}
+%
+% The 'centered' key activates horizontal centering of the content (icon + text).
+% Other tcolorbox options can also be passed in the optional first argument.
+% ============================================================================
+\tcbset{
+  centered/.style={halign title=center},
+}
+
+% ============================================================================
+% HELPER MACRO FOR MARK COMMANDS (internal)
+% PURPOSE: Create *mark commands (compact title-only banners)
+%
+% Usage: \scholia@callout@newmark{cmdname}{colorname}{iconmacro}
+% Creates a command with syntax: \cmdname[tcolorbox options]{title text}
+%
+% Line breaks (\\) are supported within the title text argument.
+% ============================================================================
+\newcommand{\scholia@callout@newmark}[3]{%
+  \expandafter\NewDocumentCommand\csname #1\endcsname{O{} m}{%
+    \begin{tcolorbox}[%
+      callout titleonly=#2,
+      title={\scholia@callout@title{#3}{##2}},
+      ##1%
+    ]\end{tcolorbox}%
+  }%
+}
+
+
+\endinput

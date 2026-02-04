@@ -1,0 +1,144 @@
+%% base/beamer.sty
+%% Copyright 2025-2026 Esther Poniatowski <esther.poniatowski@ens.psl.eu>
+%
+% This work may be distributed and/or modified under the
+% conditions of the LaTeX Project Public License, either version 1.3c
+% of this license or (at your option) any later version.
+%
+% This work has the LPPL maintenance status `maintained'.
+% The Current Maintainer of this work is Esther Poniatowski.
+%
+\NeedsTeXFormat{LaTeX2e}[2020/10/01]
+\ProvidesPackage{scholia-base-beamer}[2026/01/31 v0.1.0 Beamer class configuration]
+
+\usetheme{default}
+\usefonttheme{professionalfonts}
+
+\setbeamertemplate{navigation symbols}{} % no navigation symbols
+\setbeamertemplate{footline}[frame number] % frame number in footline
+
+% --- Global fonts ---
+\setbeamerfont{title}{size=\Large,series=\bfseries}
+\setbeamerfont{subtitle}{size=\large}
+\setbeamerfont{frametitle}{size=\normalsize,series=\bfseries}
+\setbeamerfont{normal text}{size=\small}  % default text size
+
+
+% --- Global colors ---
+\setbeamercolor{title}{fg=black}
+\setbeamercolor{subtitle}{fg=gray}
+\setbeamercolor{frametitle}{fg=black,bg=white}
+\setbeamercolor{normal text}{fg=black}
+
+
+% --- Itemize colors and symbols ---
+\setbeamercolor{item}{fg=black}
+\setbeamertemplate{itemize item}{\textcolor{black}{$\bullet$}}
+\setbeamertemplate{itemize subitem}{\textcolor{black}{\footnotesize$\bullet$}}
+
+
+% --- Custom frametitle (disabled) ---
+% \makeatletter
+% \setbeamertemplate{frametitle}{%
+%   \nointerlineskip
+%   \begin{beamercolorbox}[
+%         wd=\paperwidth, % box width = page width
+%         ht=2.5ex,       % box height
+%         dp=0.5ex,       % box depth
+%         leftskip=2em,   % left margin
+%         rightskip=2em   % right margin
+%     ]{frametitle}%
+%     \usebeamerfont{frametitle}\strut\insertframetitle\par
+%   \end{beamercolorbox}%
+%   \vspace{-0.4ex}%
+%   \hspace*{0em}%
+%   {\color{gray!60}\rule{0.82\paperwidth}{0.4pt}}%
+% }
+% \makeatother
+
+
+% ============================================================================
+% OBJECTIVE BOX IN HEADLINE
+% PURPOSE:
+%   Display the current learning objective in the beamer headline as a
+%   clean, minimal banner with an icon on the left and the objective text
+%   on a light gray background.
+%
+% VISUAL DESIGN:
+%   - Left: circular container with a locate-fixed icon (objective symbol).
+%   - Right: light gray rectangular background with bold objective text.
+%   - No borders; only soft gray backgrounds.
+%   - Objective text is bold and uses the normal text foreground colour.
+%
+% USAGE IN MAIN DOCUMENT:
+%   1. Ensure TikZ is loaded in the global preamble (already done in packages).
+%   2. Ensure the icon file exists, for example:
+%        <project-root>/common/icons/pdf/locate-fixed.pdf
+%   3. Adjust \ObjectiveIconPath below so that:
+%        \includegraphics{<\ObjectiveIconPath>} finds the icon.
+%      Example:
+%        \renewcommand{\ObjectiveIconPath}{\CommonPath/icons/locate-fixed}
+%   4. Before frames where an objective must appear, call:
+%        \setobjective{Résoudre des systèmes par combinaisons}
+%      The last set objective persists until changed.
+%   5. To clear the objective (empty headline box):
+%        \setobjective{}
+%
+% FALLBACK BEHAVIOUR:
+%   - If \setobjective has never been called, \currentobjective is empty,
+%     so the banner shows only the icon and a blank gray bar (no error).
+% ============================================================================
+
+% Default objective (empty)
+\newcommand{\currentobjective}{}
+
+% Icon used in the objective headline banner
+% Default uses the locate-fixed icon from the package
+% Override in your preamble if needed:
+%   \renewcommand{\ObjectiveIconPath}{your-icon.pdf}
+\newcommand{\ObjectiveIconPath}{locate-fixed.pdf}
+
+% Setter for the current objective
+\newcommand{\setobjective}[1]{\renewcommand{\currentobjective}{#1}}
+
+\setbeamertemplate{headline}{%
+  \vskip4pt
+  \hspace*{-\beamer@leftmargin}%
+  \begin{beamercolorbox}[%
+      wd=\paperwidth,
+      ht=8mm,
+      dp=1mm,
+      leftskip=\beamer@leftmargin,
+      rightskip=\beamer@rightmargin
+    ]{headline}%
+    \begin{tikzpicture}[inner sep=0pt, outer sep=0pt]
+      % Left: circular icon container (shifted right)
+      \node[
+        circle,
+        fill=gray!15,
+        draw=none,
+        inner sep=3pt,
+        anchor=west
+      ] (objectiveicon) at (0,0) {%
+        \includegraphics[height=1.2em]{\ObjectiveIconPath}%
+      };
+
+      % Right: light gray background with bold objective text
+      \node[
+        rectangle,
+        fill=gray!12,
+        draw=none,
+        inner sep=3.5pt,
+        text width=0.91\paperwidth, % extend further to the right
+        anchor=west,
+        font=\small\bfseries
+      ] (objectivetext) at ([xshift=6pt]objectiveicon.east) {%
+        \strut\currentobjective\strut%
+      };
+    \end{tikzpicture}
+  \end{beamercolorbox}%
+  \vskip4pt
+}
+
+
+\endinput

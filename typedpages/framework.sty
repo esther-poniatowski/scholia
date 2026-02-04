@@ -1,0 +1,345 @@
+%% typedpages/framework.sty
+%% Copyright 2025-2026 Esther Poniatowski <esther.poniatowski@ens.psl.eu>
+%
+% This work may be distributed and/or modified under the
+% conditions of the LaTeX Project Public License, either version 1.3c
+% of this license or (at your option) any later version.
+%
+% This work has the LPPL maintenance status `maintained'.
+% The Current Maintainer of this work is Esther Poniatowski.
+%
+\NeedsTeXFormat{LaTeX2e}[2020/10/01]
+\ProvidesPackage{scholia-typedpages-framework}[2026/01/31 v0.1.0 Typed page framework]
+
+% ============================================================================
+% TYPED PAGE SYSTEM
+% PURPOSE: Create visually distinct document sections with type-based styling
+%
+% A "typed page" is a page/section with:
+%   - A declared type (notion, exercise, solution, etc.)
+%   - Visual styling determined by type (color, icon, banner)
+%   - Relative pagination within the section
+%   - Cross-referencing support
+% ============================================================================
+
+% Default document metadata (can be redefined by user in their preamble)
+% Usage: \renewcommand{\Author}{Author Name}
+%        \renewcommand{\Year}{2025--2026}
+\providecommand{\Author}{}
+\providecommand{\Year}{}
+
+\newcommand{\scholia@typedpage@currenttype}{}       % Display name of page type
+\newcommand{\scholia@typedpage@currentcolor}{}      % Color associated with type
+\newcommand{\scholia@typedpage@currenticon}{}       % Icon filename for type
+\newcommand{\scholia@typedpage@currentlabel}{}      % Reference label
+\newcommand{\scholia@typedpage@currenttopic}{}      % Specific topic title
+\newcommand{\scholia@typedpage@reference}{}         % Page reference
+\newcommand{\scholia@typedpage@chaptertitle}{}      % Chapter title
+
+
+% ============================================================================
+% TYPE CONFIGURATION SYSTEM (internal)
+% PURPOSE: Extensible registry for page types
+%
+% API for defining page types:
+% \scholia@typedpage@setconfig{key}{DisplayName}{color}{icon}
+%
+% Example:
+%   \scholia@typedpage@setconfig{notion}{Notions}{scholia-notion}{library-big.pdf}
+% ============================================================================
+
+% Internal API: Register a page type
+% #1 = type key (e.g., "notion")
+% #2 = display name (e.g., "Notions")
+% #3 = color name (e.g., "scholia-notion")
+% #4 = icon filename (e.g., "library-big.pdf")
+\newcommand{\scholia@typedpage@setconfig}[4]{%
+  \expandafter\def\csname scholia@typedpage@typename@#1\endcsname{#2}%
+  \expandafter\def\csname scholia@typedpage@typecolor@#1\endcsname{#3}%
+  \expandafter\def\csname scholia@typedpage@typeicon@#1\endcsname{#4}%
+}
+
+% Internal getters: Retrieve configuration for a given type key
+\newcommand{\scholia@typedpage@getname}[1]{\csname scholia@typedpage@typename@#1\endcsname}
+\newcommand{\scholia@typedpage@getcolor}[1]{\csname scholia@typedpage@typecolor@#1\endcsname}
+\newcommand{\scholia@typedpage@geticon}[1]{\csname scholia@typedpage@typeicon@#1\endcsname}
+
+
+% ============================================================================
+% PAGE COUNTER MANAGEMENT (internal)
+% PURPOSE: Implement relative page numbering per typed page section
+%
+% Usage in footer: \thescholia@typedpage@pagenum displays current page number
+% ============================================================================
+
+\newcounter{scholia@typedpage@startpage}  % Absolute page number where section starts
+\newcounter{scholia@typedpage@pagenum}    % Relative page number within section
+
+% Internal: Reset counter at section start
+\newcommand{\scholia@typedpage@resetpagecounter}{%
+  \setcounter{scholia@typedpage@startpage}{\value{page}}%
+}
+
+% Get the current relative page number (calculated dynamically)
+% This is used in the footer
+\renewcommand{\thescholia@typedpage@pagenum}{%
+  \number\numexpr\value{page}-\value{scholia@typedpage@startpage}+1\relax
+}
+
+
+% ============================================================================
+% BANNER DESIGN (internal)
+% PURPOSE: Create aesthetic two-part banner (type indicator + topic)
+%
+% Visual structure:
+% - Left: Circled icon with type name curved above
+% - Right: Rectangular box with chapter and topic titles
+% ============================================================================
+
+\newcommand{\scholia@typedpage@createbanner}[3]{%
+  % #1 = page type key (e.g., "concepts")
+  % #2 = chapter title
+  % #3 = specific topic
+  %
+  % Store metadata for use in headers/footers
+  \renewcommand{\scholia@typedpage@currenttype}{\scholia@typedpage@getname{#1}}%
+  \renewcommand{\scholia@typedpage@currentcolor}{\scholia@typedpage@getcolor{#1}}%
+  \renewcommand{\scholia@typedpage@currenticon}{\scholia@typedpage@geticon{#1}}%
+  \renewcommand{\scholia@typedpage@currenttopic}{#3}%
+  \renewcommand{\scholia@typedpage@chaptertitle}{#2}%
+  %
+  \noindent%
+  \begin{tikzpicture}[remember picture]
+    % Left section: Circled icon with curved type name
+    \node[
+      circle,
+      fill=\scholia@typedpage@currentcolor!25,
+      draw=none,
+      line width=0.8pt,
+      inner sep=4pt,
+      anchor=north west
+    ] (icon) at (0,0) {\includegraphics[height=1.8em]{\scholia@typedpage@currenticon}};
+
+    % Type name curved above circle
+    \path[
+      decoration={
+        text along path,
+        text={\scholia@typedpage@currenttype},
+        text align=center,
+        text color=\scholia@typedpage@currentcolor
+      },
+      decorate,
+      font=\sffamily\bfseries\fontseries{b}\selectfont\small
+    ] ([xshift=-2.3em, yshift=-1.4em]icon.north) arc [start angle=180, end angle=0, radius=2.2em];
+
+    % Right section: Chapter and topic box
+    \node[
+      rectangle,
+      rounded corners=3mm,
+      fill=white,
+      draw=\scholia@typedpage@currentcolor!60,
+      line width=0.55pt,
+      inner sep=0pt,
+      minimum width=0.88\textwidth,
+      minimum height=1.8cm,
+      anchor=north west
+    ] (topicbox) at ([xshift=10mm, yshift=1em]icon.north) {%
+      \begin{minipage}[t]{0.85\textwidth}
+        \raggedright
+        \vspace{0.4cm}
+        % Chapter title (gray, smaller)
+        {\sffamily\normalsize\color{gray!70}#2}
+        \par\vspace{0.15cm}
+        % Topic title (bold, larger)
+        {\sffamily\bfseries\large #3}
+        \vspace{0.4cm}
+      \end{minipage}%
+    };
+  \end{tikzpicture}%
+  \par\vspace{0.8em}%
+}
+
+
+% ============================================================================
+% HEADER AND FOOTER CONFIGURATION
+% PURPOSE: Setup gray separators and relative page numbering
+% ============================================================================
+
+% Redefine header and footer rules as gray
+\renewcommand{\headrule}{{\color{gray!50}\hrule width\headwidth height\headrulewidth \vskip-\headrulewidth}}
+\renewcommand{\footrule}{{\color{gray!50}\hrule width\headwidth height\footrulewidth \vskip-\footrulewidth}}
+
+% Header configuration
+\renewcommand{\headrulewidth}{0.4pt}
+\fancyhead[L]{\small\color{gray!80} \scholia@str@typedpage@refprefix\scholia@typedpage@reference}
+\fancyhead[C]{}
+\fancyhead[R]{\small\color{gray!80} \scholia@typedpage@chaptertitle}
+
+% Footer configuration with relative page number
+\renewcommand{\footrulewidth}{0.4pt}
+\fancyfoot[L]{\small\color{gray!80} \Author, \Year}
+\fancyfoot[C]{}
+\fancyfoot[R]{\small\color{gray!80} \scholia@str@typedpage@page\ \thescholia@typedpage@pagenum}
+
+% NOTE: Page number is calculated dynamically via \thescholia@typedpage@pagenum
+% No everypage hook needed
+
+
+% ============================================================================
+% CENTRAL API: \newTypedPage
+% PURPOSE: Single command to initialize a new typed page with all metadata
+%
+% This is the PRIMARY interface for creating typed pages
+% ============================================================================
+
+\newcommand{\newTypedPage}[4]{%
+  % #1 = reference (e.g., "3e-functions-N1")
+  % #2 = type key (e.g., "concepts")
+  % #3 = chapter title
+  % #4 = specific topic
+  %
+  \clearpage%
+  \renewcommand{\scholia@typedpage@reference}{#1}%
+  \scholia@typedpage@resetpagecounter%
+  \scholia@typedpage@createbanner{#2}{#3}{#4}%
+  \typedPageLabel{#1}%
+}
+
+% ============================================================================
+% AUXILIARY COMMANDS
+% PURPOSE: Labeling and cross-referencing typed pages
+% ============================================================================
+
+% Create a label for cross-referencing
+% Syntax: \typedPageLabel{reference}
+% Note: Automatically called by \newTypedPage
+\newcommand{\typedPageLabel}[1]{\label{typedpage:#1}}
+
+% Reference a typed page by its identifier
+% Syntax: \typedPageRef{reference}
+% Example: See \typedPageRef{3e-functions-N1}
+\newcommand{\typedPageRef}[1]{\cref{typedpage:#1}}
+
+
+% ============================================================================
+% FULL-PAGE TYPED PAGE ENVIRONMENT
+% PURPOSE: Generic environment for typed pages with full-page framing
+%
+% Use case: Special pages requiring visual emphasis (summaries, key points)
+%
+% Syntax:
+%   \begin{typedpagefull}{reference}{type}{chapter}{title}
+%     Content here
+%   \end{typedpagefull}
+%
+%   \begin{typedpagefull}[norules]{reference}{type}{chapter}{title}
+%     Content with header/footer rules suppressed
+%   \end{typedpagefull}
+%
+% Options:
+%   norules - Suppress header/footer separator lines (keeps header/footer content)
+%
+% MODIFICATION: Each page segment has complete rounded corners on all sides,
+% creating visually independent framed boxes on each page.
+% ============================================================================
+
+% Internal flag for norules option
+\newif\ifscholia@typedpage@norules
+
+\NewDocumentEnvironment{typedpagefull}{O{} m m m m}{%
+  % #1 = options (optional, e.g., "norules")
+  % #2 = reference
+  % #3 = type key
+  % #4 = chapter
+  % #5 = title
+  %
+  \clearpage
+  %
+  % Parse options (using etoolbox)
+  \scholia@typedpage@norulesfalse
+  \ifstrequal{#1}{norules}{\scholia@typedpage@norulestrue}{}
+  %
+  % Apply page style based on options
+  \ifscholia@typedpage@norules
+    \pagestyle{fancy}%
+    \renewcommand{\headrulewidth}{0pt}%
+    \renewcommand{\footrulewidth}{0pt}%
+  \else
+    \pagestyle{empty}%
+  \fi
+  %
+  \renewcommand{\scholia@typedpage@reference}{#2}%
+  \scholia@typedpage@resetpagecounter%
+  %
+  % Store frame color for use in overlays
+  \colorlet{scholia@typedpage@framecolor}{\scholia@typedpage@getcolor{#3}!10}%
+  %
+  % Large rounded frame covering the page
+  \begin{tcolorbox}[
+    enhanced,
+    breakable,
+    colback=white,
+    colframe=\scholia@typedpage@getcolor{#3}!10,
+    boxrule=4pt,
+    arc=4mm,
+    left=6mm,
+    right=6mm,
+    top=6mm,
+    bottom=6mm,
+    %
+    % FIRST SEGMENT: Add bottom with rounded corners
+    overlay first={%
+      \begin{scope}
+        % Clip to show only bottom portion
+        \clip ([yshift=-1mm]frame.south west) rectangle ([yshift=6mm]frame.south east);
+        % Draw complete rounded rectangle
+        \draw[scholia@typedpage@framecolor, line width=4pt, rounded corners=4mm]
+          ([xshift=-2pt, yshift=-2pt]frame.south west) rectangle
+          ([xshift=2pt, yshift=2pt]frame.north east);
+      \end{scope}
+    },
+    %
+    % MIDDLE SEGMENTS: Add both top and bottom with rounded corners
+    overlay middle={%
+      % Top border with rounded corners
+      \begin{scope}
+        \clip ([yshift=-6mm]frame.north west) rectangle ([yshift=1mm]frame.north east);
+        \draw[scholia@typedpage@framecolor, line width=4pt, rounded corners=4mm]
+          ([xshift=-2pt, yshift=-2pt]frame.south west) rectangle
+          ([xshift=2pt, yshift=2pt]frame.north east);
+      \end{scope}
+      % Bottom border with rounded corners
+      \begin{scope}
+        \clip ([yshift=-1mm]frame.south west) rectangle ([yshift=6mm]frame.south east);
+        \draw[scholia@typedpage@framecolor, line width=4pt, rounded corners=4mm]
+          ([xshift=-2pt, yshift=-2pt]frame.south west) rectangle
+          ([xshift=2pt, yshift=2pt]frame.north east);
+      \end{scope}
+    },
+    %
+    % LAST SEGMENT: Add top with rounded corners
+    overlay last={%
+      \begin{scope}
+        % Clip to show only top portion
+        \clip ([yshift=-6mm]frame.north west) rectangle ([yshift=1mm]frame.north east);
+        % Draw complete rounded rectangle
+        \draw[scholia@typedpage@framecolor, line width=4pt, rounded corners=4mm]
+          ([xshift=-2pt, yshift=-2pt]frame.south west) rectangle
+          ([xshift=2pt, yshift=2pt]frame.north east);
+      \end{scope}
+    },
+  ]
+    % Banner inside the frame
+    \scholia@typedpage@createbanner{#3}{#4}{#5}
+    \vspace{0.6cm}
+}{%
+  \end{tcolorbox}
+  \clearpage
+  % Restore normal page style with rules
+  \pagestyle{fancy}%
+  \renewcommand{\headrulewidth}{0.4pt}%
+  \renewcommand{\footrulewidth}{0.4pt}%
+}
+
+
+\endinput

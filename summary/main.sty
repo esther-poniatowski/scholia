@@ -1,0 +1,202 @@
+%% summary/main.sty
+%% Copyright 2025-2026 Esther Poniatowski <esther.poniatowski@ens.psl.eu>
+%
+% This work may be distributed and/or modified under the
+% conditions of the LaTeX Project Public License, either version 1.3c
+% of this license or (at your option) any later version.
+%
+% This work has the LPPL maintenance status `maintained'.
+% The Current Maintainer of this work is Esther Poniatowski.
+%
+\NeedsTeXFormat{LaTeX2e}[2020/10/01]
+\ProvidesPackage{scholia-summary}[2026/01/31 v0.1.0 Summary page layouts]
+
+\newcommand{\summaryHeaderBgColor}{black}
+\newcommand{\summaryHeaderTextColor}{white}
+
+% Section colors (thematic grouping row)
+\newcommand{\summarySectionBgColor}{black!10}
+\newcommand{\summarySectionFrameColor}{black!10}
+
+% Default color for table rules
+\newcommand{\summaryDefaultRuleColor}{black!20}
+
+% Color for competency rows
+\newif\ifsummaryColoredRows
+\summaryColoredRowsfalse
+\newcommand{\summaryRowColor}{}
+
+\newcommand{\summarySetRowColor}[1]{%
+  \renewcommand{\summaryRowColor}{#1}%
+  \summaryColoredRowstrue
+}
+
+\newcommand{\summaryResetRowColor}{%
+  \renewcommand{\summaryRowColor}{}%
+  \summaryColoredRowsfalse
+}
+
+% ---------------------------------------------------------------------------
+% CHECKBOXES
+% ---------------------------------------------------------------------------
+
+% Checkboxes (for printing)
+\newcommand{\summaryCheckEmpty}{\(\square\)}
+\newcommand{\summaryCheckDone}{\(\blacksquare\)}
+
+% ---------------------------------------------------------------------------
+% MAIN TABLE: COMPETENCY GRID FOR THE SUMMARY
+% ---------------------------------------------------------------------------
+
+\NewDocumentEnvironment{summaryTable}{}{%
+  % Set rule color for the entire table
+  \arrayrulecolor{\summaryDefaultRuleColor}%
+  \begin{longtable}{p{0.01\linewidth}p{0.50\linewidth}p{0.4\linewidth}}
+    \hline
+    % Header: white text on black background
+    \rowcolor{\summaryHeaderBgColor}%
+    \textcolor{\summaryHeaderTextColor}{} &
+    \textcolor{\summaryHeaderTextColor}{\textbf{\scholia@str@sommaire@competency}} &
+    \textcolor{\summaryHeaderTextColor}{\textbf{\scholia@str@sommaire@resources}} \\
+    \hline
+}{%
+  \end{longtable}
+}
+
+% ---------------------------------------------------------------------------
+% SECTION ROW (THEMATIC GROUPING)
+% ---------------------------------------------------------------------------
+
+\newcommand{\summarySection}[1]{%
+  % Frame and background of section share the same color
+  \arrayrulecolor{\summarySectionFrameColor}%
+  \rowcolor{\summarySectionBgColor}%
+  \multicolumn{3}{|l|}{\textbf{#1}}\\
+  \arrayrulecolor{\summaryDefaultRuleColor}%
+  \hline
+}
+
+% ---------------------------------------------------------------------------
+% COMPETENCY ROWS
+% ---------------------------------------------------------------------------
+
+% Generic row
+% #1 = checkbox (empty or checked)
+% #2 = competency statement
+% #3 = fiche references
+\newcommand{\summaryCompetence}[3]{%
+  \ifsummaryColoredRows
+    \rowcolor{\summaryRowColor}%
+  \fi
+  #1 & #2 & #3 \\
+  \hline
+}
+
+% Convenience variant: empty checkbox by default
+% Usage: \summaryCompetenceStar*{Text}{Resources}
+\NewDocumentCommand{\summaryCompetenceStar}{s m m}{%
+  \IfBooleanTF{#1}{%
+    \summaryCompetence{\summaryCheckEmpty}{#2}{#3}%
+  }{%
+    \summaryCompetence{}{#2}{#3}%
+  }%
+}
+
+% ---------------------------------------------------------------------------
+% SUMMARY -> FICHE REFERENCE
+% Frame = fiche number, optional abbreviated title after
+% ---------------------------------------------------------------------------
+% Usage:
+%   \summaryRef{concepts}{N1}
+%   \summaryRef{method}{M3}[Draw a graph]
+%
+% #1 = fiche type (concepts, method, exercises, solutions, ...)
+% #2 = fiche number (N1, N2, M1, M2, ...)
+% #3 (optional) = optional abbreviated title
+%
+\NewDocumentCommand{\summaryRef}{m m o}{%
+  \csname #1frame\endcsname{#2}%
+  \IfValueT{#3}{\space--\space #3}%
+}
+
+% ---------------------------------------------------------------------------
+% RESOURCE INDEX BY TYPE
+% Airy tables to list chapter resources by category
+% ---------------------------------------------------------------------------
+%
+% Usage:
+%   \begin{indexTypeTable}{concepts}
+%     \indexEntry{N1}{Definition of a fraction}
+%     \indexEntry{N2}{Equal fractions}
+%   \end{indexTypeTable}
+%
+% The table displays a banner with the icon and type name,
+% then lists resources with their reference (colored frame) and title.
+%
+% ---------------------------------------------------------------------------
+
+% Temporary storage for current type used by indexEntry
+\newcommand{\currentIndexType}{}
+
+% Main environment: index table for a resource type
+% #1 = fiche type (concepts, method, exercises, solutions, selfassessment)
+% Usage:
+%   \begin{indexTypeTable}{concepts}       % without "Reference/Title" header
+%   \begin{indexTypeTable}*{concepts}      % with "Reference/Title" header
+\NewDocumentEnvironment{indexTypeTable}{s m}{%
+  % #1 = star (if present, display header)
+  % #2 = fiche type
+  %
+  % Store type for entries
+  \renewcommand{\currentIndexType}{#2}%
+  %
+  % Banner with icon and type name
+  \noindent
+  \begin{tikzpicture}
+    % Colored circle with icon
+    \node[
+      circle,
+      fill=\scholia@fiche@getcolor{#2}!20,
+      draw=none,
+      inner sep=3pt,
+      anchor=west
+    ] (icon) at (0,0) {%
+      \includegraphics[height=1.2em]{\scholia@fiche@geticon{#2}}%
+    };
+    % Type name
+    \node[
+      anchor=west,
+      font=\sffamily\bfseries\large,
+      text=\scholia@fiche@getcolor{#2}
+    ] at ([xshift=6pt]icon.east) {\scholia@fiche@getname{#2}};
+  \end{tikzpicture}
+  \par\vspace{0.1em}
+  %
+  % Table with moderate spacing
+  \renewcommand{\arraystretch}{1.3}%
+  \arrayrulecolor{\summaryDefaultRuleColor}%
+  \noindent
+  \begin{tabular}{p{0.18\linewidth}p{0.75\linewidth}}
+    \hline
+    % Optional header (only if starred version)
+    \IfBooleanT{#1}{%
+      \rowcolor{\scholia@fiche@getcolor{#2}!15}%
+      \textbf{\scholia@str@sommaire@reference} & \textbf{\scholia@str@sommaire@title} \\
+      \hline
+    }%
+}{%
+  \end{tabular}
+  \renewcommand{\arraystretch}{1}% Reset
+  \vspace{1em}
+}
+
+% Entry in the index table
+% #1 = reference (e.g., N1, M2)
+% #2 = descriptive title
+\newcommand{\indexEntry}[2]{%
+  \csname \currentIndexType frame\endcsname{#1} & #2 \\
+  \hline
+}
+
+
+\endinput
