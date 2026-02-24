@@ -37,71 +37,66 @@
 \setbeamertemplate{itemize subitem}{\textcolor{black}{\footnotesize$\bullet$}}
 
 
-% --- Custom frametitle (disabled) ---
-% \makeatletter
-% \setbeamertemplate{frametitle}{%
-%   \nointerlineskip
-%   \begin{beamercolorbox}[
-%         wd=\paperwidth, % box width = page width
-%         ht=2.5ex,       % box height
-%         dp=0.5ex,       % box depth
-%         leftskip=2em,   % left margin
-%         rightskip=2em   % right margin
-%     ]{frametitle}%
-%     \usebeamerfont{frametitle}\strut\insertframetitle\par
-%   \end{beamercolorbox}%
-%   \vspace{-0.4ex}%
-%   \hspace*{0em}%
-%   {\color{gray!60}\rule{0.82\paperwidth}{0.4pt}}%
-% }
-% \makeatother
-
-
 % ============================================================================
-% OBJECTIVE BOX IN HEADLINE
+% BANNER WITH ICON
 % PURPOSE:
-%   Display the current learning objective in the beamer headline as a
-%   clean, minimal banner with an icon on the left and the objective text
-%   on a light gray background.
+%   Display a clean, minimal banner with an icon on the left and text on
+%   a light gray background.  Used for the headline (objective mode) and
+%   for the frametitle (frametitle mode).
 %
 % VISUAL DESIGN:
-%   - Left: circular container with a locate-fixed icon (objective symbol).
-%   - Right: light gray rectangular background with bold objective text.
+%   - Left: circular container with an icon (loader by default).
+%   - Right: light gray rectangular background with bold text.
 %   - No borders; only soft gray backgrounds.
-%   - Objective text is bold and uses the normal text foreground colour.
 %
-% USAGE IN MAIN DOCUMENT:
-%   1. Ensure TikZ is loaded in the global preamble (already done in packages).
-%   2. Ensure the icon file exists, for example:
-%        <project-root>/common/icons/pdf/locate-fixed.pdf
-%   3. Adjust \ObjectiveIconPath below so that:
-%        \includegraphics{<\ObjectiveIconPath>} finds the icon.
-%      Example:
-%        \renewcommand{\ObjectiveIconPath}{\CommonPath/icons/locate-fixed}
-%   4. Before frames where an objective must appear, call:
-%        \setobjective{Résoudre des systèmes par combinaisons}
+% TWO MODES (mutually exclusive):
+%   1. Objective mode (default) — the banner sits in the headline and
+%      displays a persistent objective text set via \setobjective{...}.
+%      The standard beamer frametitle is used for frame titles.
+%   2. Frametitle mode — the banner moves to the frametitle template
+%      and displays \insertframetitle.  The headline is emptied.
+%      Activate with \headlineshowsframetitle in the preamble.
+%
+% ICON:
+%   The banner icon defaults to loader.pdf (shipped in icons/pdf/).
+%   Override in the preamble if needed:
+%     \renewcommand{\ObjectiveIconPath}{your-icon.pdf}
+%
+% OBJECTIVE MODE USAGE:
+%   1. Before frames where an objective must appear, call:
+%        \setobjective{Solve systems by linear combinations}
 %      The last set objective persists until changed.
-%   5. To clear the objective (empty headline box):
-%        \setobjective{}
-%
-% FALLBACK BEHAVIOUR:
-%   - If \setobjective has never been called, \currentobjective is empty,
-%     so the banner shows only the icon and a blank gray bar (no error).
+%   2. To clear the objective: \setobjective{}
 % ============================================================================
+
+% --- Mode flag ---
+\newif\ifscholia@beamer@headlineframetitle
+\scholia@beamer@headlineframetitlefalse
+
+% --- Public commands ---
 
 % Default objective (empty)
 \newcommand{\currentobjective}{}
 
-% Icon used in the objective headline banner
-% Default uses the locate-fixed icon from the package
-% Override in your preamble if needed:
-%   \renewcommand{\ObjectiveIconPath}{your-icon.pdf}
-\newcommand{\ObjectiveIconPath}{locate-fixed.pdf}
-
-% Setter for the current objective
+% Setter for the current objective (objective mode)
 \newcommand{\setobjective}[1]{\renewcommand{\currentobjective}{#1}}
 
-\setbeamertemplate{headline}{%
+% Icon used in the banner
+\newcommand{\ObjectiveIconPath}{loader.pdf}
+
+% Switch to frametitle mode: the banner shows \insertframetitle
+\newcommand{\headlineshowsframetitle}{%
+  \scholia@beamer@headlineframetitletrue
+  \setbeamertemplate{headline}{}%
+  \setbeamertemplate{frametitle}{%
+    \scholia@beamer@banner{\insertframetitle}%
+  }%
+}
+
+% --- Internal banner macro ---
+% \scholia@beamer@banner{<text>}
+% Renders the icon + text banner.  Called inside a beamer template.
+\newcommand{\scholia@beamer@banner}[1]{%
   \vskip4pt
   \hspace*{-\beamer@leftmargin}%
   \begin{beamercolorbox}[%
@@ -112,32 +107,36 @@
       rightskip=\beamer@rightmargin
     ]{headline}%
     \begin{tikzpicture}[inner sep=0pt, outer sep=0pt]
-      % Left: circular icon container (shifted right)
+      % Left: circular icon container
       \node[
         circle,
         fill=gray!15,
         draw=none,
         inner sep=3pt,
         anchor=west
-      ] (objectiveicon) at (0,0) {%
+      ] (bannericon) at (0,0) {%
         \includegraphics[height=1.2em]{\ObjectiveIconPath}%
       };
-
-      % Right: light gray background with bold objective text
+      % Right: light gray background with bold text
       \node[
         rectangle,
         fill=gray!12,
         draw=none,
         inner sep=3.5pt,
-        text width=0.91\paperwidth, % extend further to the right
+        text width=0.91\paperwidth,
         anchor=west,
         font=\small\bfseries
-      ] (objectivetext) at ([xshift=6pt]objectiveicon.east) {%
-        \strut\currentobjective\strut%
+      ] (bannertext) at ([xshift=6pt]bannericon.east) {%
+        \strut#1\strut%
       };
     \end{tikzpicture}
   \end{beamercolorbox}%
   \vskip4pt
+}
+
+% --- Default: objective mode (headline shows \currentobjective) ---
+\setbeamertemplate{headline}{%
+  \scholia@beamer@banner{\currentobjective}%
 }
 
 
