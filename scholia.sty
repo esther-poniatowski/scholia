@@ -82,18 +82,25 @@
 %% INTERNAL PATH SETUP
 %% ==================================================================================================
 
-% Determine package installation path
-% - CTAN/TDS installation: files are in texmf tree, use current directory
-% - Local installation: user defines \CommonPath before loading scholia
-%   Package files are in \CommonPath/scholia/ subdirectory
+% Determine package installation path.
+% Auto-detect the directory containing scholia.sty using the LaTeX kernel's
+% file-tracking mechanism (\CurrentFilePathUsed, available since 2020/10/01).
+% This makes the package self-locating: icons and submodules are resolved
+% relative to the package directory, regardless of the document's working directory.
+%
+% Priority:
+%   1. User-defined \CommonPath (legacy local installations)
+%   2. Auto-detected path from \CurrentFilePathUsed (standard)
 
 \ifdefined\CommonPath
-  % User-defined base path (for local installations)
-  % Package files are in the scholia/ subdirectory of \CommonPath
   \def\scholia@basepath{\CommonPath/scholia}
 \else
-  % Standard installation: package files in same directory or TDS structure
-  \def\scholia@basepath{.}
+  \ifdefined\CurrentFilePathUsed
+    \edef\scholia@basepath{\CurrentFilePathUsed}
+  \else
+    % Fallback for older engines that lack \CurrentFilePathUsed
+    \def\scholia@basepath{.}
+  \fi
 \fi
 
 %% ==================================================================================================

@@ -11,12 +11,18 @@
 \NeedsTeXFormat{LaTeX2e}[2020/10/01]
 \ProvidesPackage{scholia-base-graphics}[2026/01/31 v0.1.0 Graphics configuration]
 
-% Graphics search paths for package icons
-% Note: \scholia@basepath is defined by scholia.sty for package-relative paths
-% Users should add their own project-specific paths in their preamble
-\graphicspath{%
-    {\scholia@basepath/icons/pdf/}%   % Package icons in PDF format (vector)
-    {\scholia@basepath/icons/png/}%   % Fallback: PNG icons (raster)
+% Append package icon directories to the graphics search path.
+% Deferred to \begin{document} so that any \graphicspath call in the preamble
+% (before or after \usepackage{scholia}) is already resolved.
+% \Ginput@path is the internal macro that \graphicspath writes to.
+\AtBeginDocument{%
+  \ifx\Ginput@path\undefined
+    \def\Ginput@path{}%
+  \fi
+  \g@addto@macro\Ginput@path{%
+      {\scholia@basepath/icons/pdf/}%   % Package icons in PDF format (vector)
+      {\scholia@basepath/icons/png/}%   % Fallback: PNG icons (raster)
+  }%
 }
 
 % ============================================================================
