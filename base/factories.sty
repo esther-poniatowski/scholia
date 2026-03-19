@@ -49,8 +49,13 @@
 % Usage:
 %   \scholia@callout@newtype{typename}
 %   Creates:
-%     - \<typename>box environment (full callout with optional title)
+%     - \<typename>box environment (full callout with optional title and options)
 %     - \<typename>mark environment (compact inline marker)
+%
+% Box environment signature:
+%   \begin{<type>box}[title][tcolorbox options] ... \end{<type>box}
+%   Both optional arguments default to empty.
+%   The second optional argument accepts any tcolorbox key, including "centered".
 %
 % Prerequisites:
 %   - Color scholia-<typename> must be defined
@@ -59,11 +64,16 @@
 % ============================================================================
 
 \newcommand{\scholia@callout@newtype}[1]{%
-  % Create the box environment
-  \newtcolorbox{#1box}[1][]{%
-    callout layout=scholia-#1,
-    title={\scholia@callout@title{\csname scholia@callout@icon@#1\endcsname}{##1}},
-  }%
+  % Create the box environment with two optional arguments:
+  %   #1 = title text (default: empty)
+  %   #2 = tcolorbox options (default: empty)
+  \NewDocumentEnvironment{#1box}{O{} O{}}{%
+    \begin{tcolorbox}[%
+      callout layout=scholia-#1,
+      title={\scholia@callout@title{\csname scholia@callout@icon@#1\endcsname}{##1}},
+      ##2%
+    ]%
+  }{\end{tcolorbox}}%
   % Create the mark (compact inline) environment
   \scholia@callout@newmark{#1mark}{scholia-#1}{\csname scholia@callout@icon@#1\endcsname}%
 }

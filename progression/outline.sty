@@ -1,0 +1,295 @@
+%% progression/outline.sty
+%% Copyright 2025-2026 Esther Poniatowski <esther.poniatowski@ens.psl.eu>
+%
+% This work may be distributed and/or modified under the
+% conditions of the LaTeX Project Public License, either version 1.3c
+% of this license or (at your option) any later version.
+%
+% This work has the LPPL maintenance status `maintained'.
+% The Current Maintainer of this work is Esther Poniatowski.
+%
+\NeedsTeXFormat{LaTeX2e}[2020/10/01]
+\ProvidesPackage{scholia-progression-outline}[2026/03/19 v0.1.0 Progressive outline for beamer]
+
+% ============================================================================
+% PURPOSE
+% ============================================================================
+%
+% Provides a progressive outline system for beamer presentations.
+% Steps are declared individually, arrows are declared once, then the
+% outline is rendered as a TikZ diagram with one step highlighted and
+% the others dimmed.
+%
+% ============================================================================
+% USAGE
+% ============================================================================
+%
+% 1. Configure (optional — sensible defaults provided):
+%
+%    \outlineSet{
+%      box width    = 3.2cm,
+%      box height   = 1.6cm,
+%      box font     = \scriptsize,
+%      scale        = 0.82,
+%      frame title  = Outline,
+%    }
+%
+% 2. Declare steps (once each, in the preamble or before first outline slide):
+%
+%    \outlineStep{1}{0}{0}{neuronblue}{Rate model}{Microscopic dynamics}
+%    \outlineStep{2}{4.2}{0}{recurrentgreen}{Low-rank}{Pattern decomposition}
+%    ...
+%
+%    Signature: \outlineStep{index}{x}{y}{color}{title}{subtitle}
+%    The subtitle may contain \\ for line breaks.
+%
+% 3. Declare arrows (once, after steps):
+%
+%    \outlineArrow{s1}{s2}{}                                   % straight
+%    \outlineArrow{s4}{s5}{|- ([yshift=0.4cm]s5.north) -- }   % custom path
+%    ...
+%
+%    Signature: \outlineArrow{from node}{to node}{path spec}
+%    - Empty path spec: straight arrow (from) -- (to)
+%    - Non-empty: (from) <path spec> (to)
+%
+% 4. Render:
+%
+%    \outlineFrame{3}    % beamer frame highlighting step 3
+%    \outlineFrame{0}    % all steps shown equally (no highlight)
+%
+%    Or render just the TikZ picture (without a frame):
+%
+%    \outlineRender{3}
+%
+% ============================================================================
+
+
+% ============================================================================
+% CONFIGURATION KEYS
+% ============================================================================
+
+\pgfkeys{
+  /scholia/outline/.cd,
+  box width/.store in    = \scholia@outline@boxwidth,
+  box height/.store in   = \scholia@outline@boxheight,
+  box font/.store in     = \scholia@outline@boxfont,
+  scale/.store in        = \scholia@outline@scale,
+  frame title/.store in  = \scholia@outline@frametitle,
+  arrow style/.store in  = \scholia@outline@arrowstyle,
+  vspace top/.store in   = \scholia@outline@vspacetop,
+}
+
+% Defaults
+\pgfkeys{
+  /scholia/outline/.cd,
+  box width    = 3.2cm,
+  box height   = 1.6cm,
+  box font     = \scriptsize,
+  scale        = 0.82,
+  frame title  = Outline,
+  arrow style  = {-{Stealth[length=6pt]}, very thick, black!40},
+  vspace top   = 0.2cm,
+}
+
+% Public configuration command
+\newcommand{\outlineSet}[1]{\pgfkeys{/scholia/outline/.cd, #1}}
+
+
+% ============================================================================
+% INTERNAL STORAGE
+% ============================================================================
+
+\newcounter{scholia@outline@stepcount}
+\newcounter{scholia@outline@arrowcount}
+
+
+% ============================================================================
+% STEP DECLARATION
+% ============================================================================
+%
+% \outlineStep{index}{x}{y}{color}{title}{subtitle}
+%
+% Stores step data in macros. The subtitle may contain \\, math, etc.
+% Node names are automatically generated as s<index>.
+% ============================================================================
+
+\newcommand{\outlineStep}[6]{%
+  \expandafter\def\csname scholia@outline@step@#1@x\endcsname{#2}%
+  \expandafter\def\csname scholia@outline@step@#1@y\endcsname{#3}%
+  \expandafter\def\csname scholia@outline@step@#1@color\endcsname{#4}%
+  \expandafter\long\expandafter\def\csname scholia@outline@step@#1@title\endcsname{#5}%
+  \expandafter\long\expandafter\def\csname scholia@outline@step@#1@subtitle\endcsname{#6}%
+  % Track the maximum index
+  \ifnum#1>\value{scholia@outline@stepcount}%
+    \setcounter{scholia@outline@stepcount}{#1}%
+  \fi
+}
+
+% Internal: retrieve step field
+\newcommand{\scholia@outline@get}[2]{% #1=index, #2=field
+  \csname scholia@outline@step@#1@#2\endcsname%
+}
+
+
+% ============================================================================
+% ARROW DECLARATION
+% ============================================================================
+%
+% \outlineArrow{from node}{to node}{path spec}
+%
+% Path spec:
+%   - Empty: straight arrow (from) -- (to)
+%   - Non-empty: (from) <path spec> (to)
+%     Example: \outlineArrow{s4}{s5}{|- ([yshift=0.4cm]s5.north) -- }
+% ============================================================================
+
+\newcommand{\outlineArrow}[3]{%
+  \stepcounter{scholia@outline@arrowcount}%
+  \edef\scholia@tmp@idx{\arabic{scholia@outline@arrowcount}}%
+  \expandafter\def\csname scholia@outline@arrow@\scholia@tmp@idx @from\endcsname{#1}%
+  \expandafter\def\csname scholia@outline@arrow@\scholia@tmp@idx @to\endcsname{#2}%
+  \expandafter\long\expandafter\def\csname scholia@outline@arrow@\scholia@tmp@idx @path\endcsname{#3}%
+}
+
+
+% ============================================================================
+% TIKZ STYLES
+% ============================================================================
+
+\tikzset{
+  % Base box style (shared geometry)
+  scholia outline box/.style={
+    draw,
+    rounded corners = 5pt,
+    minimum width   = \scholia@outline@boxwidth,
+    minimum height  = \scholia@outline@boxheight,
+    font            = \scholia@outline@boxfont,
+    align           = center,
+    inner sep       = 5pt,
+    thick,
+  },
+  % Active (highlighted) step
+  scholia outline active/.style={
+    scholia outline box,
+    very thick,
+  },
+  % Neutral (all-equal mode) step
+  scholia outline neutral/.style={
+    scholia outline box,
+  },
+  % Dimmed (non-highlighted) step
+  scholia outline dimmed/.style={
+    scholia outline box,
+    fill       = black!3,
+    draw       = black!25,
+    text       = black!40,
+  },
+  % Arrow style
+  scholia outline arrow/.style/.expanded={
+    \scholia@outline@arrowstyle
+  },
+}
+
+
+% ============================================================================
+% RENDERING: SINGLE STEP BOX
+% ============================================================================
+%
+% Internal: draw one step box with appropriate styling
+% #1 = highlighted step index (0 = all equal)
+% #2 = this step's index
+% ============================================================================
+
+\newcommand{\scholia@outline@drawstep}[2]{%
+  \begingroup
+    \edef\scholia@tmp@x{\scholia@outline@get{#2}{x}}%
+    \edef\scholia@tmp@y{\scholia@outline@get{#2}{y}}%
+    \edef\scholia@tmp@color{\scholia@outline@get{#2}{color}}%
+    %
+    \ifnum#1=#2\relax
+      % Highlighted: full color, thick border
+      \node[scholia outline active,
+        fill=\scholia@tmp@color!25,
+        draw=\scholia@tmp@color]
+        (s#2) at (\scholia@tmp@x, \scholia@tmp@y)
+        {\textbf{\scholia@outline@get{#2}{title}}\\[3pt]%
+         \scholia@outline@get{#2}{subtitle}};%
+    \else
+      \ifnum#1=0\relax
+        % Neutral: all steps shown equally
+        \node[scholia outline neutral,
+          fill=\scholia@tmp@color!8,
+          draw=\scholia@tmp@color]
+          (s#2) at (\scholia@tmp@x, \scholia@tmp@y)
+          {\textbf{\scholia@outline@get{#2}{title}}\\[3pt]%
+           \scholia@outline@get{#2}{subtitle}};%
+      \else
+        % Dimmed: gray, muted
+        \node[scholia outline dimmed]
+          (s#2) at (\scholia@tmp@x, \scholia@tmp@y)
+          {\textbf{\scholia@outline@get{#2}{title}}\\[3pt]%
+           \scholia@outline@get{#2}{subtitle}};%
+      \fi
+    \fi
+  \endgroup
+}
+
+
+% ============================================================================
+% RENDERING: ARROWS
+% ============================================================================
+
+\newcommand{\scholia@outline@drawallarrows}{%
+  \ifnum\value{scholia@outline@arrowcount}>0\relax
+    \foreach \scholia@tmp@arridx in {1,...,\value{scholia@outline@arrowcount}} {%
+      \scholia@outline@drawarrow{\scholia@tmp@arridx}%
+    }%
+  \fi
+}
+
+\newcommand{\scholia@outline@drawarrow}[1]{%
+  \begingroup
+    \edef\scholia@tmp@from{\csname scholia@outline@arrow@#1@from\endcsname}%
+    \edef\scholia@tmp@to{\csname scholia@outline@arrow@#1@to\endcsname}%
+    \edef\scholia@tmp@path{\csname scholia@outline@arrow@#1@path\endcsname}%
+    \ifx\scholia@tmp@path\empty
+      \draw[scholia outline arrow] (\scholia@tmp@from) -- (\scholia@tmp@to);%
+    \else
+      \draw[scholia outline arrow] (\scholia@tmp@from) \scholia@tmp@path (\scholia@tmp@to);%
+    \fi
+  \endgroup
+}
+
+
+% ============================================================================
+% PUBLIC RENDERING COMMANDS
+% ============================================================================
+
+% \outlineRender{highlighted}
+% Draws the outline as a tikzpicture (no frame).
+% #1 = index of highlighted step (0 = all equal)
+\newcommand{\outlineRender}[1]{%
+  \begin{tikzpicture}[scale=\scholia@outline@scale]
+    % Draw all steps
+    \foreach \scholia@tmp@stepidx in {1,...,\value{scholia@outline@stepcount}} {%
+      \scholia@outline@drawstep{#1}{\scholia@tmp@stepidx}%
+    }%
+    % Draw all arrows
+    \scholia@outline@drawallarrows%
+  \end{tikzpicture}%
+}
+
+% \outlineFrame{highlighted}
+% Creates a beamer frame with the outline.
+% #1 = index of highlighted step (0 = all equal)
+\newcommand{\outlineFrame}[1]{%
+  \begin{frame}{\scholia@outline@frametitle}
+    \small\centering
+    \vspace{\scholia@outline@vspacetop}
+    \outlineRender{#1}
+  \end{frame}%
+}
+
+
+\endinput

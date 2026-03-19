@@ -182,14 +182,19 @@
 %     Contenu...
 %   \end{questionbox}
 %
+%   With centering (via second optional argument):
+%   \begin{questionbox}[Titre centré][centered]
+%     Contenu...
+%   \end{questionbox}
+%
 % USAGE for *mark commands:
 %   \questionmark{Titre de la question}
 %
-%   With centering:
+%   With centering (via first optional argument):
 %   \questionmark[centered]{Titre centré}
 %
-% The 'centered' key activates horizontal centering of the content (icon + text).
-% Other tcolorbox options can also be passed in the optional first argument.
+% The 'centered' key activates horizontal centering of the title (icon + text).
+% The second optional argument of *box environments accepts any tcolorbox key.
 % ============================================================================
 \tcbset{
   centered/.style={halign title=center},

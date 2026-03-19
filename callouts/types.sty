@@ -70,16 +70,19 @@
 % Use case: Summary, synthesis, recap of key points
 % Special styling: light gray with dotted frame for subtle visual separation
 % NOTE: Uses scholia-summary-light (light gray) instead of scholia-summary (gray-brown)
-\newtcolorbox{summarybox}[1][]{%
-  callout layout=scholia-summary-light,
-  colback=scholia-summary-light!5,
-  colframe=scholia-summary-light!60,
-  colbacktitle=scholia-summary-light!5,
-  coltitle=black,
-  boxrule=1pt,
-  frame style={dotted},
-  title={\scholia@callout@title{\scholia@callout@icon@summary}{#1}},
-}
+\NewDocumentEnvironment{summarybox}{O{} O{}}{%
+  \begin{tcolorbox}[%
+    callout layout=scholia-summary-light,
+    colback=scholia-summary-light!5,
+    colframe=scholia-summary-light!60,
+    colbacktitle=scholia-summary-light!5,
+    coltitle=black,
+    boxrule=1pt,
+    frame style={dotted},
+    title={\scholia@callout@title{\scholia@callout@icon@summary}{#1}},
+    #2%
+  ]%
+}{\end{tcolorbox}}
 
 % summarymark: special styling (black text, custom borderline)
 \NewDocumentCommand{\summarymark}{O{} m}{%
@@ -103,25 +106,28 @@
 % --- PROOF ---
 % Use case: Mathematical proofs and demonstrations
 % Special styling: white background with dotted gray frame, no title separator
-\newtcolorbox{proofbox}[1][]{%
-  enhanced,
-  arc=2mm,
-  colback=white,
-  colframe=white,
-  colbacktitle=white,
-  coltitle=scholia-proof,
-  fonttitle=\bfseries\sffamily,
-  attach boxed title to top left={yshift=-2mm, xshift=3mm},
-  boxed title style={colback=white, colframe=white, boxrule=0pt},
-  borderline={1pt}{0pt}{scholia-proof!60, dotted},
-  left=3mm,
-  right=3mm,
-  top=4mm,
-  bottom=2mm,
-  before skip=6pt,
-  after skip=6pt,
-  title={\scholia@callout@title{\scholia@callout@icon@proof}{#1}},
-}
+\NewDocumentEnvironment{proofbox}{O{} O{}}{%
+  \begin{tcolorbox}[%
+    enhanced,
+    arc=2mm,
+    colback=white,
+    colframe=white,
+    colbacktitle=white,
+    coltitle=scholia-proof,
+    fonttitle=\bfseries\sffamily,
+    attach boxed title to top left={yshift=-2mm, xshift=3mm},
+    boxed title style={colback=white, colframe=white, boxrule=0pt},
+    borderline={1pt}{0pt}{scholia-proof!60, dotted},
+    left=3mm,
+    right=3mm,
+    top=4mm,
+    bottom=2mm,
+    before skip=6pt,
+    after skip=6pt,
+    title={\scholia@callout@title{\scholia@callout@icon@proof}{#1}},
+    #2%
+  ]%
+}{\end{tcolorbox}}
 
 % proofmark: special styling (white background, dotted borderline)
 \NewDocumentCommand{\proofmark}{O{} m}{%
