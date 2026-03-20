@@ -1,0 +1,179 @@
+%% cards/scholia-cards-framework.sty
+%% Copyright 2025-2026 Esther Poniatowski <esther.poniatowski@ens.psl.eu>
+%
+% This work may be distributed and/or modified under the
+% conditions of the LaTeX Project Public License, either version 1.3c
+% of this license or (at your option) any later version.
+%
+% This work has the LPPL maintenance status `maintained'.
+% The Current Maintainer of this work is Esther Poniatowski.
+%
+\NeedsTeXFormat{LaTeX2e}[2020/10/01]
+\ProvidesPackage{\@currpath\@currname}[2026/03/20 v0.2.0 Card callout framework]
+
+% ============================================================================
+% CARD CALLOUTS
+%
+% Cards are an alternative callout family with a distinct visual treatment:
+%
+%   - The body has a uniform tinted background with a thin border.
+%   - A circular BADGE at the top-left corner contains an icon.
+%   - A FLOATING LABEL overlays the top border with the title text.
+%
+% This layout differs from the standard Obsidian-style callouts (defined in
+% callouts/) where the icon and title sit inside an integrated title bar.
+%
+% USAGE (generic):
+%
+%   \begin{cardbox}[title={Key insight}, icon={lightbulb.pdf}, color={blue}]
+%     Card body content.
+%   \end{cardbox}
+%
+% USAGE (named preset):
+%
+%   \begin{ideacard}[title={Key insight}]
+%     Card body content.
+%   \end{ideacard}
+%
+% DEFINING NEW PRESETS:
+%
+%   \NewScholiaCardType{research}{color=scholia-research, icon=telescope.pdf}
+%
+%   This creates a \begin{researchcard}...\end{researchcard} environment.
+% ============================================================================
+
+
+% ============================================================================
+% CONFIGURATION KEYS
+% ============================================================================
+
+\pgfkeys{
+  /scholia/card/.cd,
+  % --- Required per-instance ---
+  title/.store in        = \scholia@card@title,
+  icon/.store in         = \scholia@card@icon,
+  color/.store in        = \scholia@card@color,
+  % --- Visual tuning ---
+  fill tint/.store in    = \scholia@card@filltint,
+  border tint/.store in  = \scholia@card@bordertint,
+  badge tint/.store in   = \scholia@card@badgetint,
+  label fill/.store in   = \scholia@card@labelfill,
+  label border tint/.store in = \scholia@card@labelbordertint,
+  badge size/.store in   = \scholia@card@badgesize,
+  badge xshift/.store in = \scholia@card@badgexshift,
+  label xshift/.store in = \scholia@card@labelxshift,
+  top padding/.store in  = \scholia@card@toppadding,
+  icon height/.store in  = \scholia@card@iconheight,
+  box options/.store in  = \scholia@card@boxoptions,
+}
+
+% Defaults applied to each card instance
+\newcommand{\scholia@card@setdefaults}{%
+  \pgfkeys{
+  /scholia/card/.cd,
+  title            = {},
+  icon             = {},
+  color            = black!50,
+  fill tint        = 15,
+  border tint      = 40,
+  badge tint       = 25,
+  label fill       = white,
+  label border tint = 40,
+  badge size       = 7mm,
+  badge xshift     = 2mm,
+  label xshift     = 12mm,
+  top padding      = 8mm,
+  icon height      = 4mm,
+  box options      = {},
+  }%
+}
+
+\scholia@card@setdefaults
+
+
+% ============================================================================
+% GENERIC CARD ENVIRONMENT
+% ============================================================================
+
+% \begin{cardbox}[pgfkeys] ... \end{cardbox}
+%
+% The single optional argument accepts any key from /scholia/card/.
+% Raw tcolorbox keys may be forwarded via:
+%   box options={breakable, colback=gray!5}
+\NewDocumentEnvironment{cardbox}{O{}}{%
+  \begingroup
+  % Reset per-instance state, then apply user overrides.
+  \scholia@card@setdefaults
+  \pgfkeys{/scholia/card/.cd, #1}%
+  \begin{tcolorbox}[%
+    enhanced,
+    arc=4mm,
+    boxrule=0.5pt,
+    colback=\scholia@card@color!\scholia@card@filltint,
+    colframe=\scholia@card@color!\scholia@card@bordertint,
+    top=\scholia@card@toppadding,
+    left=3mm,
+    right=3mm,
+    bottom=2mm,
+    before skip=14pt,
+    after skip=14pt,
+    \scholia@card@boxoptions,
+    overlay={%
+      % --- Badge: circular icon node ---
+      \ifscholia@noicons\else
+        \scholia@ifmacroemptyTF{\scholia@card@icon}{}{%
+          \node[circle,
+                fill=\scholia@card@color!\scholia@card@badgetint,
+                minimum size=\scholia@card@badgesize,
+                anchor=west,
+                xshift=\scholia@card@badgexshift,
+                yshift=2mm]
+               at (frame.north west)
+               {\scholia@icon@renderplain[\scholia@card@iconheight]{\scholia@card@icon}};
+        }%
+      \fi
+      % --- Label: floating title ---
+      \scholia@ifmacroemptyTF{\scholia@card@title}{}{%
+        \node[fill=\scholia@card@labelfill,
+              draw=\scholia@card@color!\scholia@card@labelbordertint,
+              line width=0.5pt,
+              rounded corners,
+              anchor=west,
+              xshift=\scholia@card@labelxshift,
+              yshift=2mm]
+             at (frame.north west)
+             {\bfseries\sffamily \scholia@card@title};
+      }%
+    },
+  ]%
+}{%
+  \end{tcolorbox}%
+  \endgroup
+}
+
+
+% ============================================================================
+% TYPE REGISTRATION
+% ============================================================================
+
+% \NewScholiaCardType{<typename>}{<default keys>}
+%
+% Creates a \begin{<type>card}[keys] ... \end{<type>card} environment.
+% The default keys are applied first; per-instance keys override them.
+%
+% Prerequisites:
+%   - The color named in the default keys must be defined.
+%   - The icon named in the default keys must exist in the icon search path.
+%
+% Example:
+%   \NewScholiaCardType{idea}{color=scholia-idea, icon=minimalist-light-bulb.pdf}
+\newcommand{\NewScholiaCardType}[2]{%
+  \NewDocumentEnvironment{#1card}{O{}}{%
+    \begin{cardbox}[#2, ##1]%
+  }{%
+    \end{cardbox}%
+  }%
+}
+
+
+\endinput

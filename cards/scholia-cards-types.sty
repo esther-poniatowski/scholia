@@ -1,0 +1,30 @@
+%% cards/scholia-cards-types.sty
+%% Copyright 2025-2026 Esther Poniatowski <esther.poniatowski@ens.psl.eu>
+%
+% This work may be distributed and/or modified under the
+% conditions of the LaTeX Project Public License, either version 1.3c
+% of this license or (at your option) any later version.
+%
+% This work has the LPPL maintenance status `maintained'.
+% The Current Maintainer of this work is Esther Poniatowski.
+%
+\NeedsTeXFormat{LaTeX2e}[2020/10/01]
+\ProvidesPackage{\@currpath\@currname}[2026/03/20 v0.2.0 Built-in card presets]
+
+% ============================================================================
+% BUILT-IN CARD TYPES
+%
+% Each type is a thin preset over the generic cardbox environment.
+% Add new types by calling \NewScholiaCardType with color and icon defaults.
+%
+% Colors used here must be defined in base/scholia-colors.sty.
+% Icons used here must exist in icons/pdf/.
+% ============================================================================
+
+% --- IDEA ---
+% Use case: Key insights, highlights, important observations
+% Visual: neutral gray card with flat lightbulb badge
+\NewScholiaCardType{idea}{color=scholia-idea, icon=minimalist-light-bulb.pdf}
+
+
+\endinput
