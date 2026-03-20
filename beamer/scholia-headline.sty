@@ -1,0 +1,242 @@
+%% beamer/scholia-headline.sty
+%% Copyright 2025-2026 Esther Poniatowski <esther.poniatowski@ens.psl.eu>
+%
+% This work may be distributed and/or modified under the
+% conditions of the LaTeX Project Public License, either version 1.3c
+% of this license or (at your option) any later version.
+%
+% This work has the LPPL maintenance status `maintained'.
+% The Current Maintainer of this work is Esther Poniatowski.
+%
+\NeedsTeXFormat{LaTeX2e}[2020/10/01]
+\ProvidesPackage{\@currpath\@currname}[2026/03/20 v0.2.0 Beamer headline modes]
+
+% ============================================================================
+% HEADLINE MODES
+%
+% Three mutually exclusive headline/frametitle configurations:
+%
+%   objective   (default) — Icon+text banner in headline showing a persistent
+%                           objective set via \setobjective{...}.
+%   frametitle            — Icon+text banner in frametitle showing
+%                           \insertframetitle.  Headline is empty.
+%   progressbar           — Thin progress bar in headline.  Frametitle uses
+%                           an underline with optional circled frame number.
+%
+% USAGE:
+%   \scholiaBeamerSetup{headline mode=progressbar}
+%   \scholiaBeamerSetup{progress color=blue, show frame number=false}
+%
+% Legacy wrappers (delegate to \scholiaBeamerSetup):
+%   \headlineshowsframetitle
+%   \headlineshowsprogressbar
+% ============================================================================
+
+
+% ============================================================================
+% PUBLIC STATE
+% ============================================================================
+
+% Objective text (used in objective mode)
+\newcommand{\currentobjective}{}
+\newcommand{\setobjective}[1]{\renewcommand{\currentobjective}{#1}}
+
+% Icon used in the banner (objective and frametitle modes)
+\newcommand{\ObjectiveIconPath}{loader.pdf}
+
+
+% ============================================================================
+% CONFIGURATION KEYS
+% ============================================================================
+
+\newif\ifscholia@beamer@showframenumber
+\scholia@beamer@showframenumbertrue
+
+\pgfkeys{
+  /scholia/beamer/.cd,
+  % --- Mode selection ---
+  headline mode/.is choice,
+  headline mode/objective/.code    = {\scholia@beamer@mode@objective},
+  headline mode/frametitle/.code   = {\scholia@beamer@mode@frametitle},
+  headline mode/progressbar/.code  = {\scholia@beamer@mode@progressbar},
+  % --- Objective mode ---
+  objective icon/.code             = {\renewcommand{\ObjectiveIconPath}{#1}},
+  % --- Progress-bar mode ---
+  progress color/.store in         = \scholia@beamer@progresscolor,
+  progress background color/.store in = \scholia@beamer@progressbgcolor,
+  progress thickness/.store in     = \scholia@beamer@progressthickness,
+  frametitle underline color/.store in = \scholia@beamer@underlinecolor,
+  show frame number/.is if         = scholia@beamer@showframenumber,
+}
+
+% Defaults
+\pgfkeys{
+  /scholia/beamer/.cd,
+  progress color            = black,
+  progress background color = black!15,
+  progress thickness        = 0.3ex,
+  frametitle underline color = black,
+  show frame number         = true,
+}
+
+% Public configuration command
+\newcommand{\scholiaBeamerSetup}[1]{\pgfkeys{/scholia/beamer/.cd, #1}}
+
+\newcommand{\scholia@beamer@restoredefaultframetitle}{%
+  \setbeamertemplate{frametitle}[default][left]%
+}
+
+
+% ============================================================================
+% BANNER RENDERING (used by objective and frametitle modes)
+% ============================================================================
+
+% \scholia@beamer@banner{<text>}
+% Renders the icon + text banner.  Called inside beamer templates.
+\newcommand{\scholia@beamer@banner}[1]{%
+  \vskip4pt
+  \hspace*{-\beamer@leftmargin}%
+  \begin{beamercolorbox}[%
+      wd=\paperwidth,
+      ht=8mm,
+      dp=1mm,
+      leftskip=\beamer@leftmargin,
+      rightskip=\beamer@rightmargin
+    ]{headline}%
+    \begin{tikzpicture}[inner sep=0pt, outer sep=0pt]
+      \ifscholia@noicons
+        \node[
+          rectangle,
+          fill=gray!12,
+          draw=none,
+          inner sep=3.5pt,
+          text width=0.96\paperwidth,
+          anchor=west,
+          font=\small\bfseries
+        ] at (0,0) {%
+          \strut#1\strut%
+        };
+      \else
+        % Left: circular icon container
+        \node[
+          circle,
+          fill=gray!15,
+          draw=none,
+          inner sep=3pt,
+          anchor=west
+        ] (bannericon) at (0,0) {%
+          \scholiaicon[height=1.2em, raise=0pt]{\ObjectiveIconPath}%
+        };
+        % Right: light gray background with bold text
+        \node[
+          rectangle,
+          fill=gray!12,
+          draw=none,
+          inner sep=3.5pt,
+          text width=0.91\paperwidth,
+          anchor=west,
+          font=\small\bfseries
+        ] (bannertext) at ([xshift=6pt]bannericon.east) {%
+          \strut#1\strut%
+        };
+      \fi
+    \end{tikzpicture}
+  \end{beamercolorbox}%
+  \vskip4pt
+}
+
+
+% ============================================================================
+% PROGRESS-BAR RENDERING
+% ============================================================================
+
+% Headline template: thin bar filled proportionally to slide progress
+% Uses a zero-width hbox to avoid beamercolorbox internal margins
+\newcommand{\scholia@beamer@progressbartemplate}{%
+  \leavevmode
+  \hbox to \paperwidth{%
+    {\color{\scholia@beamer@progresscolor}%
+      \rule{\dimexpr\paperwidth*\insertframenumber/\inserttotalframenumber\relax}%
+           {\scholia@beamer@progressthickness}}%
+    {\color{\scholia@beamer@progressbgcolor}%
+      \rule{\dimexpr\paperwidth-\paperwidth*\insertframenumber/\inserttotalframenumber\relax}%
+           {\scholia@beamer@progressthickness}}%
+  }%
+  \vskip2pt
+}
+
+% Circled number helper
+\newcommand{\scholia@beamer@circlednumber}[1]{%
+  \tikz[baseline=(char.base)]{%
+    \node[shape=circle, draw, inner sep=1pt,
+          draw=\scholia@beamer@underlinecolor, text=black]
+         (char) {\scriptsize#1};%
+  }%
+}
+
+% Frametitle template: text with colored underline and optional circled number
+\newcommand{\scholia@beamer@underlinetitle}[1]{%
+  \begin{beamercolorbox}[%
+      wd=\paperwidth, ht=1em, leftskip=1em, rightskip=1em]{frametitle}%
+    \usebeamerfont{frametitle}%
+    \tikz[baseline=(title.base)] {%
+      \node[inner sep=0pt, outer sep=0pt] (title) {#1};%
+      % Underline: from left margin to end of title
+      \draw[\scholia@beamer@underlinecolor, line width=0.5pt]
+        ([xshift=-1cm, yshift=-5pt]title.south west)
+        -- ([yshift=-5pt]title.south east);%
+      % Circled frame number (optional)
+      \ifscholia@beamer@showframenumber
+        \node[anchor=west, xshift=1em] at (title.east)
+          {\scholia@beamer@circlednumber{\insertframenumber}};%
+      \fi
+    }%
+  \end{beamercolorbox}%
+}
+
+
+% ============================================================================
+% MODE APPLICATION
+% ============================================================================
+
+\newcommand{\scholia@beamer@mode@objective}{%
+  \setbeamertemplate{headline}{\scholia@beamer@banner{\currentobjective}}%
+  \scholia@beamer@restoredefaultframetitle%
+  \setbeamertemplate{footline}[frame number]%
+}
+
+\newcommand{\scholia@beamer@mode@frametitle}{%
+  \setbeamertemplate{headline}{}%
+  \setbeamertemplate{frametitle}{\scholia@beamer@banner{\insertframetitle}}%
+  \setbeamertemplate{footline}[frame number]%
+}
+
+\newcommand{\scholia@beamer@mode@progressbar}{%
+  \setbeamertemplate{headline}{\scholia@beamer@progressbartemplate}%
+  \setbeamertemplate{frametitle}{\scholia@beamer@underlinetitle{\insertframetitle}}%
+  \setbeamertemplate{footline}{}%
+}
+
+
+% ============================================================================
+% LEGACY WRAPPERS
+% ============================================================================
+
+\newcommand{\headlineshowsframetitle}{%
+  \scholiaBeamerSetup{headline mode=frametitle}%
+}
+
+\newcommand{\headlineshowsprogressbar}{%
+  \scholiaBeamerSetup{headline mode=progressbar}%
+}
+
+
+% ============================================================================
+% DEFAULT MODE
+% ============================================================================
+
+% Apply objective mode as the default
+\scholia@beamer@mode@objective
+
+
+\endinput

@@ -1,0 +1,108 @@
+%% beamer/scholia-utilities.sty
+%% Copyright 2025-2026 Esther Poniatowski <esther.poniatowski@ens.psl.eu>
+%
+% This work may be distributed and/or modified under the
+% conditions of the LaTeX Project Public License, either version 1.3c
+% of this license or (at your option) any later version.
+%
+% This work has the LPPL maintenance status `maintained'.
+% The Current Maintainer of this work is Esther Poniatowski.
+%
+\NeedsTeXFormat{LaTeX2e}[2020/10/01]
+\ProvidesPackage{\@currpath\@currname}[2026/03/20 v0.2.0 Beamer slide-composition helpers]
+
+% ============================================================================
+% TITLE BACKGROUND
+% PURPOSE: Overlay a full-bleed background image on the current slide
+%
+% Usage:
+%   \begin{frame}
+%     \titlebackground{images/my-background.jpg}
+%     \titlepage
+%   \end{frame}
+% ============================================================================
+
+\newcommand{\titlebackground}[1]{%
+  \begin{tikzpicture}[remember picture, overlay]
+    \node[at=(current page.center), inner sep=0pt] {%
+      \includegraphics[width=\paperwidth, height=\paperheight]{#1}%
+    };
+  \end{tikzpicture}%
+}
+
+
+% ============================================================================
+% BOTTOM TEXT
+% PURPOSE: Push text to the bottom of the current slide
+%
+% Usage:
+%   \bottomtext{Source: Author, Year}
+% ============================================================================
+
+\newcommand{\bottomtext}[1]{\vfill\footnotesize #1}
+
+
+% ============================================================================
+% FADED OVAL
+% PURPOSE: Draw a faded elliptical region with centered text
+%
+% Usage:
+%   \fadedoval[color=blue!50, horizontal radius=3cm]{Content text}
+%
+% Keys:
+%   color              (default: black)
+%   horizontal radius  (default: 3.5cm)
+%   vertical radius    (default: 2cm)
+%   text width         (default: 6cm)
+%   inner tint         (default: 20)   — inner color = <color>!<inner tint>
+%   outer tint         (default: 0)    — outer color = <color>!<outer tint>
+%   baseline skip      (default: 1.7em)
+% ============================================================================
+
+\pgfkeys{
+  /scholia/fadedoval/.cd,
+  color/.store in             = \scholia@fadedoval@color,
+  horizontal radius/.store in = \scholia@fadedoval@hradius,
+  vertical radius/.store in   = \scholia@fadedoval@vradius,
+  text width/.store in        = \scholia@fadedoval@textwidth,
+  inner tint/.store in        = \scholia@fadedoval@innertint,
+  outer tint/.store in        = \scholia@fadedoval@outertint,
+  baseline skip/.store in     = \scholia@fadedoval@baselineskip,
+}
+
+\newcommand{\scholia@fadedoval@setdefaults}{%
+  \pgfkeys{
+    /scholia/fadedoval/.cd,
+    color             = black,
+    horizontal radius = 3.5cm,
+    vertical radius   = 2cm,
+    text width        = 6cm,
+    inner tint        = 20,
+    outer tint        = 0,
+    baseline skip     = 1.7em,
+  }%
+}
+
+\scholia@fadedoval@setdefaults
+
+\newcommand{\scholia@fadedoval@render}[2]{%
+  \begingroup
+    \scholia@fadedoval@setdefaults
+    \pgfkeys{/scholia/fadedoval/.cd, #1}%
+    \begin{tikzpicture}
+      \shade[inner color=\scholia@fadedoval@color!\scholia@fadedoval@innertint,
+             outer color=\scholia@fadedoval@color!\scholia@fadedoval@outertint]
+        (0,0) ellipse [x radius=\scholia@fadedoval@hradius, y radius=\scholia@fadedoval@vradius];
+      \node[align=center, text width=\scholia@fadedoval@textwidth] at (0,0) {%
+        \setlength{\baselineskip}{\scholia@fadedoval@baselineskip}#2%
+      };
+    \end{tikzpicture}%
+  \endgroup
+}
+
+\NewDocumentCommand{\fadedoval}{O{} m}{%
+  \scholia@fadedoval@render{#1}{#2}%
+}
+
+
+\endinput
