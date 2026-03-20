@@ -2,32 +2,57 @@
 
 **Educational document formatting for mathematics pedagogy**
 
-Scholia is a LaTeX package providing structured environments for creating educational mathematics documents, including callout boxes, exercise environments, grading tools, and worksheet layouts.
+Scholia is a modular LaTeX package for structured educational documents and slide
+decks. It provides callouts, cards, typed pages, exercises, grading tools,
+beamer-specific headline utilities, interactive hide/reveal helpers, and a shared
+icon API. Documents should load the top-level package `scholia`; the internal
+module files under `base/`, `beamer/`, `cards/`, and related directories are
+implementation details, not stable public entry points.
 
 ## Features
 
-- **Callout Boxes** — 13 styled callout types (definitions, theorems, warnings, tips, methods, etc.)
-- **Exercise Environments** — Guided, semi-guided, autonomous, and modeling exercises
-- **Grading Tools** — Rubrics, grading scales, and point tracking
-- **Fiche System** — Worksheet layouts with cross-referencing
-- **Numbering Systems** — Structured steps, questions, and subquestions
+- **Callouts** — 13 styled callout types plus concise and title-only variants
+- **Cards** — Floating-label card callouts with badge icons and custom presets
+- **Typed Pages** — Standalone page banners, full-page wrappers, and summary/keypoint helpers
+- **Numbering Systems** — Structured steps, substeps, questions, and subquestions
+- **Exercises and Grading** — Guided exercises, rubrics, grading tables, and point tracking
+- **Beamer Tools** — Headline modes, objective banners, progress bars, and slide composition helpers
 - **Interactive Hide/Reveal** — OCG-based clickable content toggling for progressive disclosure
+- **Shared Icons** — One PDF-backed icon interface reused across the package
 - **i18n Support** — French and English localizations
 
 ## Installation
 
 ### Local Installation
 
-Place all `.sty` files in a directory accessible to your LaTeX installation, or use the `\CommonPath` mechanism:
+Install the `scholia/` tree in a local texmf root, for example:
 
-```latex
-\newcommand{\CommonPath}{path/to/scholia}
-\usepackage{\CommonPath/scholia}
+```text
+~/texmf/tex/latex/scholia/
 ```
 
-### TeX Live / MiKTeX
+Then load the package normally:
 
-*(Coming soon via CTAN)*
+```latex
+\usepackage{scholia}
+```
+
+Legacy repository layouts can still use the `\CommonPath` mechanism:
+
+```latex
+\newcommand{\CommonPath}{path/to}
+\usepackage{\CommonPath/scholia/scholia}
+```
+
+### CTAN / TDS Archives
+
+Scholia ships an `l3build` configuration for generating CTAN and TDS archives:
+
+```bash
+l3build check
+l3build manifest
+l3build ctan
+```
 
 ## Quick Start
 
@@ -63,13 +88,14 @@ $x = 3$
 
 | Option        | Description                                                     |
 |---------------|-----------------------------------------------------------------|
-| `french`      | Use French strings (default)                                    |
-| `english`     | Use English strings                                             |
+| `english`     | Use English strings (default)                                   |
+| `french`      | Use French strings                                              |
 | `beamer`      | Enable Beamer presentation mode                                 |
 | `solutions`   | Show solutions in exercises (via `\solutionBlank`)              |
 | `interactive` | Enable OCG-based hide/reveal features (requires capable viewer) |
 | `noicons`     | Disable icon loading (text-only callouts)                       |
 | `minimal`     | Minimal dependencies (skips table packages, implies `noicons`)  |
+| `minimalistcompat` | Enable aliases for presentations migrated from the minimalist beamer theme |
 | `draft`       | Draft mode (for future use)                                     |
 
 ```latex
@@ -77,6 +103,7 @@ $x = 3$
 \usepackage[beamer]{scholia}
 \usepackage[interactive]{scholia}  % Enable hide/reveal
 \usepackage[minimal]{scholia}      % Reduced dependencies
+\usepackage[beamer,minimalistcompat]{scholia}
 ```
 
 ## Callout Types
@@ -113,8 +140,8 @@ Each callout has two variants:
 
 ### Exercise Commands
 
-- `\exstep{description}` — Numbered step
-- `\resetExerciseSteps` — Reset step counter
+- `\exstep[title]` — Numbered exercise step
+- `\resetexsteps` — Reset the exercise step counter
 - `\highlight{text}` — Subtle highlighting
 - `\solutionBlank{answer}` — Conditional blank/answer
 
@@ -126,6 +153,31 @@ Each callout has two variants:
 \gradeitem{Correct answer}{1}
 \gradetotal{3}
 \end{gradebox}
+```
+
+## Cards
+
+Cards are a second callout family with a floating title label and a circular icon
+badge.
+
+```latex
+\begin{cardbox}[title={Key insight}, icon={lightbulb.pdf}, color=blue]
+Card body content.
+\end{cardbox}
+```
+
+Scholia currently ships one built-in preset:
+
+```latex
+\begin{ideacard}[title={Key insight}]
+Important observation.
+\end{ideacard}
+```
+
+Custom presets can be registered with:
+
+```latex
+\NewScholiaCardType{research}{color=scholia-research, icon=telescope.pdf}
 ```
 
 ## Numbering
@@ -197,19 +249,68 @@ In Beamer presentations, the `\Hide` command combines OCG toggling with slide ov
 | `\Hide{hide}{show}{content}`        | Beamer: hide on slides, show on slides  |
 | `\Hide[color]{hide}{show}{content}` | Beamer variant with custom color        |
 
-## Sub-packages
+The placeholder commands `\revealAll` and `\hideAll` currently warn only; they
+do not implement a global toggle yet.
 
-Scholia is modular. Individual components can be loaded separately:
+## Beamer Tools
 
-| Package               | Features                       |
-|-----------------------|--------------------------------|
-| `scholia-callouts`    | Callout box system             |
-| `scholia-exercises`   | Exercise environments          |
-| `scholia-grading`     | Grading tools                  |
-| `scholia-numbering`   | Steps and questions            |
-| `scholia-fiches`      | Worksheet layouts              |
-| `scholia-math`        | Math expression helpers        |
-| `scholia-interactive` | OCG-based hide/reveal features |
+In beamer mode, Scholia defaults to an objective banner controlled by:
+
+```latex
+\setobjective{Persistent objective text}
+```
+
+Headline behavior can be reconfigured with:
+
+```latex
+\scholiaBeamerSetup{headline mode=frametitle}
+\scholiaBeamerSetup{headline mode=progressbar, show frame number=false}
+```
+
+Supported modes are:
+- `objective` — persistent objective banner in the headline
+- `frametitle` — frametitle banner, empty headline
+- `progressbar` — thin progress bar in the headline and underlined frametitle
+
+Legacy wrappers remain supported:
+- `\headlineshowsframetitle`
+- `\headlineshowsprogressbar`
+
+Beamer utility helpers:
+
+```latex
+\titlebackground{images/title-background.jpg}
+\bottomtext{Source: Author, Year}
+\fadedoval[color=blue!50, horizontal radius=3cm]{Key idea}
+```
+
+The `minimalistcompat` option adds migration aliases for presentations that used
+the standalone minimalist theme, including `\setTitleBackground`,
+`\lightbulb`, `\observation`, and `ideaboxgray`.
+
+## Shared Icon Helper
+
+The public icon command is:
+
+```latex
+\scholiaicon[height=1.2em, fallback={[idea]}]{lightbulb.pdf}
+```
+
+Runtime icon loading is PDF-only. The `noicons` option suppresses icon loads
+across callouts, cards, exercises, typed pages, summaries, and beamer banners.
+
+## Public Surface
+
+Load the top-level package:
+
+```latex
+\usepackage{scholia}
+```
+
+The internal files under `base/`, `beamer/`, `callouts/`, `cards/`,
+`typedpages/`, `grading/`, `exercises/`, and related directories are part of
+Scholia's implementation layout. They are documented for maintainers, but they
+are not a stable public interface for external documents.
 
 ## Requirements
 
@@ -224,20 +325,17 @@ Scholia is modular. Individual components can be loaded separately:
 
 | Engine | Status |
 |--------|--------|
-| pdfLaTeX | ✅ Tested |
-| XeLaTeX | ✅ Tested |
-| LuaLaTeX | ✅ Tested |
+| pdfLaTeX | ✅ Covered by the current regression suite |
+| XeLaTeX | ⚠️ Not covered by the current regression suite |
+| LuaLaTeX | ⚠️ Not covered by the current regression suite |
 
 ### Document Classes
 
 | Class | Status |
 |-------|--------|
-| `article` | ✅ Tested |
-| `book` | ✅ Tested |
-| `report` | ✅ Tested |
-| `memoir` | ✅ Tested |
-| `scrartcl` (KOMA) | ✅ Tested |
-| `beamer` | ✅ Tested (use `[beamer]` option) |
+| `article` | ✅ Covered by the current regression suite |
+| `beamer` | ✅ Covered by the current regression suite |
+| `book`, `report`, `memoir`, `scrartcl` | ⚠️ Not in the current regression suite |
 
 ### TeX Distributions
 
@@ -266,4 +364,4 @@ Esther Poniatowski <esther.poniatowski@ens.psl.eu>
 
 ---
 
-*Version 0.1.1 — 2026-02-02*
+*Version 0.2.0 — 2026-03-20*

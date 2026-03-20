@@ -56,14 +56,34 @@ Icons have been modified (recolored) for integration with the package color sche
 
 Icons are organized by format:
 - **`icons/pdf/`**: PDF files (vector) - used by default for high-quality output
-- **`icons/png/`**: PNG files (raster) - fallback for compatibility
 - **`icons/svg/`**: SVG source files - for regenerating icons in different formats or colors
 
 The package uses PDF icons by default for crisp vector rendering at any size.
 
+## Minimalist Theme Icons
+
+The following flat-style icons were imported from the standalone "minimalist" beamer
+theme (original work by Esther Poniatowski). They are stored with a `minimalist-`
+filename prefix to distinguish them from the Lucide icon set.
+
+| Icon Name | Usage |
+|-----------|-------|
+| `minimalist-light-bulb` | Idea card badge, compatibility symbol |
+| `minimalist-observation` | Compatibility symbol (magnifying glass) |
+| `minimalist-bi-arrow-horizontal` | Compatibility symbol |
+| `minimalist-down-arrow-black` | Compatibility symbol |
+| `minimalist-down-arrow-white` | Compatibility symbol |
+| `minimalist-right-curve-arrow` | Compatibility symbol |
+| `minimalist-paper-1` | Compatibility symbol |
+| `minimalist-paper-2` | Compatibility symbol (variant) |
+| `minimalist-paper-3` | Compatibility symbol (variant) |
+| `minimalist-paper-4` | Compatibility symbol (variant) |
+
 ## Beamer Theme
 
-The `minimalist` Beamer theme included in this package is an original work.
+The beamer headline modes and progress-bar feature are original work, incorporating
+design patterns from the standalone "minimalist" beamer theme (original work by
+Esther Poniatowski).
 
 ## Contributors
 

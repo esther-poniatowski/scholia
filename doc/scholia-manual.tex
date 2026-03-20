@@ -5,10 +5,16 @@
 
 \documentclass[11pt,a4paper]{article}
 
-% Path setup for local development
-% When installed via CTAN/TDS, replace with: \usepackage{scholia}
-\def\CommonPath{../..}
-\usepackage{\CommonPath/scholia/scholia}
+% Build-safe package loading:
+% - l3build copies scholia.sty into the typesetting directory, so the local
+%   package name works there
+% - local repository builds can still fall back to the shared CommonPath layout
+\IfFileExists{scholia.sty}{%
+  \usepackage{scholia}%
+}{%
+  \def\CommonPath{../..}%
+  \usepackage{\CommonPath/scholia/scholia}%
+}
 
 % Additional packages for documentation
 \usepackage{hyperref}
@@ -21,8 +27,8 @@
 % Hyperref configuration
 \hypersetup{
   colorlinks=true,
-  linkcolor=callout-method,
-  urlcolor=callout-definition,
+  linkcolor=scholia-method,
+  urlcolor=scholia-definition,
   pdftitle={scholia - User Manual},
   pdfauthor={Esther Poniatowski},
 }
@@ -38,7 +44,7 @@
 \lstset{
   language=[LaTeX]TeX,
   basicstyle=\ttfamily\small,
-  keywordstyle=\color{callout-method}\bfseries,
+  keywordstyle=\color{scholia-method}\bfseries,
   commentstyle=\color{gray},
   backgroundcolor=\color{gray!10},
   frame=single,
@@ -54,7 +60,7 @@
   \Large Structured Visual Components for \LaTeX{} Documents}
 \author{Esther Poniatowski\\
   \texttt{esther.poniatowski@ens.psl.eu}}
-\date{Version 0.1.0\\January 2026}
+\date{Version 0.2.0\\March 2026}
 
 \begin{document}
 
@@ -62,10 +68,11 @@
 
 \begin{abstract}
 \scholia is a \LaTeX{} package for documents requiring consistent visual structure.
-It provides callout boxes and semantic labels for highlighting content,
-and numbering systems to organize steps and components. For educational use,
-it adds exercise environments, grading tools, and worksheet layouts. The package
-supports article and Beamer modes with French/English localization.
+It provides callouts, cards, semantic labels, numbering systems, typed pages,
+exercise environments, grading tools, shared icon handling, and Beamer-specific
+presentation helpers. Optional interactive hide/reveal commands support
+progressive disclosure in PDF workflows. The package supports article and
+Beamer modes with French/English localization.
 \end{abstract}
 
 \tableofcontents
@@ -81,19 +88,21 @@ tutorials, reports, and academic projects.
 
 \subsection{Key Features}
 
-The package offers six main feature categories, listed from most general
-(applicable to any structured document) to most specific (educational content):
+The package offers nine user-facing feature categories:
 
 \begin{tabular}{@{}lp{9cm}@{}}
 \toprule
 \textbf{Feature} & \textbf{Description} \\
 \midrule
 Callouts & 13 styled box types (definitions, theorems, warnings, tips, etc.) \\
+Cards & Floating-label callouts with icon badges and reusable presets \\
 Semantic labels & Inline styled boxes for content categorization \\
 Numbering & Steps/substeps and questions/subquestions with hanging indentation \\
 Typed Pages & Standalone page layouts with banners and relative pagination \\
 Exercises & 5 environment types with difficulty indicators and solution control \\
 Grading & Rubric tables and point allocation for assessments \\
+Beamer tools & Headline modes, title-slide helpers, and minimalist compatibility \\
+Interactive PDF toggles & Click-to-reveal content using Optional Content Groups \\
 \bottomrule
 \end{tabular}
 
@@ -109,10 +118,12 @@ Two modes are supported:
 \textbf{Mode} & \textbf{Purpose} & \textbf{Features} \\
 \midrule
 \textbf{Article} (default) & Printed materials, handouts, worksheets &
-  All features enabled. \\
+  Callouts, cards, labels, numbering, typed pages, exercises, grading, and optional
+  interactive toggles. \\
 \textbf{Beamer} & Presentations, oral sessions &
-  Typed pages disabled (page-based constructs incompatible with slides).
-  Semantic labels available. Progression module loaded for slide navigation. \\
+  Typed-page layouts disabled. Callouts, cards, labels, numbering, exercises,
+  grading, headline modes, progression helpers, and optional interactive toggles
+  remain available. \\
 \bottomrule
 \end{tabular}
 
@@ -122,8 +133,8 @@ Two modes are supported:
 
 \begin{itemize}
   \item \textbf{Ready-to-use environments} --- Variants in each feature, with pre-defined colors, icons,
-        and styling. No configuration required. (13 callout types, 9 semantic labels, 5 exercise categories,
-        10 typed page layouts)
+        and styling. No configuration required. (13 callout types, 10 semantic labels, 5 exercise categories,
+        11 typed page registrations, 1 built-in card preset)
   \item \textbf{Customization framework} --- Generic commands allow creating new variants in each
   feature. All visual elements can be redefined (colors, icons, spacing, borders) using the same underlying infrastructure.
 \end{itemize}
@@ -169,6 +180,10 @@ the document class automatically: with \texttt{article}, \texttt{report}, or
 \texttt{book}, it operates in article mode; with \texttt{beamer}, it switches
 to presentation mode.
 
+Load the top-level package \texttt{scholia}. The internal module files under
+\texttt{base/}, \texttt{beamer/}, \texttt{cards/}, \texttt{typedpages/}, and
+related directories are implementation details, not stable public entry points.
+
 \medskip
 \textbf{Standard article with English strings (default):}
 
@@ -203,8 +218,11 @@ when using the \texttt{beamer} document class.
 \opt{english} & Use English strings (default) \\
 \opt{french} & Use French strings \\
 \opt{beamer} & Enable Beamer mode (auto-detected for \texttt{beamer} class) \\
+\opt{solutions} & Show solution text in exercise blanks and correction helpers \\
+\opt{interactive} & Enable OCG-based hide/reveal commands \\
 \opt{noicons} & Disable icon loading for text-only output \\
 \opt{minimal} & Minimal dependencies; implies \opt{noicons} \\
+\opt{minimalistcompat} & Enable compatibility aliases for decks migrated from the minimalist theme \\
 \opt{draft} & Draft mode (reserved for future use) \\
 \bottomrule
 \end{tabular}
@@ -235,15 +253,25 @@ To override specific strings, redefine the internal macros after loading \scholi
 
 \subsection{Icons}
 
-Callouts and exercises display icons by default, loaded from PDF files in the
-\texttt{icons/pdf/} directory. The \opt{noicons} option disables icon loading,
-which is useful for:
+Runtime icons are loaded from PDF files in \texttt{icons/pdf/}. The public icon
+command is \cmd{scholiaicon}; frameworks such as callouts, cards, exercises,
+typed pages, summaries, and Beamer banners reuse the same rendering path.
+
+\begin{lstlisting}
+\scholiaicon[height=1.2em, fallback={[idea]}]{lightbulb.pdf}
+\end{lstlisting}
+
+The \opt{noicons} option disables icon loading package-wide and uses text-only
+fallbacks where available. This is useful for:
 
 \begin{itemize}
   \item Faster compilation during drafting
   \item Reduced output file size
   \item Plain-text fallback scenarios
 \end{itemize}
+
+The \opt{minimal} option implies \opt{noicons} and also skips table-related
+dependencies that are not needed in reduced builds.
 
 %% ===========================================================================
 \section{Quick Start}
@@ -380,12 +408,65 @@ The styles are based on \pkg{tcolorbox}; any tcolorbox option can be added to
 further customize spacing, borders, or backgrounds.
 
 %% ---------------------------------------------------------------------------
+\subsection{Cards}
+%% ---------------------------------------------------------------------------
+
+Cards are an alternative callout family with a floating title label and a circular
+icon badge. They are useful for highlighting insights, design notes, or visual
+breaks that should differ from the standard callout title-bar layout.
+
+\subsubsection{Generic Card Environment}
+
+\begin{lstlisting}
+\begin{cardbox}[title={Key insight}, icon={lightbulb.pdf}, color=blue]
+Card body content.
+\end{cardbox}
+\end{lstlisting}
+
+The optional argument accepts keys from the \texttt{/scholia/card} family.
+
+\begin{tabular}{@{}lp{8cm}@{}}
+\toprule
+\textbf{Key} & \textbf{Purpose} \\
+\midrule
+\texttt{title} & Floating label text \\
+\texttt{icon} & Badge icon filename \\
+\texttt{color} & Base semantic color for border and fills \\
+\texttt{fill tint}, \texttt{border tint}, \texttt{badge tint} & Tint strengths for the three visual layers \\
+\texttt{label fill}, \texttt{label border tint} & Floating-label styling \\
+\texttt{badge size}, \texttt{badge xshift}, \texttt{label xshift} & Badge and label placement \\
+\texttt{top padding}, \texttt{icon height} & Layout sizing \\
+\texttt{box options} & Raw \pkg{tcolorbox} options forwarded to the box \\
+\bottomrule
+\end{tabular}
+
+\subsubsection{Built-In Preset}
+
+\scholia currently ships one built-in preset:
+
+\begin{lstlisting}
+\begin{ideacard}[title={Key insight}]
+Important observation.
+\end{ideacard}
+\end{lstlisting}
+
+\subsubsection{Defining New Card Types}
+
+Custom presets are registered with \cmd{NewScholiaCardType}:
+
+\begin{lstlisting}
+\NewScholiaCardType{research}{color=scholia-research, icon=telescope.pdf}
+\end{lstlisting}
+
+This defines a corresponding \env{researchcard} environment.
+
+%% ---------------------------------------------------------------------------
 \subsection{Semantic Labels}
 %% ---------------------------------------------------------------------------
 
 Semantic labels are inline styled boxes for categorizing and marking content.
 They provide visual consistency when referring to concepts, methods,
-or other resources. Available only in article mode.
+or other resources. They are available in both article and Beamer documents.
 
 \subsubsection{Generic Frame}
 
@@ -409,15 +490,16 @@ Pre-defined commands for content categorization:
 \toprule
 \textbf{Command} & \textbf{Color/Purpose} \\
 \midrule
-\cmd{conceptslabel\{text\}} & Cyan (theory, definitions) \\
-\cmd{exerciseslabel\{text\}} & Orange (practice activities) \\
-\cmd{solutionslabel\{text\}} & Green (answers, corrections) \\
+\cmd{notionlabel\{text\}} & Cyan (theory, definitions) \\
+\cmd{exerciselabel\{text\}} & Orange (practice activities) \\
+\cmd{solutionlabel\{text\}} & Green (answers, corrections) \\
 \cmd{methodlabel\{text\}} & Blue (methods, procedures) \\
 \cmd{assessmentlabel\{text\}} & Red (formal evaluations) \\
 \cmd{researchlabel\{text\}} & Reddish-orange (exploration) \\
-\cmd{selfassessmentlabel\{text\}} & Purple (self-evaluation) \\
-\cmd{keypointslabel\{text\}} & Gold (key highlights) \\
+\cmd{autochecklabel\{text\}} & Purple (self-evaluation) \\
+\cmd{keypointlabel\{text\}} & Gold (key highlights) \\
 \cmd{summarylabel\{text\}} & Gray-brown (overviews) \\
+\cmd{diagnosticlabel\{text\}} & Steel blue (student records, diagnostics) \\
 \bottomrule
 \end{tabular}
 
@@ -559,12 +641,10 @@ numbering. They are available only in article mode (disabled in Beamer).
 \texttt{summary} & Gray-brown & Chapter summaries \\
 \texttt{keypoint} & Gold & Key points to memorize \\
 \texttt{research} & Reddish-orange & Research activities \\
+\texttt{presentation} & Slate blue & Presentation-oriented typed pages and summary aliases \\
+\texttt{diagnostic} & Steel blue & Diagnostics and student-record material \\
 \bottomrule
 \end{tabular}
-
-\medskip
-\textbf{Note:} The \texttt{presentation} type exists for Beamer integration but
-is handled separately through the progression module in Beamer mode.
 
 \subsubsection{Creating a Typed Page}
 
@@ -626,7 +706,7 @@ Pre-defined environments wrap \env{typedpagefull} for common use cases:
 \textbf{Environment} & \textbf{Type} & \textbf{Options} \\
 \midrule
 \env{summarypage} & \texttt{summary} & (default styling) \\
-\env{keypointspage} & \texttt{keypoint} & \texttt{norules} \\
+\env{keypointpage} & \texttt{keypoint} & \texttt{norules} \\
 \bottomrule
 \end{tabular}
 
@@ -764,16 +844,22 @@ The derivative is \solutionBlank{2cm}{$2x$}.
 
 \paragraph{Enabling Solutions}
 
-By default, solutions are hidden. Two methods enable solution display:
+By default, solutions are hidden. Three methods enable solution display:
 
-\textbf{Method 1: In the preamble}
+\textbf{Method 1: Package option}
+
+\begin{lstlisting}
+\usepackage[solutions]{scholia}
+\end{lstlisting}
+
+\textbf{Method 2: In the preamble}
 
 \begin{lstlisting}
 \usepackage{scholia}
 \solutionstrue
 \end{lstlisting}
 
-\textbf{Method 2: Via command line}
+\textbf{Method 3: Via command line}
 
 \begin{lstlisting}[language=bash]
 pdflatex "\def\ForceSolutions{}\input{document}"
@@ -788,16 +874,15 @@ This allows generating both student and teacher versions from the same source fi
 \textbf{Command} & \textbf{Description} \\
 \midrule
 \cmd{exstep[title]} & Numbered step (a, b, c, ...) \\
-\cmd{resetExerciseSteps} & Reset step counter to zero \\
+\cmd{resetexsteps} & Reset step counter to zero \\
 \cmd{highlight\{text\}} & Subtle gray background \\
-\cmd{questionStatement\{text\}} & Highlighted question in corrections \\
 \bottomrule
 \end{tabular}
 
 \subsubsection{Counter Management}
 
 The exercise counter (\texttt{exonum}) increments automatically with each exercise
-environment. The step counter (\texttt{exoitem}) resets at each \cmd{resetExerciseSteps}
+environment. The step counter (\texttt{exoitem}) resets at each \cmd{resetexsteps}
 call. The question counter (\texttt{scholia@circlednum}) resets automatically when entering
 any exercise environment.
 
@@ -849,16 +934,185 @@ Calculate $f(3)$. \gradeinline{2 pts}
 \end{question}
 \end{lstlisting}
 
+\medskip
+When the document already uses \env{question} and \env{subquestion}, the shorter
+helpers \cmd{gradeq} and \cmd{gradesubq} place bracketed point values aligned with
+the numbering markers:
+
+\begin{lstlisting}
+\begin{question}
+Calculate $f(3)$. \gradeq{2 pts}
+\begin{subquestion}
+Explain the method. \gradesubq{1 pt}
+\end{subquestion}
+\end{question}
+\end{lstlisting}
+
+\subsubsection{Summary and Rubric Environments}
+
+\begin{tabular}{@{}lp{8cm}@{}}
+\toprule
+\textbf{Environment} & \textbf{Purpose} \\
+\midrule
+\env{gradesummary} & Dotted-border summary box for total grading notes \\
+\env{graderubric} & Longtable-based rubric for detailed criteria \\
+\bottomrule
+\end{tabular}
+
+Typical helper commands inside \env{graderubric} are \cmd{gradedetailedrow},
+\cmd{gradedetailedrowlist}, and \cmd{gradecompetency}.
+
 \subsubsection{Automatic Point Tracking}
 
 The grading module includes counters for automatic point summation:
 
 \begin{lstlisting}
 \resetgradepoints
-\gradeitemTracked{Q1}{Description}{2}
-\gradeitemTracked{Q2}{Description}{3}
+\gradeitemtracked{Q1}{Description}{2}
+\gradeitemtracked{Q2}{Description}{3}
 Total: \showgradetotal
 \end{lstlisting}
+
+%% ---------------------------------------------------------------------------
+\subsection{Beamer Tools}
+%% ---------------------------------------------------------------------------
+
+When \scholia runs in Beamer mode, it loads headline utilities and progression
+helpers in addition to the shared document features.
+
+\subsubsection{Headline Modes}
+
+The headline system exposes three mutually exclusive modes:
+
+\begin{tabular}{@{}lp{8cm}@{}}
+\toprule
+\textbf{Mode} & \textbf{Behavior} \\
+\midrule
+\texttt{objective} & Default headline banner showing the persistent objective text \\
+\texttt{frametitle} & Frametitle banner with an empty headline \\
+\texttt{progressbar} & Thin headline progress bar plus underlined frametitle \\
+\bottomrule
+\end{tabular}
+
+The objective text is set with:
+
+\begin{lstlisting}
+\setobjective{Persistent objective text}
+\end{lstlisting}
+
+Mode and headline appearance are configured with:
+
+\begin{lstlisting}
+\scholiaBeamerSetup{headline mode=frametitle}
+\scholiaBeamerSetup{headline mode=progressbar, show frame number=false}
+\end{lstlisting}
+
+Supported keys are:
+\texttt{headline mode},
+\texttt{objective icon},
+\texttt{progress color},
+\texttt{progress background color},
+\texttt{progress thickness},
+\texttt{frametitle underline color},
+and \texttt{show frame number}.
+
+Legacy wrappers remain available:
+\cmd{headlineshowsframetitle} and \cmd{headlineshowsprogressbar}.
+
+\subsubsection{Slide-Composition Helpers}
+
+\begin{tabular}{@{}lp{8cm}@{}}
+\toprule
+\textbf{Command} & \textbf{Purpose} \\
+\midrule
+\cmd{titlebackground\{path\}} & Overlay a full-bleed background image on the current frame \\
+\cmd{bottomtext\{text\}} & Push small source text to the bottom of the frame \\
+\cmd{fadedoval[keys]\{text\}} & Draw a shaded elliptical region with centered text \\
+\bottomrule
+\end{tabular}
+
+The \cmd{fadedoval} command accepts keys
+\texttt{color},
+\texttt{horizontal radius},
+\texttt{vertical radius},
+\texttt{text width},
+\texttt{inner tint},
+\texttt{outer tint},
+and \texttt{baseline skip}.
+
+\subsubsection{Minimalist Compatibility}
+
+The \opt{minimalistcompat} option enables aliases for decks migrated from the
+older minimalist Beamer theme.
+
+\begin{lstlisting}
+\usepackage[beamer,minimalistcompat]{scholia}
+\end{lstlisting}
+
+Available compatibility helpers include:
+\cmd{downarrowblack},
+\cmd{downarrowwhite},
+\cmd{twoheadsearrow},
+\cmd{droparrow},
+\cmd{lightbulb},
+\cmd{observation},
+\cmd{paper},
+the \env{ideaboxgray} environment alias,
+\cmd{setMinimalistTitleBackground\{path\}},
+and \cmd{setTitleBackground}.
+
+When \cmd{setTitleBackground} is called without an explicit path, it reuses the
+background path configured with \cmd{setMinimalistTitleBackground}. The
+compatibility layer also supports the legacy five-argument form of
+\cmd{fadedoval}.
+
+%% ---------------------------------------------------------------------------
+\subsection{Interactive PDF Toggles}
+%% ---------------------------------------------------------------------------
+
+The \opt{interactive} option enables clickable hide/reveal commands based on
+PDF Optional Content Groups through \pkg{ocgx2}. Viewers such as Adobe Reader
+and PDF.js handle these toggles; Apple Preview does not.
+
+\begin{lstlisting}
+\usepackage[interactive]{scholia}
+The derivative is \hide{\cos(x)}.
+The secret is \hideNoUnderline{hidden}.
+\end{lstlisting}
+
+\begin{tabular}{@{}lp{8cm}@{}}
+\toprule
+\textbf{Command} & \textbf{Purpose} \\
+\midrule
+\cmd{hide\{content\}} & Hidden content with dotted underline indicator \\
+\cmd{hide[color]\{content\}} & Hidden content with custom reveal color \\
+\cmd{hideNoUnderline\{content\}} & Hidden content without underline indicator \\
+\cmd{Hide\{hide\}\{show\}\{content\}} & Beamer-aware wrapper combining overlays with hide/reveal \\
+\bottomrule
+\end{tabular}
+
+The commands \cmd{revealAll} and \cmd{hideAll} currently issue package warnings
+only; they are placeholders, not implemented global toggles.
+
+%% ---------------------------------------------------------------------------
+\subsection{Math Helpers}
+%% ---------------------------------------------------------------------------
+
+The math module exposes a small set of expression helpers.
+
+\begin{tabular}{@{}lp{8cm}@{}}
+\toprule
+\textbf{Command or Environment} & \textbf{Purpose} \\
+\midrule
+\cmd{StackRel\{top\}\{middle\}\{bottom\}} & Three-line relation symbol \\
+\cmd{tikzmarknode\{name\}\{content\}} & Named TikZ anchor for expression markup \\
+\cmd{ReplacementArrow\{from\}\{to\}} & Arrow between two marked nodes \\
+\env{ReplacementPicture} & Overlay environment for substitution sketches \\
+\bottomrule
+\end{tabular}
+
+The replacement-markup helpers are still marked experimental in the current
+implementation.
 
 %% ===========================================================================
 \section{License}
