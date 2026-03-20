@@ -1,4 +1,4 @@
-%% exercises/main.sty
+%% exercises/scholia-exercises.sty
 %% Copyright 2025-2026 Esther Poniatowski <esther.poniatowski@ens.psl.eu>
 %
 % This work may be distributed and/or modified under the
@@ -9,7 +9,7 @@
 % The Current Maintainer of this work is Esther Poniatowski.
 %
 \NeedsTeXFormat{LaTeX2e}[2020/10/01]
-\ProvidesPackage{scholia-exercises}[2026/01/31 v0.1.0 Exercise environments]
+\ProvidesPackage{\@currpath\@currname}[2026/03/20 v0.2.0 Exercise environments]
 
 % Solutions mode flag
 % Controlled via:
@@ -52,7 +52,7 @@
 % --- Title and stars (internal) ---
 \newcommand{\scholia@exo@title}[1]{%
   \textbf{\scholia@str@exo@label\ \theexonum}%
-  \if\relax\detokenize{#1}\relax\else\ -- \textit{#1}\fi
+  \scholia@ifblankTF{#1}{}{\ -- \textit{#1}}%
 }
 
 \newcommand{\scholia@exo@starsymbol}{\ensuremath{\bigstar}}
@@ -68,11 +68,25 @@
 
 \definecolor{exotitle}{RGB}{30,30,30}
 
-% --- Exercise type icons (internal) ---
-\newcommand{\scholia@exo@icon@guide}{\includegraphics[height=1.1em]{map-pin-plus.pdf}}
-\newcommand{\scholia@exo@icon@semiguide}{\includegraphics[height=1.1em]{map-pin-check.pdf}}
-\newcommand{\scholia@exo@icon@autonome}{\includegraphics[height=1.1em]{map-pin-pen.pdf}}
-\newcommand{\scholia@exo@icon@modelisation}{\includegraphics[height=1.1em]{puzzle.pdf}}
+% --- Exercise type icon filenames (internal) ---
+\newcommand{\scholia@exo@icon@guide}{map-pin-plus.pdf}
+\newcommand{\scholia@exo@icon@semiguide}{map-pin-check.pdf}
+\newcommand{\scholia@exo@icon@autonome}{map-pin-pen.pdf}
+\newcommand{\scholia@exo@icon@modelisation}{puzzle.pdf}
+
+\newcommand{\scholia@exo@settitlewidth}{%
+  \ifscholia@noicons
+    \setlength{\scholia@exo@titlewidth}{\linewidth}%
+  \else
+    \setlength{\scholia@exo@titlewidth}{\dimexpr\linewidth-2.5em\relax}%
+  \fi
+}
+
+\newcommand{\scholia@exo@titleprefix}[1]{%
+  \ifscholia@noicons\else
+    \scholia@icon@render{#1}\hspace{\scholia@icon@spacing}%
+  \fi
+}
 
 % --- tcolorbox styles for exercises ---
 \tcbset{
@@ -127,8 +141,8 @@
 \newlength{\scholia@exo@titlewidth}
 
 \newcommand{\scholia@exo@titre@guide}[1]{%
-  \setlength{\scholia@exo@titlewidth}{\dimexpr\linewidth-2.5em\relax}%
-  \scholia@exo@icon@guide\hspace{0.4em}%
+  \scholia@exo@settitlewidth%
+  \scholia@exo@titleprefix{\scholia@exo@icon@guide}%
   \begin{minipage}[t]{\scholia@exo@titlewidth}%
     \raggedright\textcolor{exotitle}{\scholia@exo@title{#1}}%
   \end{minipage}%
@@ -149,8 +163,8 @@
 
 
 \newcommand{\scholia@exo@titre@semiguide}[1]{%
-  \setlength{\scholia@exo@titlewidth}{\dimexpr\linewidth-2.5em\relax}%
-  \scholia@exo@icon@semiguide\hspace{0.4em}%
+  \scholia@exo@settitlewidth%
+  \scholia@exo@titleprefix{\scholia@exo@icon@semiguide}%
   \begin{minipage}[t]{\scholia@exo@titlewidth}%
     \raggedright\textcolor{exotitle}{\scholia@exo@title{#1}}%
   \end{minipage}%
@@ -171,12 +185,12 @@
 
 
 \newcommand{\scholia@exo@titre@autonome}[2]{%
-  \setlength{\scholia@exo@titlewidth}{\dimexpr\linewidth-2.5em\relax}%
-  \scholia@exo@icon@autonome\hspace{0.4em}%
+  \scholia@exo@settitlewidth%
+  \scholia@exo@titleprefix{\scholia@exo@icon@autonome}%
   \begin{minipage}[t]{\scholia@exo@titlewidth}%
     \raggedright\textcolor{exotitle}{%
       \scholia@exo@title{#1}%
-      \if\relax\detokenize{#2}\relax\else\quad\scholia@exo@difficultystars{#2}\fi
+      \scholia@ifblankTF{#2}{}{\quad\scholia@exo@difficultystars{#2}}%
     }%
   \end{minipage}%
 }
@@ -198,8 +212,8 @@
 
 
 \newcommand{\scholia@exo@titre@modelisation}[1]{%
-  \setlength{\scholia@exo@titlewidth}{\dimexpr\linewidth-2.5em\relax}%
-  \scholia@exo@icon@modelisation\hspace{0.4em}%
+  \scholia@exo@settitlewidth%
+  \scholia@exo@titleprefix{\scholia@exo@icon@modelisation}%
   \begin{minipage}[t]{\scholia@exo@titlewidth}%
     \raggedright\textcolor{exotitle}{\scholia@exo@title{#1}\quad\scholia@exo@type@modelisation}%
   \end{minipage}%
@@ -233,7 +247,8 @@
 \NewDocumentCommand{\exstep}{O{}}{%
   \refstepcounter{exoitem}%
   \par\medskip\noindent\textbf{\alph{exoitem})}%
-  \if\relax\detokenize{#1}\relax\else\ \textit{#1}\fi\quad
+  \scholia@ifblankTF{#1}{}{\ \textit{#1}}%
+  \quad
 }
 
 \newenvironment{hint}{%
@@ -316,26 +331,26 @@
 }
 
 \newcommand{\scholia@exo@titre@correction}[2]{%
-  \setlength{\scholia@exo@titlewidth}{\dimexpr\linewidth-2.5em\relax}%
-  \scholia@exo@icon@autonome\hspace{0.4em}%
+  \scholia@exo@settitlewidth%
+  \scholia@exo@titleprefix{\scholia@exo@icon@autonome}%
   \begin{minipage}[t]{\scholia@exo@titlewidth}%
     \raggedright\textcolor{exotitle}{%
       \textbf{\scholia@str@exo@label\ #1}%
-      \if\relax\detokenize{#2}\relax\else\ — \textit{#2}\fi
+      \scholia@ifblankTF{#2}{}{\ — \textit{#2}}%
     }%
   \end{minipage}%
 }
 
 \NewDocumentEnvironment{excorrection}{O{} m}%
 {%
-  \if\relax\detokenize{#1}\relax
+  \scholia@ifblankTF{#1}{%
     % No manual number: increment counter
     \refstepcounter{exonum}%
     \edef\currentexonum{\theexonum}%
-  \else
+  }{%
     % Manual number provided: use without incrementing
     \edef\currentexonum{#1}%
-  \fi
+  }%
   \setcounter{scholia@circlednum}{0}%
   \def\currentexotitle{#2}%
   \begin{tcolorbox}[%

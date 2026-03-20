@@ -1,4 +1,4 @@
-%% labels/main.sty
+%% labels/scholia-labels.sty
 %% Copyright 2025-2026 Esther Poniatowski <esther.poniatowski@ens.psl.eu>
 %
 % This work may be distributed and/or modified under the
@@ -9,15 +9,15 @@
 % The Current Maintainer of this work is Esther Poniatowski.
 %
 \NeedsTeXFormat{LaTeX2e}[2020/10/01]
-\ProvidesPackage{scholia-labels}[2026/01/31 v0.1.0 Semantic inline labels]
+\ProvidesPackage{\@currpath\@currname}[2026/03/20 v0.2.0 Semantic inline labels]
 
 % ============================================================================
 % SEMANTIC INLINE LABELS
 % PURPOSE: Typed inline boxes for categorizing and labeling content
 %
 % These commands create colored inline boxes that visually identify content
-% categories. They use \inlineframebox from base/boxes.sty with semantic
-% colors from base/colors.sty.
+% categories. They use \inlineframebox from base/scholia-boxes.sty with semantic
+% colors from base/scholia-colors.sty.
 %
 % Syntax:
 %   \<type>label{text}       - Box with text
@@ -28,7 +28,7 @@
 %   Apply \methodlabel{Method M2} to solve.
 %
 % All labels are generated using the \scholia@label@new factory from
-% base/factories.sty, ensuring consistent interface across all types.
+% base/scholia-factories.sty, ensuring consistent interface across all types.
 % ============================================================================
 
 % Generate all semantic label commands using factory

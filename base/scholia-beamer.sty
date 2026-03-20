@@ -1,0 +1,52 @@
+%% base/scholia-beamer.sty
+%% Copyright 2025-2026 Esther Poniatowski <esther.poniatowski@ens.psl.eu>
+%
+% This work may be distributed and/or modified under the
+% conditions of the LaTeX Project Public License, either version 1.3c
+% of this license or (at your option) any later version.
+%
+% This work has the LPPL maintenance status `maintained'.
+% The Current Maintainer of this work is Esther Poniatowski.
+%
+\NeedsTeXFormat{LaTeX2e}[2020/10/01]
+\ProvidesPackage{\@currpath\@currname}[2026/03/20 v0.2.0 Beamer class configuration]
+
+% ============================================================================
+% BEAMER DEFAULTS
+% PURPOSE: Minimal visual configuration shared by all headline modes
+% ============================================================================
+
+\usetheme{default}
+\usefonttheme{professionalfonts}
+
+\setbeamertemplate{navigation symbols}{} % no navigation symbols
+\setbeamertemplate{footline}[frame number] % frame number in footline
+
+% --- Global fonts ---
+\setbeamerfont{title}{size=\Large,series=\bfseries}
+\setbeamerfont{subtitle}{size=\large}
+\setbeamerfont{frametitle}{size=\normalsize,series=\bfseries}
+\setbeamerfont{normal text}{size=\small}  % default text size
+
+% --- Global colors ---
+\setbeamercolor{title}{fg=black}
+\setbeamercolor{subtitle}{fg=gray}
+\setbeamercolor{frametitle}{fg=black,bg=white}
+\setbeamercolor{normal text}{fg=black}
+
+% --- Itemize colors and symbols ---
+\setbeamercolor{item}{fg=black}
+\setbeamertemplate{itemize item}{\textcolor{black}{$\bullet$}}
+\setbeamertemplate{itemize subitem}{\textcolor{black}{\footnotesize$\bullet$}}
+
+
+% ============================================================================
+% LOAD BEAMER SUBMODULES
+% PURPOSE: Feature-specific beamer logic lives in dedicated submodules
+% ============================================================================
+
+\RequirePackage{beamer/scholia-headline}
+\RequirePackage{beamer/scholia-utilities}
+
+
+\endinput

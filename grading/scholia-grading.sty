@@ -1,4 +1,4 @@
-%% grading/main.sty
+%% grading/scholia-grading.sty
 %% Copyright 2025-2026 Esther Poniatowski <esther.poniatowski@ens.psl.eu>
 %
 % This work may be distributed and/or modified under the
@@ -9,12 +9,17 @@
 % The Current Maintainer of this work is Esther Poniatowski.
 %
 \NeedsTeXFormat{LaTeX2e}[2020/10/01]
-\ProvidesPackage{scholia-grading}[2026/01/31 v0.1.0 Grading tools]
+\ProvidesPackage{\@currpath\@currname}[2026/03/20 v0.2.0 Grading tools]
 
 \definecolor{bareme-color}{RGB}{100,100,120}
 
 % Icon path (internal macro)
-\newcommand{\scholia@bareme@icon}{\includegraphics[height=1.1em]{clipboard-check.pdf}}
+\newcommand{\scholia@bareme@iconfile}{clipboard-check.pdf}
+\newcommand{\scholia@bareme@titleprefix}{%
+  \ifscholia@noicons\else
+    \scholia@icon@render{\scholia@bareme@iconfile}\hspace{\scholia@icon@spacing}%
+  \fi
+}
 
 % ---------------------------------------------------------------------------
 % STANDALONE GRADING BOX
@@ -50,12 +55,12 @@
 \newtcolorbox{gradebox}[1][]{%
   bareme_box_style,
   title={%
-    \scholia@bareme@icon\hspace{0.4em}%
-    \if\relax\detokenize{#1}\relax
+    \scholia@bareme@titleprefix%
+    \scholia@ifblankTF{#1}{%
       \scholia@str@bareme@label
-    \else
+    }{%
       \scholia@str@bareme@label\ -- #1%
-    \fi
+    }%
   },
 }
 
@@ -87,7 +92,7 @@
   \noindent
   \begin{tcolorbox}[
     bareme_box_style,
-    title={\scholia@bareme@icon\hspace{0.4em}\scholia@str@bareme@label\ -- #1},
+    title={\scholia@bareme@titleprefix\scholia@str@bareme@label\ -- #1},
     left=2mm, right=2mm, top=2mm, bottom=2mm
   ]
   \small
@@ -171,12 +176,12 @@
   after skip=10pt,
   title filled,
   title={%
-    \scholia@bareme@icon\hspace{0.4em}%
-    \if\relax\detokenize{#1}\relax
+    \scholia@bareme@titleprefix%
+    \scholia@ifblankTF{#1}{%
       \scholia@str@bareme@totalgrade
-    \else
+    }{%
       #1%
-    \fi
+    }%
   },
 }
 

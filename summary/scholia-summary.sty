@@ -1,4 +1,4 @@
-%% summary/main.sty
+%% summary/scholia-summary.sty
 %% Copyright 2025-2026 Esther Poniatowski <esther.poniatowski@ens.psl.eu>
 %
 % This work may be distributed and/or modified under the
@@ -9,7 +9,7 @@
 % The Current Maintainer of this work is Esther Poniatowski.
 %
 \NeedsTeXFormat{LaTeX2e}[2020/10/01]
-\ProvidesPackage{scholia-summary}[2026/01/31 v0.1.0 Summary page layouts]
+\ProvidesPackage{\@currpath\@currname}[2026/03/20 v0.2.0 Summary page layouts]
 
 \newcommand{\summaryHeaderBgColor}{black}
 \newcommand{\summaryHeaderTextColor}{white}
@@ -34,6 +34,40 @@
 \newcommand{\summaryResetRowColor}{%
   \renewcommand{\summaryRowColor}{}%
   \summaryColoredRowsfalse
+}
+
+% ---------------------------------------------------------------------------
+% SUMMARY TYPE REGISTRY BRIDGE
+% Resolve legacy fiche-style keys through the typed-page registry so summary
+% tables, typed pages, and inline labels share one source of truth.
+% ---------------------------------------------------------------------------
+
+\expandafter\def\csname scholia@summary@typealias@concepts\endcsname{notion}
+\expandafter\def\csname scholia@summary@typealias@exercises\endcsname{exercise}
+\expandafter\def\csname scholia@summary@typealias@solutions\endcsname{solution}
+\expandafter\def\csname scholia@summary@typealias@selfassessment\endcsname{autocheck}
+\expandafter\def\csname scholia@summary@typealias@keypoints\endcsname{keypoint}
+\expandafter\def\csname scholia@summary@typealias@presentations\endcsname{presentation}
+\expandafter\def\csname scholia@summary@typealias@diagnostics\endcsname{diagnostic}
+
+\newcommand{\scholia@summary@resolvetype}[1]{%
+  \ifcsname scholia@summary@typealias@#1\endcsname
+    \csname scholia@summary@typealias@#1\endcsname
+  \else
+    #1%
+  \fi
+}
+
+\newcommand{\scholia@fiche@getname}[1]{%
+  \expandafter\scholia@typedpage@getname\expandafter{\scholia@summary@resolvetype{#1}}%
+}
+
+\newcommand{\scholia@fiche@getcolor}[1]{%
+  \expandafter\scholia@typedpage@getcolor\expandafter{\scholia@summary@resolvetype{#1}}%
+}
+
+\newcommand{\scholia@fiche@geticon}[1]{%
+  \expandafter\scholia@typedpage@geticon\expandafter{\scholia@summary@resolvetype{#1}}%
 }
 
 % ---------------------------------------------------------------------------
@@ -115,7 +149,7 @@
 % #3 (optional) = optional abbreviated title
 %
 \NewDocumentCommand{\summaryRef}{m m o}{%
-  \csname #1frame\endcsname{#2}%
+  \inlineframebox[\scholia@fiche@getcolor{#1}]{#2}%
   \IfValueT{#3}{\space--\space #3}%
 }
 
@@ -153,22 +187,30 @@
   % Banner with icon and type name
   \noindent
   \begin{tikzpicture}
-    % Colored circle with icon
-    \node[
-      circle,
-      fill=\scholia@fiche@getcolor{#2}!20,
-      draw=none,
-      inner sep=3pt,
-      anchor=west
-    ] (icon) at (0,0) {%
-      \includegraphics[height=1.2em]{\scholia@fiche@geticon{#2}}%
-    };
-    % Type name
-    \node[
-      anchor=west,
-      font=\sffamily\bfseries\large,
-      text=\scholia@fiche@getcolor{#2}
-    ] at ([xshift=6pt]icon.east) {\scholia@fiche@getname{#2}};
+    \ifscholia@noicons
+      \node[
+        anchor=west,
+        font=\sffamily\bfseries\large,
+        text=\scholia@fiche@getcolor{#2}
+      ] at (0,0) {\scholia@fiche@getname{#2}};
+    \else
+      % Colored circle with icon
+      \node[
+        circle,
+        fill=\scholia@fiche@getcolor{#2}!20,
+        draw=none,
+        inner sep=3pt,
+        anchor=west
+      ] (icon) at (0,0) {%
+        \scholiaicon[height=1.2em, raise=0pt]{\scholia@fiche@geticon{#2}}%
+      };
+      % Type name
+      \node[
+        anchor=west,
+        font=\sffamily\bfseries\large,
+        text=\scholia@fiche@getcolor{#2}
+      ] at ([xshift=6pt]icon.east) {\scholia@fiche@getname{#2}};
+    \fi
   \end{tikzpicture}
   \par\vspace{0.1em}
   %
@@ -194,7 +236,7 @@
 % #1 = reference (e.g., N1, M2)
 % #2 = descriptive title
 \newcommand{\indexEntry}[2]{%
-  \csname \currentIndexType frame\endcsname{#1} & #2 \\
+  \summaryRef{\currentIndexType}{#1} & #2 \\
   \hline
 }
 

@@ -1,4 +1,4 @@
-%% callouts/framework.sty
+%% callouts/scholia-callouts-framework.sty
 %% Copyright 2025-2026 Esther Poniatowski <esther.poniatowski@ens.psl.eu>
 %
 % This work may be distributed and/or modified under the
@@ -9,20 +9,26 @@
 % The Current Maintainer of this work is Esther Poniatowski.
 %
 \NeedsTeXFormat{LaTeX2e}[2020/10/01]
-\ProvidesPackage{scholia-callouts-framework}[2026/01/31 v0.1.0 Callout box framework]
+\ProvidesPackage{\@currpath\@currname}[2026/03/20 v0.2.0 Callout box framework]
 
-\newcommand{\scholia@callout@icon}[1]{\raisebox{-0.15em}{\includegraphics[height=1.1em]{#1}}}
+\newcommand{\scholia@callout@icon}[1]{\scholia@icon@render{#1}}
 
 % Internal macro: build "icon + optional title text"
 % #1 = icon filename
 % #2 = title text (may be empty)
 % Returns: icon alone (if title empty) or icon + space + title text
 \newcommand{\scholia@callout@title}[2]{%
-  \if\relax\detokenize{#2}\relax%
-    \scholia@callout@icon{#1}%
-  \else%
-    \scholia@callout@icon{#1}\hspace{0.4em}#2%
-  \fi%
+  \scholia@ifblankTF{#2}{%
+    \ifscholia@noicons\else
+      \scholia@callout@icon{#1}%
+    \fi
+  }{%
+    \ifscholia@noicons
+      #2%
+    \else
+      \scholia@callout@icon{#1}\hspace{\scholia@icon@spacing}#2%
+    \fi
+  }%
 }
 
 % ============================================================================
@@ -39,21 +45,20 @@
 % Uses conditionals to map type to icon filename
 \newcommand{\scholia@callout@nodetitle}[2]{%
   \textcolor{scholia-#1}{%
-    \scholia@callout@geticon{#1}%
-    \hspace{0.4em}\textbf{\sffamily #2}%
+    \ifscholia@noicons
+      \textbf{\sffamily #2}%
+    \else
+      \scholia@callout@geticon{#1}%
+      \hspace{\scholia@icon@spacing}\textbf{\sffamily #2}%
+    \fi
   }%
 }
 
-% Internal helper to map callout type to icon and include it
+% Internal helper to resolve a callout type through the shared icon registry
 \newcommand{\scholia@callout@geticon}[1]{%
-  \def\scholia@callout@tempicon{}%
-  \ifnum\pdfstrcmp{#1}{definition}=0\def\scholia@callout@tempicon{book-marked.pdf}\fi
-  \ifnum\pdfstrcmp{#1}{theorem}=0\def\scholia@callout@tempicon{pin.pdf}\fi
-  \ifnum\pdfstrcmp{#1}{warning}=0\def\scholia@callout@tempicon{triangle-alert.pdf}\fi
-  \ifnum\pdfstrcmp{#1}{tip}=0\def\scholia@callout@tempicon{lightbulb.pdf}\fi
-  \ifnum\pdfstrcmp{#1}{method}=0\def\scholia@callout@tempicon{pencil.pdf}\fi
-  \ifnum\pdfstrcmp{#1}{remark}=0\def\scholia@callout@tempicon{search.pdf}\fi
-  \raisebox{-0.15em}{\includegraphics[height=1.1em]{\scholia@callout@tempicon}}%
+  \ifcsname scholia@callout@icon@#1\endcsname
+    \expandafter\scholia@icon@render\expandafter{\csname scholia@callout@icon@#1\endcsname}%
+  \fi
 }
 
 % ============================================================================

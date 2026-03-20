@@ -1,4 +1,4 @@
-%% typedpages/framework.sty
+%% typedpages/scholia-typedpages-framework.sty
 %% Copyright 2025-2026 Esther Poniatowski <esther.poniatowski@ens.psl.eu>
 %
 % This work may be distributed and/or modified under the
@@ -9,7 +9,9 @@
 % The Current Maintainer of this work is Esther Poniatowski.
 %
 \NeedsTeXFormat{LaTeX2e}[2020/10/01]
-\ProvidesPackage{scholia-typedpages-framework}[2026/01/31 v0.1.0 Typed page framework]
+\ProvidesPackage{\@currpath\@currname}[2026/03/20 v0.2.0 Typed page framework]
+
+\usetikzlibrary{decorations.text}
 
 % ============================================================================
 % TYPED PAGE SYSTEM
@@ -111,14 +113,20 @@
   \noindent%
   \begin{tikzpicture}[remember picture]
     % Left section: Circled icon with curved type name
-    \node[
-      circle,
-      fill=\scholia@typedpage@currentcolor!25,
-      draw=none,
-      line width=0.8pt,
-      inner sep=4pt,
-      anchor=north west
-    ] (icon) at (0,0) {\includegraphics[height=1.8em]{\scholia@typedpage@currenticon}};
+    \ifscholia@noicons
+      \coordinate (icon) at (0,0);
+    \else
+      \node[
+        circle,
+        fill=\scholia@typedpage@currentcolor!25,
+        draw=none,
+        line width=0.8pt,
+        inner sep=4pt,
+        anchor=north west
+      ] (icon) at (0,0) {%
+        \scholiaicon[height=1.8em, raise=0pt]{\scholia@typedpage@currenticon}%
+      };
+    \fi
 
     % Type name curved above circle
     \path[

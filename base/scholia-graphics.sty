@@ -1,0 +1,140 @@
+%% base/scholia-graphics.sty
+%% Copyright 2025-2026 Esther Poniatowski <esther.poniatowski@ens.psl.eu>
+%
+% This work may be distributed and/or modified under the
+% conditions of the LaTeX Project Public License, either version 1.3c
+% of this license or (at your option) any later version.
+%
+% This work has the LPPL maintenance status `maintained'.
+% The Current Maintainer of this work is Esther Poniatowski.
+%
+\NeedsTeXFormat{LaTeX2e}[2020/10/01]
+\ProvidesPackage{\@currpath\@currname}[2026/03/20 v0.2.0 Graphics and icon infrastructure]
+
+% ============================================================================
+% ICON SEARCH PATH
+% PURPOSE: Append package icon directories to the graphics search path
+% Deferred to \begin{document} so that any \graphicspath call in the preamble
+% (before or after \usepackage{scholia}) is already resolved.
+% \Ginput@path is the internal macro that \graphicspath writes to.
+% ============================================================================
+
+\AtBeginDocument{%
+  \ifx\Ginput@path\undefined
+    \def\Ginput@path{}%
+  \fi
+  \g@addto@macro\Ginput@path{%
+      {\scholia@basepath/icons/pdf/}%   % Distributed package icons (vector)
+  }%
+}
+
+
+% ============================================================================
+% ICON CONSTANTS
+% PURPOSE: Standardized icon display parameters used across all modules
+% ============================================================================
+
+\newcommand{\scholia@icon@height}{1.1em}
+\newcommand{\scholia@icon@height@large}{1.8em}
+\newcommand{\scholia@icon@spacing}{0.4em}
+
+\newlength{\scholia@spacing@icontext}
+\setlength{\scholia@spacing@icontext}{0.4em}
+
+
+% ============================================================================
+% SHARED ICON RENDERING
+% PURPOSE: Single entry point for icon inclusion across all modules
+%
+% Internal helpers:
+%   \scholia@icon@render[<height>]{<filename>}
+%   Uses the standard inline raise and height; respects noicons.
+%
+%   \scholia@icon@renderplain[<height>]{<filename>}
+%   Uses zero raise for icons embedded inside TikZ nodes or boxed layouts.
+%
+% Public helper:
+%   \scholiaicon[height=<length>, raise=<length>, fallback={<text>}]{<filename>}
+%   Key-driven interface for documents and user-defined macros.
+% ============================================================================
+
+% --- Internal helpers (for framework code) ---
+% #1 = height (optional, defaults to \scholia@icon@height)
+% #2 = icon filename
+\newcommand{\scholia@icon@render}[2][\scholia@icon@height]{%
+  \scholiaicon[height=#1]{#2}%
+}
+
+\newcommand{\scholia@icon@renderplain}[2][\scholia@icon@height]{%
+  \scholiaicon[height=#1, raise=0pt]{#2}%
+}
+
+% --- Public icon configuration keys ---
+\pgfkeys{
+  /scholia/icon/.cd,
+  height/.store in   = \scholia@icon@opt@height,
+  raise/.store in    = \scholia@icon@opt@raise,
+  fallback/.store in = \scholia@icon@opt@fallback,
+}
+
+% Defaults
+\newcommand{\scholia@icon@setdefaults}{%
+  \pgfkeys{
+    /scholia/icon/.cd,
+    height   = \scholia@icon@height,
+    raise    = -0.15em,
+    fallback = {},
+  }%
+}
+
+\scholia@icon@setdefaults
+
+% --- Public command ---
+% \scholiaicon[keyvals]{filename}
+%   Inserts an icon from the scholia icon library.
+%   Respects the noicons package option: outputs fallback text (or nothing) when
+%   icons are disabled.
+%
+% Keys:
+%   height   = <length>   (default: \scholia@icon@height = 1.1em)
+%   raise    = <length>   (default: -0.15em)
+%   fallback = {<text>}   (default: empty)
+%
+% Examples:
+%   \scholiaicon{lightbulb.pdf}
+%   \scholiaicon[height=1.8em]{minimalist-light-bulb.pdf}
+%   \scholiaicon[height=0.9em, fallback={[paper]}]{minimalist-paper-1.pdf}
+\NewDocumentCommand{\scholiaicon}{O{} m}{%
+  \begingroup
+    \scholia@icon@setdefaults
+    \pgfkeys{/scholia/icon/.cd, #1}%
+    \ifscholia@noicons
+      \scholia@icon@opt@fallback
+    \else
+      \raisebox{\scholia@icon@opt@raise}{%
+        \includegraphics[height=\scholia@icon@opt@height]{#2}%
+      }%
+    \fi
+  \endgroup
+}
+
+
+% ============================================================================
+% TIKZ ICON NODE STYLE
+% PURPOSE: Define a TikZ style for embedding icons in nodes
+% USAGE: \node[icon={width}{filename}] {};
+% ============================================================================
+
+\tikzset{
+  icon/.style 2 args={
+    path picture={
+      \ifscholia@noicons\else
+        \node at (path picture bounding box.center)
+          {\includegraphics[width=#1]{#2}};
+      \fi
+    }
+  }
+}
+
+
+\endinput

@@ -1,4 +1,4 @@
-%% base/text.sty
+%% base/scholia-text.sty
 %% Copyright 2025-2026 Esther Poniatowski <esther.poniatowski@ens.psl.eu>
 %
 % This work may be distributed and/or modified under the
@@ -9,7 +9,7 @@
 % The Current Maintainer of this work is Esther Poniatowski.
 %
 \NeedsTeXFormat{LaTeX2e}[2020/10/01]
-\ProvidesPackage{scholia-text}[2026/01/31 v0.1.0 Text-level utilities]
+\ProvidesPackage{\@currpath\@currname}[2026/03/20 v0.2.0 Text-level utilities]
 
 % ============================================================================
 % TEXT-LEVEL UTILITIES
@@ -22,7 +22,7 @@
 % TEXT HIGHLIGHTING
 % PURPOSE: Subtle text highlighting for emphasis
 % USAGE: \highlight{text} creates a light gray background (supports line breaks)
-% NOTE: Uses scholia-highlight color defined in base/colors.sty
+% NOTE: Uses scholia-highlight color defined in base/scholia-colors.sty
 % ============================================================================
 
 \sethlcolor{scholia-highlight}

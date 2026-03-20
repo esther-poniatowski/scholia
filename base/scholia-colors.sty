@@ -1,4 +1,4 @@
-%% base/colors.sty
+%% base/scholia-colors.sty
 %% Copyright 2025-2026 Esther Poniatowski <esther.poniatowski@ens.psl.eu>
 %
 % This work may be distributed and/or modified under the
@@ -9,7 +9,7 @@
 % The Current Maintainer of this work is Esther Poniatowski.
 %
 \NeedsTeXFormat{LaTeX2e}[2020/10/01]
-\ProvidesPackage{scholia-colors}[2026/01/31 v0.1.0 Semantic color palette]
+\ProvidesPackage{\@currpath\@currname}[2026/03/20 v0.2.0 Semantic color palette]
 
 % ============================================================================
 % SEMANTIC CATEGORY COLORS
@@ -51,8 +51,11 @@
 % Summary callout boxes use light gray instead of semantic gray-brown
 \definecolor{scholia-summary-light}{RGB}{200,200,200} % Light gray for summary callouts
 
+% --- Card Colors ---
+\definecolor{scholia-idea}{RGB}{180,180,180}           % Neutral gray - ideas, insights
+
 % --- Interactive Hide/Reveal Colors ---
-% Used by interactive/main.sty for OCG toggle functionality
+% Used by interactive/scholia-interactive.sty for OCG toggle functionality
 \definecolor{scholia-hide-placeholder}{RGB}{255,255,255}  % Background for hidden content
 \definecolor{scholia-hide-revealed}{RGB}{0,100,0}         % Default color for revealed text
 
