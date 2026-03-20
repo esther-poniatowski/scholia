@@ -1,17 +1,35 @@
-*.aux
-*.fdb_latexmk
-*.fls
-*.log
-*.nav
-*.out
-*.snm
-*.synctex.gz
-*.toc
+## macOS
+.DS_Store
 
+## Core LaTeX auxiliary files
+*.aux
+*.log
+*.out
+*.dvi
+*.xdv
+
+## Beamer auxiliary files
+*.nav
+*.snm
+
+## Build tool auxiliary files
+*.synctex.*
+*.fls
+*.fdb_latexmk
+
+## Additional LaTeX auxiliary files
+*.toc
+*.bbl
+*.blg
+*.bcf
+*.run.xml
+
+## Build directories and archives
 doc/.latexmk_build/
 build/
 *.zip
 
+## Test auxiliary files
 tests/*.aux
 tests/*.fdb_latexmk
 tests/*.fls
