@@ -35,7 +35,7 @@
 %% ==================================================================================================
 
 \NeedsTeXFormat{LaTeX2e}[2020/10/01]
-\ProvidesPackage{scholia}[2026/01/31 v0.1.0 Educational document formatting for mathematics pedagogy]
+\ProvidesPackage{\@currpath\@currname}[2026/03/20 v0.2.0 Educational document formatting for mathematics pedagogy]
 
 %% ==================================================================================================
 %% PACKAGE OPTIONS
@@ -49,6 +49,7 @@
 \newif\ifscholia@minimal\scholia@minimalfalse
 \newif\ifscholia@solutions\scholia@solutionsfalse
 \newif\ifscholia@interactive\scholia@interactivefalse
+\newif\ifscholia@minimalistcompat\scholia@minimalistcompatfalse
 
 % Declare options
 \DeclareOption{beamer}{\scholia@beamertrue}
@@ -59,6 +60,7 @@
 \DeclareOption{minimal}{\scholia@minimaltrue\scholia@noiconstrue}
 \DeclareOption{solutions}{\scholia@solutionstrue}
 \DeclareOption{interactive}{\scholia@interactivetrue}
+\DeclareOption{minimalistcompat}{\scholia@minimalistcompattrue}
 
 % Unknown option handler
 \DeclareOption*{%
@@ -83,25 +85,41 @@
 %% ==================================================================================================
 
 % Determine package installation path.
-% Auto-detect the directory containing scholia.sty using the LaTeX kernel's
-% file-tracking mechanism (\CurrentFilePathUsed, available since 2020/10/01).
-% This makes the package self-locating: icons and submodules are resolved
-% relative to the package directory, regardless of the document's working directory.
+% Resolve the package tree in the three layouts Scholia has to support:
+%   1. Legacy local installations via \CommonPath
+%   2. A source/build tree where scholia.sty sits next to the package subfolders
+%   3. An installed TDS tree rooted at scholia/
 %
-% Priority:
-%   1. User-defined \CommonPath (legacy local installations)
-%   2. Auto-detected path from \CurrentFilePathUsed (standard)
+% \CurrentFilePathUsed usually identifies the directory that contains
+% scholia.sty, but some installed-use paths still leave it empty. The resolver
+% therefore probes for a known package file before it commits to a base path.
 
 \ifdefined\CommonPath
   \def\scholia@basepath{\CommonPath/scholia}
 \else
+  \def\scholia@basepath{.}
   \ifdefined\CurrentFilePathUsed
     \edef\scholia@basepath{\CurrentFilePathUsed}
-  \else
-    % Fallback for older engines that lack \CurrentFilePathUsed
+  \fi
+  \ifx\scholia@basepath\@empty
     \def\scholia@basepath{.}
   \fi
+  \IfFileExists{\scholia@basepath/i18n/strings-en.tex}{}{%
+    \IfFileExists{scholia/i18n/strings-en.tex}{%
+      \def\scholia@basepath{scholia}%
+    }{%
+      \def\scholia@basepath{.}%
+    }%
+  }%
 \fi
+
+% Add the package root to the input search path so internal modules can be
+% loaded through \RequirePackage using package-relative identifiers.
+\ifx\input@path\@undefined
+  \def\input@path{}%
+\fi
+\edef\scholia@existinginputpath{\input@path}%
+\edef\input@path{{\scholia@basepath/}\scholia@existinginputpath}%
 
 %% ==================================================================================================
 %% CLASS DETECTION
@@ -127,7 +145,7 @@
 \RequirePackage{calc}             % Length arithmetic (\dimexpr)
 
 % -----------------------------------------------------------------------------
-% TYPOGRAPHY AND LAYOUT (required for base/style.sty and base/article.sty)
+% TYPOGRAPHY AND LAYOUT (required for base/scholia-style.sty and base/scholia-article.sty)
 % -----------------------------------------------------------------------------
 \@ifpackageloaded{geometry}{}{\RequirePackage{geometry}}
 \@ifpackageloaded{setspace}{}{\RequirePackage{setspace}}
@@ -190,56 +208,73 @@
 %% ==================================================================================================
 
 % --- Language Strings ---
-\input{\scholia@basepath/i18n/strings-\scholia@language}
+\InputIfFileExists{i18n/strings-\scholia@language.tex}{%
+  \input{i18n/strings-\scholia@language.tex}%
+}{%
+  \PackageError{scholia}{Missing localization file 'i18n/strings-\scholia@language.tex'}{%
+    Check that the Scholia package tree is complete and readable.%
+  }%
+}
 
 % --- Base Modules ---
-\input{\scholia@basepath/base/colors.sty}
-\input{\scholia@basepath/base/style.sty}
-\input{\scholia@basepath/base/graphics.sty}
-\input{\scholia@basepath/base/code.sty}
-\input{\scholia@basepath/base/text.sty}
-\input{\scholia@basepath/base/boxes.sty}
-\input{\scholia@basepath/base/layout.sty}
-\input{\scholia@basepath/base/factories.sty}
+\RequirePackage{base/scholia-colors}
+\RequirePackage{base/scholia-style}
+\RequirePackage{base/scholia-graphics}
+\RequirePackage{base/scholia-code}
+\RequirePackage{base/scholia-text}
+\RequirePackage{base/scholia-boxes}
+\RequirePackage{base/scholia-layout}
+\RequirePackage{base/scholia-factories}
 
 % --- Class-Specific Styles ---
 \ifscholia@beamer
-  \input{\scholia@basepath/base/beamer.sty}
+  \RequirePackage{base/scholia-beamer}
 \else
-  \input{\scholia@basepath/base/article.sty}
+  \RequirePackage{base/scholia-article}
 \fi
 
 % --- Callouts (framework + types) ---
-\input{\scholia@basepath/callouts/framework.sty}
-\input{\scholia@basepath/callouts/types.sty}
+\RequirePackage{callouts/scholia-callouts-framework}
+\RequirePackage{callouts/scholia-callouts-types}
+
+% --- Cards (framework + types) ---
+\RequirePackage{cards/scholia-cards-framework}
+\RequirePackage{cards/scholia-cards-types}
 
 % --- Typed Pages (article only) ---
 \ifscholia@beamer
   % Beamer does not use typed pages
 \else
-  \input{\scholia@basepath/typedpages/framework.sty}
-  \input{\scholia@basepath/typedpages/types.sty}
+  \RequirePackage{typedpages/scholia-typedpages-framework}
+  \RequirePackage{typedpages/scholia-typedpages-types}
 \fi
 
 % --- Semantic Labels (inline content markers) ---
-\input{\scholia@basepath/labels/main.sty}
+\RequirePackage{labels/scholia-labels}
 
 % --- Domain-Specific Modules ---
-\input{\scholia@basepath/grading/main.sty}
-\input{\scholia@basepath/exercises/main.sty}
-\input{\scholia@basepath/math/main.sty}
-\input{\scholia@basepath/numbering/main.sty}
+\RequirePackage{grading/scholia-grading}
+\RequirePackage{exercises/scholia-exercises}
+\RequirePackage{math/scholia-math}
+\RequirePackage{numbering/scholia-numbering}
 
 % --- Conditional Modules ---
 \ifscholia@beamer
-  \input{\scholia@basepath/progression/main.sty}
+  \RequirePackage{progression/scholia-progression}
 \else
-  \input{\scholia@basepath/summary/main.sty}
+  \RequirePackage{summary/scholia-summary}
+\fi
+
+% --- Minimalist Compatibility (optional, beamer only) ---
+\ifscholia@beamer
+  \ifscholia@minimalistcompat
+    \RequirePackage{beamer/scholia-minimalist-compat}
+  \fi
 \fi
 
 % --- Interactive Module (optional, requires interactive option) ---
 \ifscholia@interactive
-  \input{\scholia@basepath/interactive/main.sty}
+  \RequirePackage{interactive/scholia-interactive}
 \fi
 
 %% ==================================================================================================
