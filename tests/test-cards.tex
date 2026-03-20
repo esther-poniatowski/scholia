@@ -1,0 +1,45 @@
+\documentclass[10pt,a4paper]{article}
+\newcommand{\CommonPath}{../..}
+\usepackage[english]{\CommonPath/scholia/scholia}
+
+\begin{document}
+
+\section*{Card Callout Tests}
+
+% --- Generic cardbox with explicit keys ---
+\begin{cardbox}[title={Generic Card}, icon={lightbulb.pdf}, color={blue}]
+  A generic card with explicit color, icon, and title.
+\end{cardbox}
+
+% --- Generic cardbox with no title (badge only) ---
+\begin{cardbox}[icon={search.pdf}, color={scholia-research}]
+  A card with an icon badge but no floating title label.
+\end{cardbox}
+
+% --- Generic cardbox with no icon (title only) ---
+\begin{cardbox}[title={Title Only}, color={scholia-method}]
+  A card with a floating title but no icon badge.
+\end{cardbox}
+
+% --- Generic cardbox with custom visual tuning ---
+\begin{cardbox}[title={Custom Tuning}, icon={star.pdf}, color={scholia-keypoint},
+                 fill tint=25, border tint=60, badge tint=40]
+  A card with custom fill, border, and badge tints.
+\end{cardbox}
+
+% --- Built-in ideacard preset ---
+\begin{ideacard}[title={Key Insight}]
+  The idea card preset uses the neutral gray color and the flat lightbulb icon.
+\end{ideacard}
+
+% --- ideacard with per-instance override ---
+\begin{ideacard}[title={Overridden Color}, color=scholia-tip]
+  Per-instance keys override the preset defaults.
+\end{ideacard}
+
+% --- Bare ideacard (no title, no icon override) ---
+\begin{ideacard}
+  An idea card with just the default badge and no title label.
+\end{ideacard}
+
+\end{document}

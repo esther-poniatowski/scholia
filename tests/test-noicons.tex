@@ -1,0 +1,49 @@
+\documentclass[10pt,a4paper]{article}
+\newcommand{\CommonPath}{../..}
+\usepackage[english,noicons]{\CommonPath/scholia/scholia}
+
+% Test: noicons option — icon helper degrades cleanly
+
+\begin{document}
+
+\section*{Noicons Mode Tests}
+
+% --- scholiaicon with fallback ---
+Icon with fallback: \scholiaicon[fallback={[bulb]}]{lightbulb.pdf}
+
+% --- scholiaicon without fallback (should produce nothing) ---
+Icon without fallback: [\scholiaicon{lightbulb.pdf}] (brackets should be adjacent)
+
+% --- cardbox should render without icon badge ---
+\begin{cardbox}[title={Card without icons}, icon={lightbulb.pdf}, color={blue}]
+  The badge should not render in noicons mode.
+  The floating title label should still appear.
+\end{cardbox}
+
+% --- existing callout family should also stay icon-free ---
+\begin{tipbox}[Tip without icon]
+  Existing callouts should not load icon assets in noicons mode.
+\end{tipbox}
+
+% --- exercise titles should render without icon prefixes ---
+\begin{exguided}[Guided exercise without icon]
+  Exercise titles should not reserve icon space in noicons mode.
+\end{exguided}
+
+% --- ideacard preset ---
+\begin{ideacard}[title={Idea without badge}]
+  The idea card should render its body and title but skip the badge icon.
+\end{ideacard}
+
+% --- typed page banner ---
+\newTypedPage{chapter-1}{notion}{Functions}{Images and antecedents}
+Typed-page banners should render without icon circles in noicons mode.
+
+% --- summary references and index banners ---
+Summary reference without icon badge: \summaryRef{concepts}{N1}[Definition of a function]
+
+\begin{indexTypeTable}*{concepts}
+  \indexEntry{N1}{Definition without icon}
+\end{indexTypeTable}
+
+\end{document}

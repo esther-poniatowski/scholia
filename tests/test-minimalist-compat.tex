@@ -1,0 +1,49 @@
+\documentclass[aspectratio=169]{beamer}
+\newcommand{\CommonPath}{../..}
+\usepackage[english,minimalistcompat]{\CommonPath/scholia/scholia}
+
+% Test: compatibility aliases compile when the option is enabled
+
+\headlineshowsprogressbar
+\scholiaBeamerSetup{progress color = orange}
+\setMinimalistTitleBackground{minimalist-paper-1.pdf}
+
+\begin{document}
+
+\begin{frame}{Symbol Commands}
+  Arrow down: \downarrowblack \quad
+  Arrow down (white): \downarrowwhite \quad
+  Bi-arrow: \twoheadsearrow \quad
+  Curve arrow: \droparrow
+
+  \bigskip
+
+  Light bulb: \lightbulb \quad
+  Observation: \observation \quad
+  Paper: \paper
+\end{frame}
+
+\begin{frame}{Ideaboxgray Compatibility}
+  \begin{ideaboxgray}[breakable]{Migrated Idea Box}
+    This uses the legacy \texttt{ideaboxgray} environment,
+    which delegates to \texttt{ideacard}.
+  \end{ideaboxgray}
+\end{frame}
+
+\begin{frame}{Legacy Utilities}
+  \setTitleBackground
+  \fadedoval{orange}{Legacy five-argument interface}{3.5}{2}{6}
+\end{frame}
+
+\begin{frame}{Explicit Background Path}
+  \setTitleBackground[minimalist-paper-1.pdf]
+  Explicit path override remains available.
+\end{frame}
+
+\begin{frame}{Native Ideacard}
+  \begin{ideacard}[title={Native Card}]
+    This uses the native \texttt{ideacard} environment directly.
+  \end{ideacard}
+\end{frame}
+
+\end{document}

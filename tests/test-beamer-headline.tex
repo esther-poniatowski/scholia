@@ -1,0 +1,47 @@
+\documentclass[aspectratio=169]{beamer}
+\newcommand{\CommonPath}{../..}
+\usepackage[english]{\CommonPath/scholia/scholia}
+
+% Test: all three headline modes compile and switch cleanly
+
+\begin{document}
+
+% --- Objective mode (default) ---
+\setobjective{Solve systems by linear combinations}
+\begin{frame}{Objective Mode}
+  The headline should display the objective banner.
+\end{frame}
+
+% --- Frametitle mode ---
+\headlineshowsframetitle
+\begin{frame}{Frametitle Mode}
+  The headline should be empty; the frametitle should display as a banner.
+\end{frame}
+
+% --- Progress-bar mode ---
+\headlineshowsprogressbar
+\begin{frame}{Progress-bar Mode}
+  The headline should show a thin progress bar.
+  The frametitle should have an underline and circled frame number.
+\end{frame}
+
+% --- Progress-bar mode with custom colors ---
+\scholiaBeamerSetup{progress color=blue, progress background color=blue!15, frametitle underline color=blue}
+\begin{frame}{Custom Progress-bar Colors}
+  Blue accent progress bar and underline.
+\end{frame}
+
+% --- Progress-bar mode without frame number ---
+\scholiaBeamerSetup{show frame number = false}
+\begin{frame}{No Frame Number}
+  The circled frame number should not appear.
+\end{frame}
+
+% --- Switch back to objective mode via keyed API ---
+\scholiaBeamerSetup{headline mode = objective}
+\setobjective{Back to objective mode}
+\begin{frame}{Back to Objective}
+  Headline should show the objective banner again.
+\end{frame}
+
+\end{document}
