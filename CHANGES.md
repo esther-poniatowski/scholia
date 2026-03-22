@@ -7,6 +7,26 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [Unreleased]
+
+### Removed
+
+- Legacy minimalist-theme compatibility APIs introduced in `0.2.0`:
+  - package option `minimalistcompat`
+  - package `beamer/scholia-minimalist-compat.sty`
+  - headline wrappers `\headlineshowsframetitle`, `\headlineshowsprogressbar`
+  - summary alias keys such as `concepts`, `exercises`, and `diagnostics`
+  - alias `\codeBox`
+  - internal `\CommonPath` path-resolution branch in `scholia.sty`
+
+### Changed
+
+- Summary helpers now expect the canonical typed-page keys directly
+- Documentation now describes `\CommonPath` only as a user-defined macro that
+  can be used in a local `\usepackage` path
+
+---
+
 ## [0.2.0] - 2026-03-20
 
 ### Added

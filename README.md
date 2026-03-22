@@ -37,7 +37,8 @@ Then load the package normally:
 \usepackage{scholia}
 ```
 
-Legacy repository layouts can still use the `\CommonPath` mechanism:
+For local repository builds, you can still define your own `\CommonPath` macro
+and use it in the package path:
 
 ```latex
 \newcommand{\CommonPath}{path/to}
@@ -95,7 +96,6 @@ $x = 3$
 | `interactive` | Enable OCG-based hide/reveal features (requires capable viewer) |
 | `noicons`     | Disable icon loading (text-only callouts)                       |
 | `minimal`     | Minimal dependencies (skips table packages, implies `noicons`)  |
-| `minimalistcompat` | Enable aliases for presentations migrated from the minimalist beamer theme |
 | `draft`       | Draft mode (for future use)                                     |
 
 ```latex
@@ -103,7 +103,6 @@ $x = 3$
 \usepackage[beamer]{scholia}
 \usepackage[interactive]{scholia}  % Enable hide/reveal
 \usepackage[minimal]{scholia}      % Reduced dependencies
-\usepackage[beamer,minimalistcompat]{scholia}
 ```
 
 ## Callout Types
@@ -272,10 +271,6 @@ Supported modes are:
 - `frametitle` — frametitle banner, empty headline
 - `progressbar` — thin progress bar in the headline and underlined frametitle
 
-Legacy wrappers remain supported:
-- `\headlineshowsframetitle`
-- `\headlineshowsprogressbar`
-
 Beamer utility helpers:
 
 ```latex
@@ -283,10 +278,6 @@ Beamer utility helpers:
 \bottomtext{Source: Author, Year}
 \fadedoval[color=blue!50, horizontal radius=3cm]{Key idea}
 ```
-
-The `minimalistcompat` option adds migration aliases for presentations that used
-the standalone minimalist theme, including `\setTitleBackground`,
-`\lightbulb`, `\observation`, and `ideaboxgray`.
 
 ## Shared Icon Helper
 

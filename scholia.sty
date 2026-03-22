@@ -49,7 +49,6 @@
 \newif\ifscholia@minimal\scholia@minimalfalse
 \newif\ifscholia@solutions\scholia@solutionsfalse
 \newif\ifscholia@interactive\scholia@interactivefalse
-\newif\ifscholia@minimalistcompat\scholia@minimalistcompatfalse
 
 % Declare options
 \DeclareOption{beamer}{\scholia@beamertrue}
@@ -60,7 +59,6 @@
 \DeclareOption{minimal}{\scholia@minimaltrue\scholia@noiconstrue}
 \DeclareOption{solutions}{\scholia@solutionstrue}
 \DeclareOption{interactive}{\scholia@interactivetrue}
-\DeclareOption{minimalistcompat}{\scholia@minimalistcompattrue}
 
 % Unknown option handler
 \DeclareOption*{%
@@ -85,33 +83,28 @@
 %% ==================================================================================================
 
 % Determine package installation path.
-% Resolve the package tree in the three layouts Scholia has to support:
-%   1. Legacy local installations via \CommonPath
-%   2. A source/build tree where scholia.sty sits next to the package subfolders
-%   3. An installed TDS tree rooted at scholia/
+% Resolve the package tree in the two layouts Scholia has to support:
+%   1. A source/build tree where scholia.sty sits next to the package subfolders
+%   2. An installed TDS tree rooted at scholia/
 %
 % \CurrentFilePathUsed usually identifies the directory that contains
 % scholia.sty, but some installed-use paths still leave it empty. The resolver
 % therefore probes for a known package file before it commits to a base path.
 
-\ifdefined\CommonPath
-  \def\scholia@basepath{\CommonPath/scholia}
-\else
-  \def\scholia@basepath{.}
-  \ifdefined\CurrentFilePathUsed
-    \edef\scholia@basepath{\CurrentFilePathUsed}
-  \fi
-  \ifx\scholia@basepath\@empty
-    \def\scholia@basepath{.}
-  \fi
-  \IfFileExists{\scholia@basepath/i18n/strings-en.tex}{}{%
-    \IfFileExists{scholia/i18n/strings-en.tex}{%
-      \def\scholia@basepath{scholia}%
-    }{%
-      \def\scholia@basepath{.}%
-    }%
-  }%
+\def\scholia@basepath{.}
+\ifdefined\CurrentFilePathUsed
+  \edef\scholia@basepath{\CurrentFilePathUsed}
 \fi
+\ifx\scholia@basepath\@empty
+  \def\scholia@basepath{.}
+\fi
+\IfFileExists{\scholia@basepath/i18n/strings-en.tex}{}{%
+  \IfFileExists{scholia/i18n/strings-en.tex}{%
+    \def\scholia@basepath{scholia}%
+  }{%
+    \def\scholia@basepath{.}%
+  }%
+}%
 
 % Add the package root to the input search path so internal modules can be
 % loaded through \RequirePackage using package-relative identifiers.
@@ -263,13 +256,6 @@
   \RequirePackage{progression/scholia-progression}
 \else
   \RequirePackage{summary/scholia-summary}
-\fi
-
-% --- Minimalist Compatibility (optional, beamer only) ---
-\ifscholia@beamer
-  \ifscholia@minimalistcompat
-    \RequirePackage{beamer/scholia-minimalist-compat}
-  \fi
 \fi
 
 % --- Interactive Module (optional, requires interactive option) ---

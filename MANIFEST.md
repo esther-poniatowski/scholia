@@ -33,7 +33,6 @@ with ‘‡’ are included in both.
 
 
 * scholia-headline.sty 
-* scholia-minimalist-compat.sty 
 * scholia-utilities.sty 
 
 ### Callout modules (`callouts/`)
@@ -198,7 +197,6 @@ with ‘‡’ are included in both.
 * test-cards.tex 
 * test-interactive-beamer.tex 
 * test-interactive.tex 
-* test-minimalist-compat.tex 
 * test-noicons-beamer.tex 
 * test-noicons.tex 
 * test-typedpages.tex 
@@ -206,7 +204,6 @@ with ‘‡’ are included in both.
 * test-cards.pdf 
 * test-interactive-beamer.pdf 
 * test-interactive.pdf 
-* test-minimalist-compat.pdf 
 * test-noicons-beamer.pdf 
 * test-noicons.pdf 
 * test-typedpages.pdf 
@@ -328,7 +325,6 @@ the package into a TeX distribution.
 
 
 * scholia-headline.sty 
-* scholia-minimalist-compat.sty 
 * scholia-utilities.sty 
 
 ### Callout modules (`callouts/`)
@@ -493,7 +489,6 @@ the package into a TeX distribution.
 * test-cards.tex 
 * test-interactive-beamer.tex 
 * test-interactive.tex 
-* test-minimalist-compat.tex 
 * test-noicons-beamer.tex 
 * test-noicons.tex 
 * test-typedpages.tex 
@@ -501,7 +496,6 @@ the package into a TeX distribution.
 * test-cards.pdf 
 * test-interactive-beamer.pdf 
 * test-interactive.pdf 
-* test-minimalist-compat.pdf 
 * test-noicons-beamer.pdf 
 * test-noicons.pdf 
 * test-typedpages.pdf 
@@ -547,7 +541,6 @@ The following groups list the files included in the CTAN package.
 
 
 * scholia-headline.sty 
-* scholia-minimalist-compat.sty 
 * scholia-utilities.sty 
 
 ### Callout modules (`callouts/`)
@@ -712,7 +705,6 @@ The following groups list the files included in the CTAN package.
 * test-cards.tex 
 * test-interactive-beamer.tex 
 * test-interactive.tex 
-* test-minimalist-compat.tex 
 * test-noicons-beamer.tex 
 * test-noicons.tex 
 * test-typedpages.tex 
@@ -720,7 +712,6 @@ The following groups list the files included in the CTAN package.
 * test-cards.pdf 
 * test-interactive-beamer.pdf 
 * test-interactive.pdf 
-* test-minimalist-compat.pdf 
 * test-noicons-beamer.pdf 
 * test-noicons.pdf 
 * test-typedpages.pdf 

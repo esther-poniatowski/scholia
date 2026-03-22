@@ -26,10 +26,6 @@
 % USAGE:
 %   \scholiaBeamerSetup{headline mode=progressbar}
 %   \scholiaBeamerSetup{progress color=blue, show frame number=false}
-%
-% Legacy wrappers (delegate to \scholiaBeamerSetup):
-%   \headlineshowsframetitle
-%   \headlineshowsprogressbar
 % ============================================================================
 
 
@@ -215,19 +211,6 @@
   \setbeamertemplate{headline}{\scholia@beamer@progressbartemplate}%
   \setbeamertemplate{frametitle}{\scholia@beamer@underlinetitle{\insertframetitle}}%
   \setbeamertemplate{footline}{}%
-}
-
-
-% ============================================================================
-% LEGACY WRAPPERS
-% ============================================================================
-
-\newcommand{\headlineshowsframetitle}{%
-  \scholiaBeamerSetup{headline mode=frametitle}%
-}
-
-\newcommand{\headlineshowsprogressbar}{%
-  \scholiaBeamerSetup{headline mode=progressbar}%
 }
 
 

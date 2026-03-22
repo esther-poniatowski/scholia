@@ -8,7 +8,8 @@
 % Build-safe package loading:
 % - l3build copies scholia.sty into the typesetting directory, so the local
 %   package name works there
-% - local repository builds can still fall back to the shared CommonPath layout
+% - local repository builds can still define \CommonPath themselves and use it
+%   in the package path if convenient
 \IfFileExists{scholia.sty}{%
   \usepackage{scholia}%
 }{%
@@ -222,7 +223,6 @@ when using the \texttt{beamer} document class.
 \opt{interactive} & Enable OCG-based hide/reveal commands \\
 \opt{noicons} & Disable icon loading for text-only output \\
 \opt{minimal} & Minimal dependencies; implies \opt{noicons} \\
-\opt{minimalistcompat} & Enable compatibility aliases for decks migrated from the minimalist theme \\
 \opt{draft} & Draft mode (reserved for future use) \\
 \bottomrule
 \end{tabular}
@@ -1016,9 +1016,6 @@ Supported keys are:
 \texttt{frametitle underline color},
 and \texttt{show frame number}.
 
-Legacy wrappers remain available:
-\cmd{headlineshowsframetitle} and \cmd{headlineshowsprogressbar}.
-
 \subsubsection{Slide-Composition Helpers}
 
 \begin{tabular}{@{}lp{8cm}@{}}
@@ -1040,31 +1037,6 @@ The \cmd{fadedoval} command accepts keys
 \texttt{outer tint},
 and \texttt{baseline skip}.
 
-\subsubsection{Minimalist Compatibility}
-
-The \opt{minimalistcompat} option enables aliases for decks migrated from the
-older minimalist Beamer theme.
-
-\begin{lstlisting}
-\usepackage[beamer,minimalistcompat]{scholia}
-\end{lstlisting}
-
-Available compatibility helpers include:
-\cmd{downarrowblack},
-\cmd{downarrowwhite},
-\cmd{twoheadsearrow},
-\cmd{droparrow},
-\cmd{lightbulb},
-\cmd{observation},
-\cmd{paper},
-the \env{ideaboxgray} environment alias,
-\cmd{setMinimalistTitleBackground\{path\}},
-and \cmd{setTitleBackground}.
-
-When \cmd{setTitleBackground} is called without an explicit path, it reuses the
-background path configured with \cmd{setMinimalistTitleBackground}. The
-compatibility layer also supports the legacy five-argument form of
-\cmd{fadedoval}.
 
 %% ---------------------------------------------------------------------------
 \subsection{Interactive PDF Toggles}

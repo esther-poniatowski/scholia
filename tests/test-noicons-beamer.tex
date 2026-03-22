@@ -1,24 +1,28 @@
 \documentclass[aspectratio=169]{beamer}
 \newcommand{\CommonPath}{../..}
-\usepackage[english,noicons,minimalistcompat]{\CommonPath/scholia/scholia}
+\usepackage[english,noicons]{\CommonPath/scholia/scholia}
 
-% Test: noicons mode also suppresses beamer headline and minimalist icons
+% Test: noicons mode suppresses beamer headline icons and inline icons
 
 \setobjective{No icon assets should load in beamer mode}
-\headlineshowsframetitle
+\scholiaBeamerSetup{headline mode=frametitle}
 
 \begin{document}
 
-\begin{frame}{Compatibility Macros Without Icons}
-  \lightbulb \paper \downarrowblack \observation \droparrow
+\begin{frame}{Inline Icons Without Assets}
+  \scholiaicon{minimalist-light-bulb.pdf}
+  \scholiaicon{minimalist-paper-1.pdf}
+  \scholiaicon{minimalist-down-arrow-black.pdf}
+  \scholiaicon{minimalist-observation.pdf}
+  \scholiaicon{minimalist-right-curve-arrow.pdf}
 \end{frame}
 
-\headlineshowsprogressbar
+\scholiaBeamerSetup{headline mode=progressbar}
 \begin{frame}{Progress-bar Mode Without Icons}
   Progress-bar mode should stay free of icon asset loads.
 \end{frame}
 
-\scholiaBeamerSetup{headline mode = objective}
+\scholiaBeamerSetup{headline mode=objective}
 \begin{frame}{Objective Banner Without Icons}
   Objective mode should use the text-only banner variant.
 \end{frame}
