@@ -1,13 +1,6 @@
 # Scholia
 
-**Educational document formatting for mathematics pedagogy**
-
-Scholia is a modular LaTeX package for structured educational documents and slide
-decks. It provides callouts, cards, typed pages, exercises, grading tools,
-beamer-specific headline utilities, interactive hide/reveal helpers, and a shared
-icon API. Documents should load the top-level package `scholia`; the internal
-module files under `base/`, `beamer/`, `cards/`, and related directories are
-implementation details, not stable public entry points.
+Modular LaTeX package for structured educational documents and Beamer presentations in mathematics teaching.
 
 ## Features
 
@@ -17,8 +10,8 @@ implementation details, not stable public entry points.
 - **Numbering Systems** — Structured steps, substeps, questions, and subquestions
 - **Exercises and Grading** — Guided exercises, rubrics, grading tables, and point tracking
 - **Beamer Tools** — Headline modes, objective banners, progress bars, and slide composition helpers
-- **Interactive Hide/Reveal** — OCG-based clickable content toggling for progressive disclosure
-- **Shared Icons** — One PDF-backed icon interface reused across the package
+- **Interactive Hide/Reveal** — Clickable content toggling based on OCG layers for progressive disclosure
+- **Shared Icons** — Single icon interface backed by PDF, reused across the package
 - **Code Listing Helpers** — Explicit `pythonlisting` and `scholialisting` environments without global `listings` side effects
 - **i18n Support** — French and English localizations
 
@@ -38,8 +31,7 @@ Then load the package normally:
 \usepackage{scholia}
 ```
 
-For local repository builds, you can still define your own `\CommonPath` macro
-and use it in the package path:
+For local repository builds, a custom `\CommonPath` macro can define the package path:
 
 ```latex
 \newcommand{\CommonPath}{path/to}
@@ -94,7 +86,7 @@ $x = 3$
 | `french`      | Use French strings                                              |
 | `beamer`      | Enable Beamer presentation mode                                 |
 | `solutions`   | Show solutions in exercises (via `\solutionBlank`)              |
-| `interactive` | Enable OCG-based hide/reveal features (requires capable viewer) |
+| `interactive` | Enable hide/reveal features based on OCG (requires capable viewer) |
 | `noicons`     | Disable icon loading (text-only callouts)                       |
 | `minimal`     | Minimal dependencies (skips table packages, implies `noicons`)  |
 | `draft`       | Draft mode (for future use)                                     |
@@ -293,7 +285,7 @@ across callouts, cards, exercises, typed pages, summaries, and beamer banners.
 
 ## Public Surface
 
-Load the top-level package:
+Load the package at the top level:
 
 ```latex
 \usepackage{scholia}
