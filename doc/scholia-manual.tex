@@ -251,6 +251,29 @@ To override specific strings, redefine the internal macros after loading \scholi
 \def\scholia@str@exo@label{Problem}
 \end{lstlisting}
 
+\subsection{Code Listings}
+
+\scholia provides explicit listing helpers and intentionally does not set a
+global default for the \pkg{listings} package. This avoids hidden inheritance
+when documents define their own local listing styles.
+
+\textbf{Generic code block with Scholia's neutral listing style:}
+
+\begin{lstlisting}
+\begin{scholialisting}[language=bash]
+git status
+\end{scholialisting}
+\end{lstlisting}
+
+\textbf{Python code block:}
+
+\begin{lstlisting}
+\begin{pythonlisting}
+def square(x):
+    return x * x
+\end{pythonlisting}
+\end{lstlisting}
+
 \subsection{Icons}
 
 Runtime icons are loaded from PDF files in \texttt{icons/pdf/}. The public icon

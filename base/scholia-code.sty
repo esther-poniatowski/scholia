@@ -21,13 +21,12 @@
 \definecolor{identifiercolor}{RGB}{166, 226, 46}   % lime green
 
 % ============================================================================
-% Python code style
+% Base code block style
 % DEPENDENCIES: listings, xcolor
-% PURPOSE: Define a consistent style for Python code listings
-% USAGE: \begin{lstlisting} ... \end{lstlisting}
+% PURPOSE: Define a neutral shared listing style without setting a global default
+% USAGE: \begin{scholialisting}[language=bash] ... \end{scholialisting}
 % ============================================================================
-\lstdefinestyle{python}{
-  language=Python,
+\lstdefinestyle{scholiaCode}{
   % Background and frame colors
   backgroundcolor=\color{codebackground},
   frame=single,
@@ -36,38 +35,58 @@
   framexleftmargin=3mm,
   % Typographic styles
   basicstyle=\ttfamily\small\color{black!90},
-  keywordstyle=\bfseries\color{keywordcolor},
-  stringstyle=\color{stringcolor},
-  commentstyle=\itshape\color{commentcolor},
   % Numbering and spacing
   numbers=left,
   numberstyle=\tiny\color{black!40},
   numbersep=8pt,
   stepnumber=1,
+  % UTF-8 and spacing
+  showstringspaces=false,
+  columns=fullflexible,
+  keepspaces=true,
+  breaklines=true,
+  breakatwhitespace=true,
+  postbreak=\mbox{\textcolor{red}{$\hookrightarrow$}\space},
+  tabsize=4,
+  showtabs=false
+}
+
+% ============================================================================
+% Python code style
+% DEPENDENCIES: listings, xcolor
+% PURPOSE: Define a consistent style for Python code listings
+% USAGE: \begin{pythonlisting} ... \end{pythonlisting}
+%        or \begin{lstlisting}[style=python] ... \end{lstlisting}
+% ============================================================================
+\lstdefinestyle{python}{
+  style=scholiaCode,
+  language=Python,
+  keywordstyle=\bfseries\color{keywordcolor},
+  stringstyle=\color{stringcolor},
+  commentstyle=\itshape\color{commentcolor},
   % Additional classified keywords
   keywords=[2]{self,cls,super,len,range,enumerate,zip,map,filter},
   keywordstyle=[2]\color{functioncolor},
   keywords=[3]{int,str,float,bool,list,dict,tuple,set},
   keywordstyle=[3]\color{operatorcolor},
   % UTF-8 configuration
-  showstringspaces=false,
-  columns=fullflexible,
-  keepspaces=true,
   inputencoding=utf8,
   extendedchars=true,
   literate={é}{{\'e}}1 {è}{{\`e}}1 {ê}{{\^e}}1 {ë}{{\"e}}1
     {à}{{\`a}}1 {â}{{\^a}}1 {ù}{{\`u}}1 {û}{{\^u}}1
     {ô}{{\^o}}1 {î}{{\^i}}1 {ï}{{\"i}}1 {ç}{{\c{c}}}1,
-  % Line breaking
-  breaklines=true,
-  breakatwhitespace=true,
-  postbreak=\mbox{\textcolor{red}{$\hookrightarrow$}\space},
-  % Tabulations
-  tabsize=4,
-  showtabs=false
+  identifierstyle=\color{black!90}
 }
 
-\lstset{style=python} % Set Python style as default
+% Explicit listing environments. Scholia intentionally does not set a global
+% \lstset default so project-local styles can coexist without hidden inheritance.
+\lstnewenvironment{scholialisting}[1][]{%
+  \lstset{style=scholiaCode,#1}%
+}{}
+
+\lstnewenvironment{pythonlisting}[1][]{%
+  \lstset{style=python,#1}%
+}{}
 
 % ============================================================================
 % Commands for inline code

@@ -24,6 +24,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Summary helpers now expect the canonical typed-page keys directly
 - Documentation now describes `\CommonPath` only as a user-defined macro that
   can be used in a local `\usepackage` path
+- Code listings are now explicit:
+  - `base/scholia-code.sty` no longer sets a global `\lstset{style=python}`
+  - use `\begin{pythonlisting}...\end{pythonlisting}` or
+    `\begin{scholialisting}[language=bash]...\end{scholialisting}` when you want
+    Scholia's listing styles
 
 ---
 

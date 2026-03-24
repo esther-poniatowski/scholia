@@ -19,6 +19,7 @@ implementation details, not stable public entry points.
 - **Beamer Tools** — Headline modes, objective banners, progress bars, and slide composition helpers
 - **Interactive Hide/Reveal** — OCG-based clickable content toggling for progressive disclosure
 - **Shared Icons** — One PDF-backed icon interface reused across the package
+- **Code Listing Helpers** — Explicit `pythonlisting` and `scholialisting` environments without global `listings` side effects
 - **i18n Support** — French and English localizations
 
 ## Installation
