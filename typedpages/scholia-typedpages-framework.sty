@@ -128,17 +128,12 @@
       };
     \fi
 
-    % Type name curved above circle
-    \path[
-      decoration={
-        text along path,
-        text={\scholia@typedpage@currenttype},
-        text align=center,
-        text color=\scholia@typedpage@currentcolor
-      },
-      decorate,
-      font=\sffamily\bfseries\fontseries{b}\selectfont\small
-    ] ([xshift=-2.3em, yshift=-1.4em]icon.north) arc [start angle=180, end angle=0, radius=2.2em];
+    % Type name above circle
+    \node[
+      anchor=south,
+      font=\sffamily\bfseries\fontseries{b}\selectfont\small,
+      text=\scholia@typedpage@currentcolor
+    ] at ([yshift=0.3em]icon.north) {\scholia@typedpage@currenttype};
 
     % Right section: Chapter and topic box
     \node[

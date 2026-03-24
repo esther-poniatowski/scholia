@@ -262,6 +262,12 @@
 \let\s\squaremark
 \let\subs\squaresubmark
 
+% Public counter alias so \setcounter{stepnum}{0} resets step numbering
+\makeatletter
+\let\c@stepnum\c@scholia@squarednum
+\def\thestepnum{\thescholia@squarednum}
+\makeatother
+
 % --- Exercise Questions (circled items) ---
 % Use case: Exercise questions, exam problems, numbered tasks
 \let\question\circleditem
