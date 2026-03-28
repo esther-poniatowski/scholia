@@ -1,6 +1,6 @@
 # Scholia
 
-Modular LaTeX package for structured educational documents and Beamer presentations in mathematics teaching.
+Structures mathematics course documents and Beamer presentations through modular LaTeX macros.
 
 ## Features
 
