@@ -29,32 +29,35 @@ these environments with inconsistent interfaces and styling.
 
 ### Advantages
 
-- **Unified environment library** — 13 callout types, exercise environments, grading
-  tools, and numbering systems through a single `\usepackage{scholia}`.
+- **Unified environment library** — a single `\usepackage{scholia}` loads 13 callout
+  types, exercise environments, grading tools, and numbering systems.
 - **Beamer integration** — headline modes, objective banners, progress bars, and slide
-  composition helpers for presentations.
-- **Interactive features** — clickable hide/reveal based on OCG layers for progressive
-  disclosure in PDFs.
-- **i18n support** — French and English localizations.
+  composition helpers integrate directly into presentations.
+- **Interactive features** — clickable hide/reveal toggles content visibility through
+  OCG layers for progressive disclosure in PDFs.
+- **i18n support** — localizations cover French and English.
 
 ---
 
 ## Features
 
-- **Callouts** — 13 styled callout types (definition, theorem, proof, warning, error,
-  tip, method, notation, objective, summary, remark, question, instruction) plus
-  concise and title-only variants.
-- **Cards** — Floating-label card callouts with badge icons and custom presets.
-- **Typed Pages** — Standalone page banners, full-page wrappers, and summary/keypoint
-  helpers.
-- **Numbering Systems** — Structured steps, substeps, questions, and subquestions.
-- **Exercises and Grading** — Guided, semi-guided, autonomous, and modeling exercises;
-  rubrics, grading tables, and point tracking.
-- **Beamer Tools** — Headline modes, objective banners, progress bars, and slide
-  composition helpers.
-- **Interactive Hide/Reveal** — Clickable content toggling based on OCG layers.
-- **Code Listings** — Explicit `pythonlisting` and `scholialisting` environments
-  without global `listings` side effects.
+- [x] **Callouts**: Render 13 styled callout types (definition, theorem, proof,
+  warning, error, tip, method, notation, objective, summary, remark, question,
+  instruction) plus concise and title-only variants.
+- [x] **Cards**: Display floating-label card callouts with badge icons and custom
+  presets.
+- [x] **Typed Pages**: Insert standalone page banners, full-page wrappers, and
+  summary/keypoint helpers.
+- [x] **Numbering Systems**: Track structured steps, substeps, questions, and
+  subquestions.
+- [x] **Exercises and Grading**: Compose guided, semi-guided, autonomous, and modeling
+  exercises with rubrics, grading tables, and point tracking.
+- [x] **Beamer Tools**: Configure headline modes, objective banners, progress bars, and
+  slide composition helpers.
+- [x] **Interactive Hide/Reveal**: Toggle content visibility through clickable OCG
+  layers.
+- [x] **Code Listings**: Typeset code with `pythonlisting` and `scholialisting`
+  environments without global `listings` side effects.
 
 ---
 
