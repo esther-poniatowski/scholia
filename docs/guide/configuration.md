@@ -55,7 +55,7 @@ Options are passed at load time:
 
 ## Internal Structure
 
-The internal files under `base/`, `beamer/`, `callouts/`, `cards/`,
-`typedpages/`, `grading/`, `exercises/`, and related directories are part of
-the implementation layout. They are documented for maintainers but are not a
-stable public interface for external documents.
+These internal files under `base/`, `beamer/`, `callouts/`, `cards/`,
+`typedpages/`, `grading/`, `exercises/`, and related directories form the
+implementation layout. The source code documents the modules for maintainers,
+but the internal API is not stable for external documents.
