@@ -85,15 +85,38 @@
 %   - Style "callout layout" must be defined in callouts/scholia-callouts-framework.sty
 % ============================================================================
 
+% --- Per-call icon override mechanism ---------------------------------------
+% A tcolorbox key `box icon=<filename>` lets the user override the default
+% type-specific icon at the call site. The icon filename is stored in
+% \scholia@callout@iconoverride and consumed by \scholia@callout@title.
+% Empty value = no override (use the type's default icon).
+\newcommand{\scholia@callout@iconoverride}{}
+\tcbset{
+  box icon/.store in=\scholia@callout@iconoverride,
+  box icon/.default={},
+}
+
+% Resolve the icon to render: use override if non-empty, else type default.
+% #1 = type-default icon filename
+\newcommand{\scholia@callout@resolveicon}[1]{%
+  \ifx\scholia@callout@iconoverride\@empty
+    #1%
+  \else
+    \scholia@callout@iconoverride
+  \fi
+}
+
 \newcommand{\scholia@callout@newtype}[1]{%
   % Create the box environment with two optional arguments:
   %   #1 = title text (default: empty)
   %   #2 = tcolorbox options (default: empty)
   \NewDocumentEnvironment{#1box}{O{} O{}}{%
+    % Reset per-call icon override before each invocation
+    \renewcommand{\scholia@callout@iconoverride}{}%
     \begin{tcolorbox}[%
       callout layout=scholia-#1,
-      title={\scholia@callout@title{\csname scholia@callout@icon@#1\endcsname}{##1}},
-      ##2%
+      ##2,%
+      title={\scholia@callout@title{\scholia@callout@resolveicon{\csname scholia@callout@icon@#1\endcsname}}{##1}},
     ]%
   }{\end{tcolorbox}}%
   % Create the mark (compact inline) environment
