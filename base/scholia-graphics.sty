@@ -137,4 +137,106 @@
 }
 
 
+% ============================================================================
+% FLAT ARROW (closed-path filled arrow as an inline graphic)
+% PURPOSE: Emit a single filled arrow drawn as one closed tikz path. Useful as
+%          a directional separator between vertically- or horizontally-stacked
+%          slide elements (e.g. between a header box and a comment beneath).
+%
+% USAGE
+%   \scholiaArrow{<color>}                           % defaults, downward
+%   \scholiaArrow[<key=value, ...>]{<color>}         % override defaults
+%
+% KEYS (all numeric values are TeX dimensions or unit-less numbers)
+%   direction = down | up | left | right            (default: down)
+%   length    = <dim>     total tip-to-tail length    (default: 0.6cm)
+%   width     = <dim>     half-width of the arrow head (default: 0.20cm)
+%   shaft     = <dim>     half-width of the shaft     (default: 0.10cm)
+%   head      = <dim>     length of the arrowhead     (default: 0.35cm)
+%   opacity   = <0..1>    fill opacity                (default: 1.0)
+%   border    = <color>   draw color (empty = no draw, fill only) (default: empty)
+%   border width = <dim>  pen width when border is set (default: 0.4pt)
+%
+% EXAMPLES
+%   \scholiaArrow{geomblue}
+%   \scholiaArrow[length=1cm, width=0.30cm, head=0.45cm]{red}
+%   \scholiaArrow[direction=right, opacity=0.7]{black!60}
+%
+% IMPLEMENTATION NOTES
+% Geometry is built around a "down" arrow centered at (0,0):
+%   tail rectangle from (-shaft, length/2) down to (shaft, head-length/2)
+%   triangular head from (width, head-length/2) to (0, -length/2) to (-width, ...)
+% Other directions are produced by rotating the path.
+% ============================================================================
+
+\pgfkeys{
+  /scholia/arrow/.is family,
+  /scholia/arrow,
+  direction/.initial    = down,
+  length/.initial       = 0.6cm,
+  width/.initial        = 0.20cm,
+  shaft/.initial        = 0.10cm,
+  head/.initial         = 0.35cm,
+  opacity/.initial      = 1.0,
+  border/.initial       = ,
+  border width/.initial = 0.4pt,
+}
+
+\newcommand{\scholia@arrow@get}[1]{\pgfkeysvalueof{/scholia/arrow/#1}}
+
+% Direction sentinels (used by \ifx comparisons in the renderer)
+\def\scholia@arrow@dirdown{down}
+\def\scholia@arrow@dirup{up}
+\def\scholia@arrow@dirleft{left}
+\def\scholia@arrow@dirright{right}
+
+\NewDocumentCommand{\scholiaArrow}{O{} m}{%
+  \begingroup
+    % Reset to defaults then apply user overrides
+    \pgfkeys{/scholia/arrow,
+      direction=down, length=0.6cm, width=0.20cm,
+      shaft=0.10cm, head=0.35cm, opacity=1.0,
+      border=, border width=0.4pt,
+      #1%
+    }%
+    \edef\scholia@arrow@dir{\scholia@arrow@get{direction}}%
+    \edef\scholia@arrow@len{\scholia@arrow@get{length}}%
+    \edef\scholia@arrow@wid{\scholia@arrow@get{width}}%
+    \edef\scholia@arrow@sha{\scholia@arrow@get{shaft}}%
+    \edef\scholia@arrow@hed{\scholia@arrow@get{head}}%
+    \edef\scholia@arrow@op{\scholia@arrow@get{opacity}}%
+    \edef\scholia@arrow@bw{\scholia@arrow@get{border width}}%
+    \edef\scholia@arrow@bd{\scholia@arrow@get{border}}%
+    % Choose rotation per direction (down = 0 deg, others rotate the down arrow)
+    \def\scholia@arrow@rot{0}%
+    \ifx\scholia@arrow@dir\scholia@arrow@dirdown
+    \else\ifx\scholia@arrow@dir\scholia@arrow@dirup
+      \def\scholia@arrow@rot{180}%
+    \else\ifx\scholia@arrow@dir\scholia@arrow@dirleft
+      \def\scholia@arrow@rot{90}%
+    \else\ifx\scholia@arrow@dir\scholia@arrow@dirright
+      \def\scholia@arrow@rot{-90}%
+    \fi\fi\fi\fi
+    % Render
+    \begin{tikzpicture}[baseline=-0.5ex, rotate=\scholia@arrow@rot,
+        every path/.style={fill opacity=\scholia@arrow@op}]
+      \pgfmathsetlengthmacro{\scholia@arrow@halflen}{0.5*\scholia@arrow@len}%
+      \pgfmathsetlengthmacro{\scholia@arrow@neckY}{\scholia@arrow@halflen - \scholia@arrow@hed}%
+      \ifx\scholia@arrow@bd\@empty
+        \fill[#2]
+      \else
+        \filldraw[fill=#2, draw=\scholia@arrow@bd, line width=\scholia@arrow@bw]
+      \fi
+        (-\scholia@arrow@sha,  \scholia@arrow@halflen) --
+        ( \scholia@arrow@sha,  \scholia@arrow@halflen) --
+        ( \scholia@arrow@sha,  \scholia@arrow@neckY) --
+        ( \scholia@arrow@wid,  \scholia@arrow@neckY) --
+        ( 0pt,                -\scholia@arrow@halflen) --
+        (-\scholia@arrow@wid,  \scholia@arrow@neckY) --
+        (-\scholia@arrow@sha,  \scholia@arrow@neckY) -- cycle;
+    \end{tikzpicture}%
+  \endgroup
+}
+
+
 \endinput
