@@ -42,3 +42,6 @@ tests/*.toc
 
 test-*.fls
 test-*.log
+
+## Claude Code skill-generated backups
+.claude/*.bak.*
