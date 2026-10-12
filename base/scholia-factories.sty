@@ -90,7 +90,9 @@
 % type-specific icon at the call site. The icon filename is stored in
 % \scholia@callout@iconoverride and consumed by \scholia@callout@title.
 % Empty value = no override (use the type's default icon).
-\newcommand{\scholia@callout@iconoverride}{}
+% The starred forms define a short macro, as \@empty and `.store in' do: \ifx compares the
+% \long status, so a \long empty macro never equals \@empty and an empty override would win.
+\newcommand*{\scholia@callout@iconoverride}{}
 \tcbset{
   box icon/.store in=\scholia@callout@iconoverride,
   box icon/.default={},
@@ -112,7 +114,7 @@
   %   #2 = tcolorbox options (default: empty)
   \NewDocumentEnvironment{#1box}{O{} O{}}{%
     % Reset per-call icon override before each invocation
-    \renewcommand{\scholia@callout@iconoverride}{}%
+    \renewcommand*{\scholia@callout@iconoverride}{}%
     \begin{tcolorbox}[%
       callout layout=scholia-#1,
       ##2,%
