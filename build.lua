@@ -13,10 +13,10 @@ module = "scholia"
 
 local regression_test_files = {
   "test-beamer-headline.tex",
+  "test-beamer-lists.tex",
   "test-cards.tex",
   "test-interactive.tex",
   "test-interactive-beamer.tex",
-  "test-minimalist-compat.tex",
   "test-noicons.tex",
   "test-noicons-beamer.tex",
   "test-typedpages.tex",

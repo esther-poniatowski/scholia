@@ -1,0 +1,31 @@
+\documentclass[aspectratio=169]{beamer}
+\newcommand{\CommonPath}{../..}
+\usepackage[english]{\CommonPath/scholia/scholia}
+
+% Test: lists in beamer mode. A beamer enumerate must typeset (enumitem must not replace it), with
+% its overlay specifications, and an itemize must keep the scholia list settings.
+
+\setobjective{Lists typeset in beamer mode}
+
+\begin{document}
+
+\begin{frame}{Numbered List}
+  \begin{enumerate}
+    \item First item.
+    \item<2-> Second item, revealed on the second slide.
+    \item Third item, with a nested list:
+      \begin{enumerate}
+        \item nested first;
+        \item nested second.
+      \end{enumerate}
+  \end{enumerate}
+\end{frame}
+
+\begin{frame}{Bulleted List}
+  \begin{itemize}
+    \item First bullet.
+    \item Second bullet.
+  \end{itemize}
+\end{frame}
+
+\end{document}

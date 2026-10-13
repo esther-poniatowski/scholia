@@ -184,7 +184,18 @@
 % -----------------------------------------------------------------------------
 % LISTS (required for exercises)
 % -----------------------------------------------------------------------------
+% Under beamer, the enumerate of enumitem recurses inside the beamer list machinery until TeX
+% exhausts its grouping levels, on the first enumerate of the document. The beamer enumerate is
+% therefore saved before enumitem loads and restored after it; itemize keeps the enumitem settings.
+\ifscholia@beamer
+  \let\scholia@beamerenumerate\enumerate
+  \let\scholia@endbeamerenumerate\endenumerate
+\fi
 \@ifpackageloaded{enumitem}{}{\RequirePackage{enumitem}}
+\ifscholia@beamer
+  \let\enumerate\scholia@beamerenumerate
+  \let\endenumerate\scholia@endbeamerenumerate
+\fi
 
 % -----------------------------------------------------------------------------
 % TABLES (required for grading - conditional in minimal mode)

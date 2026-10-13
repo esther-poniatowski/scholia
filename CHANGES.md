@@ -30,6 +30,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     `\begin{scholialisting}[language=bash]...\end{scholialisting}` when you want
     Scholia's listing styles
 
+### Fixed
+
+- `enumerate` typesets under beamer: the beamer list is kept when `enumitem`
+  loads, whose replacement exhausted the grouping levels of TeX on the first
+  numbered list of a deck; the regression test `test-beamer-lists.tex` covers it
+- The regression suite no longer lists `test-minimalist-compat.tex`, removed
+  with the compatibility layer, so `l3build check` runs to completion
+
 ---
 
 ## [0.2.0] - 2026-03-20

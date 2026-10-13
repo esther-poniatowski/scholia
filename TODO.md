@@ -1,0 +1,4 @@
+# Scholia task list
+
+- [ ] Fit the beamer headline banner inside its box. In `beamer/scholia-headline.sty`, `\scholia@beamer@banner` places a TikZ picture whose width (the icon disc, a 6 pt gap and a text node of `0.91\paperwidth`) exceeds the box that holds it, which is `\paperwidth` wide but inset by `\beamer@leftmargin` and `\beamer@rightmargin`. Every frame of a deck in `objective` or `frametitle` mode therefore reports an overfull `\hbox` of about 49 pt. The text width must be derived from `\paperwidth`, the two margins, the icon and the gap; the change moves the right edge of the banner on every deck, so it needs a visual review.
+- [ ] Regenerate `MANIFEST.md` with `l3build manifest` at the next release. The listing predates the files added since 0.2.0, among them the icon `message-circle-question-mark-black` and the regression test `tests/test-beamer-lists.tex`.
