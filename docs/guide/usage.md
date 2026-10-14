@@ -50,6 +50,18 @@ Available callout types:
 | `questionbox` | Questions | Blue |
 | `instructionbox` | Instructions | Gray |
 
+### Icon Override
+
+The `box icon` key replaces the icon of one callout box. It is passed with the tcolorbox keys, in the second optional argument, and names a PDF icon as `\scholiaicon` does:
+
+```latex
+\begin{questionbox}[How do the two levels relate?][box icon=message-circle-question-mark-black.pdf]
+...
+\end{questionbox}
+```
+
+The override holds for that box alone, since every box resets it before reading its keys. An empty value keeps the default icon of the type. The `<type>mark` banners take no icon override.
+
 ### Title-Only Variants
 
 Each callout has a banner command for title-only markers:
